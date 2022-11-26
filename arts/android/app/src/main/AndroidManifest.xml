@@ -3,7 +3,11 @@
    <application
         android:label="arts"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
+
+       <meta-data android:name="com.google.android.geo.API_KEY"
+           android:value="${mapsApiKey}"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -31,4 +35,5 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
