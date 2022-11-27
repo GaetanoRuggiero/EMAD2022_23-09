@@ -25,6 +25,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
+def mapsApiKey= localProperties.getProperty('mapsApiKey')
+
 android {
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
@@ -43,7 +45,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        manifestPlaceholders += [mapsApiKey : "$System.env.MAPS_API_KEY"]
+        manifestPlaceholders += [mapsApiKey : mapsApiKey]
     }
 
     buildTypes {
