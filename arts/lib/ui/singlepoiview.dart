@@ -22,8 +22,9 @@ class SinglePOIView extends StatelessWidget {
         body: Column(
           children: [
             Container(
+              height: 350.0,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Image.network(poiURL),
+              child: Image.network(poiURL, fit: BoxFit.fitHeight),
             ),
             Expanded(
               child: Container(

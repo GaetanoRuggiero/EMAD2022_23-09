@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './styles.dart';
 import './sidequest.dart';
+import './collection.dart';
 import '../utils/maps.dart';
 
 class HomePage extends StatefulWidget {
@@ -121,7 +122,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           child: const Icon(Icons.auto_stories,
                               color: Colors.white),
                           onPressed: () {
-                            debugPrint('Collezione');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const Collection()),
+                            );
                           })),
                 ),
                 Transform.translate(
