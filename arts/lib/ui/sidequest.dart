@@ -11,7 +11,9 @@ class SideQuest extends StatelessWidget {
         centerTitle: true,
         title: const Text("Missioni"),
         actions: <Widget>[
-          IconButton(onPressed: () {},
+          IconButton(onPressed: () {
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          },
               icon: const Icon(Icons.home_rounded))
         ],
       ),
