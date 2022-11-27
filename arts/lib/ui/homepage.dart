@@ -1,3 +1,4 @@
+import 'package:arts/ui/profilo.dart';
 import 'package:flutter/material.dart';
 import './styles.dart';
 import './sidequest.dart';
@@ -81,7 +82,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       child: const Icon(Icons.person,
                           color: Colors.white),
                       onPressed: () {
-                        debugPrint('Profilo');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Profilo()),
+                        );
                       }),
                 ),
                 ElevatedButton(
