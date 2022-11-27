@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './styles.dart';
+import './sidequest.dart';
 import '../utils/maps.dart';
 
 class HomePage extends StatefulWidget {
@@ -87,7 +88,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     child:
                         const Icon(Icons.mark_chat_unread, color: Colors.white),
                     onPressed: () {
-                      debugPrint('Eventi');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SideQuest()),
+                      );
                     }),
               ],
             ),
