@@ -7,20 +7,20 @@ class Profilo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {},
-          ),
-          title: Text("Profilo"),
+          title: const Text("Profilo"),
           actions: <Widget>[
-            IconButton(onPressed: () {}, icon: Icon(Icons.home_rounded))
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                icon: const Icon(Icons.home_rounded))
           ],
         ),
         body: Stack(
-          children: [ElevatedCard()],
+          children: const [ElevatedCard()],
         )
-      // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        // This trailing comma makes auto-formatting nicer for build methods.
+        );
   }
 }
 
@@ -32,23 +32,23 @@ class ElevatedCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        FittedBox(),
+        const FittedBox(),
         Container(
-          margin: EdgeInsets.fromLTRB(0, 30, 0, 0),
+          margin: const EdgeInsets.fromLTRB(0, 30, 0, 0),
           child: Column(
             children: [
               Row(
                 children: [
-                  Icon(size: 70, Icons.account_circle),
+                  const Icon(size: 70, Icons.account_circle),
                   IconButton(
                       alignment: Alignment.bottomLeft,
                       padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
+                      constraints: const BoxConstraints(),
                       onPressed: () {},
-                      icon: Icon(size: 15, Icons.edit)),
+                      icon: const Icon(size: 15, Icons.edit)),
                 ],
               ),
-              Text(textAlign: TextAlign.left, "nome Utente"),
+              const Text(textAlign: TextAlign.left, "nome Utente"),
             ],
           ),
         ),
@@ -66,20 +66,5 @@ class ElevatedCard extends StatelessWidget {
         )
       ],
     );
-    /*Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      child: SizedBox(
-          width: 300,
-          height: 150,
-          child: Row(children: <Widget>[
-            Column(children: <Widget>[
-              Icon(size: 70, Icons.account_circle),
-              Text("nome Utente"),
-            ]),
-            IconButton(onPressed: () {}, icon: Icon(size: 15, Icons.edit)),
-            Column()
-          ])),
-    );*/
   }
 }
