@@ -18,47 +18,53 @@ class Profile extends StatelessWidget {
                 icon: const Icon(Icons.home_rounded))
           ],
         ),
-        body: Column(children: [
-          Stack(
+        body: Column(
             children: [
-              Container(
-                alignment: Alignment.center,
-                margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                child: Column(
-                  children: const [
-                    Icon(size: 70, Icons.account_circle),
-                    Text("Utente"),
-                    SeasonCard(),
-                  ],
-                ),
-              ),
-              Positioned(
-                right: 0,
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                  child: Column(
-                    children: [
-                      IconButton(
-                          color: const Color(0xFFEB9E5C),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                            );
-                          },
-                          icon: const Icon(size: 30, Icons.settings)
-                      ),
-                      IconButton(
-                          color: const Color(0xFFEB9E5C),
-                          onPressed: (){},
-                          icon: const Icon(size: 25, FontAwesomeIcons.gift)
-                      ),
-                    ],
+              Stack(
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                    child: Column(
+                      children: const [
+                        Icon(size: 70, Icons.account_circle),
+                        Text("Utente"),
+                        SeasonCard(),
+                      ],
+                    ),
                   ),
-                ),
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                      child: Column(
+                        children: [
+                          IconButton(
+                              color: const Color(0xFFEB9E5C),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const SettingsScreen()),
+                                );
+                              },
+                              icon: const Icon(size: 30, Icons.settings)),
+                          IconButton(
+                              color: const Color(0xFFEB9E5C),
+                              onPressed: () {},
+                              icon: const Icon(size: 25, FontAwesomeIcons.gift)),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+              Stack(
+                children: const [
+
+                ],
               )
-            ],
-          ),
         ]
         )
     );
@@ -75,27 +81,24 @@ class SeasonCard extends StatelessWidget {
     String month = now.month.toString();
     String year = now.year.toString();
     return Card(
-      borderOnForeground: true,
+      margin: const EdgeInsets.only(top: 10),
       elevation: 4,
-      margin: const EdgeInsets.only(left: 60, right: 60, top: 10),
       color: const Color(0xFFEB9E5C),
       child: Container(
-        width: 300,
+        padding: const EdgeInsets.only(left: 20, right: 10),
         height: 50,
-        padding: const EdgeInsets.only(right: 20),
-        child: Stack(
-          alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text("La stagione termina il $day/$month/$year"),
-            Positioned(
-              right: 0,
-              child: IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () {
-                    //TODO: link to page with season rewards
-                  },
-                  icon: const Icon(Icons.navigate_next)),
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () {
+                //TODO: link to page with season rewards
+              },
+              icon: const Icon(Icons.navigate_next)
             ),
           ],
         ),
