@@ -4,14 +4,14 @@ import 'package:ionicons/ionicons.dart';
 bool isSwitched = false;
 
 
-class SettingScreen extends StatefulWidget {
-  const SettingScreen({Key? key}) : super(key: key);
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
 
   @override
-  State<SettingScreen> createState() => _SettingScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingScreenState extends State<SettingScreen> {
+class _SettingsScreenState extends State<SettingsScreen> {
 
   final Container iconArrow = Container(
     child: IconButton(
@@ -36,123 +36,125 @@ class _SettingScreenState extends State<SettingScreen> {
               icon: const Icon(Icons.home_rounded)),
         ],
       ),
-      body: SafeArea(
-        child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
 
-                    const Text("Lingua e tema",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        )
-                    ),
+                      const Text("Lingua e tema",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          )
+                      ),
 
-                    const SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
-                    SettingsTile(
-                        cont: iconArrow,
-                        icon: Ionicons.language,
-                        title: "Lingua"),
+                      SettingsTile(
+                          cont: iconArrow,
+                          icon: Ionicons.language,
+                          title: "Lingua"),
 
-                    const SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
-                    SettingsTile(
-                      icon: Ionicons.color_palette_outline,
-                      title: "Tema scuro",
-                      cont: Container(
-                        child: Switch(
-                          activeColor: Colors.grey,
-                          value: isSwitched,
-                          onChanged: (value) {
-                            setState(() {
-                              isSwitched = !isSwitched;
-                            });
-                          },
+                      SettingsTile(
+                        icon: Ionicons.color_palette_outline,
+                        title: "Tema scuro",
+                        cont: Container(
+                          child: Switch(
+                            activeColor: Colors.grey,
+                            value: isSwitched,
+                            onChanged: (value) {
+                              setState(() {
+                                isSwitched = !isSwitched;
+                              });
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Colors.white,
+                    ],
+                  ),
                 ),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                const SizedBox(height: 30),
 
-                    const Text("Account",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        )
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: Colors.white,
+                  ),
 
-                    const SizedBox(height: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
 
-                    SettingsTile(
-                        cont: iconArrow,
-                        icon: Icons.account_circle,
-                        title: "Info account"
-                    ),
+                      const Text("Account",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          )
+                      ),
 
-                    const SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
-                    SettingsTile(
-                        cont: iconArrow,
-                        icon: Ionicons.log_out_outline,
-                        title: "Logout"
-                    ),
-                  ],
+                      SettingsTile(
+                          cont: iconArrow,
+                          icon: Icons.account_circle,
+                          title: "Info account"
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      SettingsTile(
+                          cont: iconArrow,
+                          icon: Ionicons.log_out_outline,
+                          title: "Logout"
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 30),
+                const SizedBox(height: 30),
 
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Colors.white,
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: Colors.white,
+                  ),
+
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                      const Text("Info",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      SettingsTile(
+                          cont: iconArrow,
+                          icon: Ionicons.information_circle_sharp,
+                          title: "Info e riconoscimenti"
+                      ),
+                    ],
+                  ),
                 ),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    const Text("Info",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    SettingsTile(
-                        cont: iconArrow,
-                        icon: Ionicons.information_circle_sharp,
-                        title: "Info e riconoscimenti"
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

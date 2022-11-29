@@ -43,7 +43,7 @@ class Profile extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const SettingScreen()),
+                              MaterialPageRoute(builder: (context) => const SettingsScreen()),
                             );
                           },
                           icon: const Icon(size: 30, Icons.settings)
