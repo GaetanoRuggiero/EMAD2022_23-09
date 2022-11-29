@@ -7,12 +7,12 @@ class TourListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Color(0xffE68532)),
-            onPressed: () {}),
         centerTitle: true,
         title: const Text("Lista itinerari"),
         actions: <Widget>[
-          IconButton(onPressed: () {},
+          IconButton(onPressed: () {
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          },
               icon: const Icon(Icons.home_rounded,))
         ],
       ),
