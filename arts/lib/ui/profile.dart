@@ -1,3 +1,4 @@
+import 'package:arts/ui/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -38,16 +39,20 @@ class Profile extends StatelessWidget {
                   child: Column(
                     children: [
                       IconButton(
-                        color: const Color(0xFFEB9E5C),
-                        onPressed: (){},
-                        icon: const Icon(size: 30, Icons.settings)
+                          color: const Color(0xFFEB9E5C),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const SettingScreen()),
+                            );
+                          },
+                          icon: const Icon(size: 30, Icons.settings)
                       ),
                       IconButton(
-                        color: const Color(0xFFEB9E5C),
-                        onPressed: (){},
-                        icon: const Icon(size: 25, FontAwesomeIcons.gift)
-                      )
-                      ,
+                          color: const Color(0xFFEB9E5C),
+                          onPressed: (){},
+                          icon: const Icon(size: 25, FontAwesomeIcons.gift)
+                      ),
                     ],
                   ),
                 ),
