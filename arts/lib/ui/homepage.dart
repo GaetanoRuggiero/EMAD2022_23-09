@@ -1,9 +1,11 @@
-import 'package:arts/ui/profilo.dart';
 import 'package:flutter/material.dart';
 import './styles.dart';
+import './profilo.dart';
 import './sidequest.dart';
 import './collection.dart';
+import './takepicture.dart';
 import '../utils/maps.dart';
+import '../main.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -145,7 +147,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           child: const Icon(Icons.camera_alt,
                               color: Colors.white),
                           onPressed: () {
-                            debugPrint('Riconoscimento opera');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera)),
+                            );
                           })),
                 ),
                 Transform.translate(
