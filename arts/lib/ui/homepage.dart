@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import './styles.dart';
-import './profilo.dart';
+import './profile.dart';
 import './sidequest.dart';
 import './collection.dart';
 import './takepicture.dart';
@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const Profilo()),
+                          MaterialPageRoute(builder: (context) => const Profile()),
                         );
                       }),
                 ),
