@@ -4,6 +4,7 @@ import './profilo.dart';
 import './sidequest.dart';
 import './collection.dart';
 import './takepicture.dart';
+import './tourlistscreen.dart';
 import '../utils/maps.dart';
 import '../main.dart';
 
@@ -166,7 +167,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           child: const Icon(Icons.location_on,
                               color: Colors.white),
                           onPressed: () {
-                            debugPrint('Lista Itinerari');
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const TourListScreen()));
                           })),
                 ),
                 Transform(
