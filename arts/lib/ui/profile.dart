@@ -5,8 +5,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class Profile extends StatelessWidget {
   const Profile({Key? key}) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         appBar: AppBar(
           title: const Text("Profilo"),
@@ -60,11 +62,69 @@ class Profile extends StatelessWidget {
 
                 ],
               ),
-              Stack(
-                children: const [
-
-                ],
-              )
+              Container(
+                padding: const EdgeInsets.all(30),
+                child: const Text(textAlign: TextAlign.center,"Badge", style: TextStyle(fontSize: 20))
+              ),
+              Container(
+                padding: const EdgeInsets.only(left: 20),
+                alignment: Alignment.bottomLeft,
+                child: const Text(style: TextStyle(fontSize: 15),"Campania"),
+              ),
+              Card(
+                margin: const EdgeInsets.all(20),
+                elevation: 3,
+                child: Container(
+                  height: 90,
+                  width: double.maxFinite,
+                  decoration:  const BoxDecoration(
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars_outlined)),
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars_outlined)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Container(
+                padding: const EdgeInsets.only(left: 20),
+                alignment: Alignment.bottomLeft,
+                child: const Text(style: TextStyle(fontSize: 15),"Toscana"),
+              ),
+              Card(
+                margin: const EdgeInsets.all(20),
+                elevation: 3,
+                child: Container(
+                  height: 90,
+                  width: double.maxFinite,
+                  decoration:  const BoxDecoration(
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
+                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars_outlined)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
         ]
         )
     );
