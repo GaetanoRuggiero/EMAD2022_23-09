@@ -56,7 +56,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
           alignment: Alignment.center,
           children: [
             Container(
-              height: double.infinity,
+              width: double.infinity,
               color: Colors.black,
               child: FutureBuilder<void>(
                 future: _initializeControllerFuture,

@@ -1,26 +1,48 @@
-import 'package:arts/ui/singlepoiview.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import './radiobuttons.dart';
+import 'package:http/http.dart' as http;
+import '../env/env.dart';
+import './singlepoiview.dart';
+import '../utils/radiobuttons.dart';
+import '../model/POI.dart';
 
-class Collection extends StatelessWidget {
-  const Collection({Key? key}) : super(key: key);
+class CollectionScreen extends StatefulWidget {
+  const CollectionScreen({Key? key}) : super(key: key);
 
-  List<_Photo> _photos(BuildContext context) {
-    return [
-      _Photo(
-        assetUrl:
-            'https://images.unsplash.com/photo-1655303717503-c6ab284d7b69?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-        title: "Piazza del Plebiscito",
-        subtitle: "Napoli",
-      ),
-      _Photo(
-        assetUrl:
-            'https://images.unsplash.com/photo-1581416271248-213a4f928597?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-        title: "Fontana del Gigante",
-        subtitle: "Napoli",
-      ),
-    ];
+  @override
+  State<CollectionScreen> createState() => _CollectionScreenState();
+}
+
+class _CollectionScreenState extends State<CollectionScreen> {
+
+  late List<POI> visitedPOIList;
+
+  Future<bool> loadVisitedPOI() async {
+    visitedPOIList = [];
+    final response = await http.get(Uri.parse('http://${Env.serverIP}:${Env.serverPort}/getPOIList'))
+        .timeout(const Duration(seconds: 5), onTimeout: () {
+          /* We force a 500 http response after timeout to simulate a
+          * connection error with the server. */
+          return http.Response('Timeout', 500);
+        } );
+
+    if (response.statusCode == 200) {
+      /*If the server did return a 200 OK response, parse the Json and decode
+      its content with UTF-8 to allow accented characters to be shown correctly */
+      List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
+      for (var x in jsonArray) {
+        POI poi = POI.fromJson(x);
+        visitedPOIList.add(poi);
+      }
+    }
+    else if (response.statusCode == 500) {
+      return false;
+    }
+    else {
+      throw Exception('Failed to load POI');
+    }
+    return true;
   }
 
   @override
@@ -48,25 +70,40 @@ class Collection extends StatelessWidget {
         body: TabBarView(
           children: [
             // Visited - First tab
-            GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                padding: const EdgeInsets.all(10),
-                childAspectRatio: 1,
-                children: _photos(context).map<Widget>((photo) {
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SinglePOIView(poiName: photo.title, poiURL: photo.assetUrl)),
-                      );
-                    },
-                    child: _GridPhotoItem(
-                      photo: photo,
-                    ),
-                  );
-                }).toList()),
+            FutureBuilder(
+              future: loadVisitedPOI(),
+              builder: (context, snapshot) {
+                /* If the Future has done */
+                if (snapshot.connectionState == ConnectionState.done) {
+                  /* If the response from server was 200 show all POI */
+                  if (snapshot.data!) {
+                    return GridView.count(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10,
+                        padding: const EdgeInsets.all(10),
+                        childAspectRatio: 1,
+                        children: visitedPOIList.map((poi) {
+                          return InkWell(
+                            child: _GridPOIItem(poi: poi),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi)),
+                              );
+                            },
+                          );
+                        }).toList()
+                    );
+                  } else { /* Connection with server timed out */
+                    return const Center(child: Icon(Icons.error));
+                  }
+                }
+                else { /* Future has not completed yet, show a loading indicator*/
+                  return const Center(child: CircularProgressIndicator());
+                }
+              }
+            ),
             // To Visit - Second tab
             GridView.count(
                 crossAxisCount: 2,
@@ -74,19 +111,8 @@ class Collection extends StatelessWidget {
                 crossAxisSpacing: 10,
                 padding: const EdgeInsets.all(10),
                 childAspectRatio: 1,
-                children: _photos(context).map<Widget>((photo) {
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SinglePOIView(poiName: photo.title, poiURL: photo.assetUrl)),
-                      );
-                    },
-                    child: _GridPhotoItem(
-                      photo: photo,
-                    ),
-                  );
-                }).toList()),
+                children: []
+            ),
             // Search Tab
             Column(
               children: [
@@ -102,7 +128,8 @@ class Collection extends StatelessWidget {
                         borderRadius: BorderRadius.circular(25),
                       ),
                       hintText: "Ricerca per città, es. Napoli",
-                      prefixIcon: const Icon(Icons.search, color: Color(0xffE68532)),
+                      prefixIcon: const Icon(
+                          Icons.search, color: Color(0xffE68532)),
                     ),
                     style: const TextStyle(fontSize: 18),
                   ),
@@ -114,19 +141,7 @@ class Collection extends StatelessWidget {
                       crossAxisSpacing: 20,
                       padding: const EdgeInsets.all(20),
                       childAspectRatio: 1,
-                      children: _photos(context).map<Widget>((photo) {
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SinglePOIView(poiName: photo.title, poiURL: photo.assetUrl)),
-                            );
-                          },
-                          child: _GridPhotoItem(
-                            photo: photo,
-                          ),
-                        );
-                      }).toList()),
+                      children: []),
                 ),
               ],
             ),
@@ -135,18 +150,6 @@ class Collection extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Photo {
-  _Photo({
-    required this.assetUrl,
-    required this.title,
-    required this.subtitle,
-  });
-
-  final String assetUrl;
-  final String title;
-  final String subtitle;
 }
 
 /// Allow the text size to shrink to fit in the space
@@ -165,23 +168,29 @@ class _GridTitleText extends StatelessWidget {
   }
 }
 
-class _GridPhotoItem extends StatelessWidget {
-  const _GridPhotoItem({
+class _GridPOIItem extends StatelessWidget {
+
+  static const thumbnailName = "thumbnail.jpg";
+
+  const _GridPOIItem({
     Key? key,
-    required this.photo,
+    required this.poi,
   }) : super(key: key);
 
-  final _Photo photo;
+  final POI poi;
 
   @override
   Widget build(BuildContext context) {
+
+    /* Example:
+     - assets/poi_images/0_0.jpg is replaced with
+     - assets/poi_images/0_thumbnail.jpg */
+    String thumbnailURL = poi.imageURL!.replaceRange(poi.imageURL!.lastIndexOf('_')+1, null, thumbnailName);
+
     final Widget image = Material(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
-      child: Image.network(
-        photo.assetUrl,
-        fit: BoxFit.cover,
-      ),
+      child: Image.asset(thumbnailURL, fit: BoxFit.cover)
     );
 
     return GridTile(
@@ -193,8 +202,8 @@ class _GridPhotoItem extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: GridTileBar(
           backgroundColor: Colors.black45,
-          title: _GridTitleText(photo.title),
-          subtitle: _GridTitleText(photo.subtitle),
+          title: _GridTitleText(poi.name!),
+          subtitle: _GridTitleText(poi.city!),
         ),
       ),
       child: image,

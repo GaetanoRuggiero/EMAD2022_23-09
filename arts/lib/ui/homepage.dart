@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const Collection()),
+                              MaterialPageRoute(builder: (context) => const CollectionScreen()),
                             );
                           })),
                 ),
