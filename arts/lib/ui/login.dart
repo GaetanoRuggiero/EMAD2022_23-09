@@ -9,28 +9,44 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  //const Text("")
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Welcome in artS, your trip start here"),
-        ),
-        body: Column(
-            children: [
-              Container(margin: const EdgeInsets.only(top: 40, bottom: 40) ,child: const Text("Good to see you again!", style: TextStyle(fontSize: 30))),
-              const LoginForm(),
-              InkWell(
-               onTap: (){
-                 Navigator.pushReplacement(
-                   context,
-                   MaterialPageRoute(builder: (context) => const HomePage()),
-                 );
-               },
-               child: const Text("Login later", style: TextStyle(fontSize: 20))),
-
-            ]
-        )
-    );
+        body: Column(children: [
+      Container(
+          margin: const EdgeInsets.fromLTRB(5, 20, 5, 20),
+          child: RichText(
+            text: const TextSpan(
+              style: TextStyle(fontSize: 20, color: Colors.black),
+              children: <TextSpan>[
+                TextSpan(
+                  text: "Benvenuto in ",
+                ),
+                TextSpan(
+                  text: "ARTS",
+                  style: TextStyle(fontFamily: "DaVinci", fontSize: 25),
+                ),
+                TextSpan(
+                  text: ", \nil tuo viaggio inizia qui\n",
+                ),
+                TextSpan(
+                    text: "Felice di rivederti!",
+                    style: TextStyle(fontSize: 30))
+              ],
+            ),
+          )),
+      const LoginForm(),
+      InkWell(
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          },
+          child: const Text("Entra in un secondo momento",
+              style: TextStyle(fontSize: 20))),
+    ]));
   }
 }
 
@@ -58,19 +74,18 @@ class _LoginFormState extends State<LoginForm> {
             child: Column(
               children: [
                 Container(
-                  alignment: Alignment.centerLeft,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: const Text("Email: ", style: TextStyle(fontSize: 20)
-                )),
+                    alignment: Alignment.centerLeft,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    child:
+                        const Text("Email: ", style: TextStyle(fontSize: 20))),
                 TextFormField(
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: "name@example.dom",
-                    hintStyle: TextStyle(fontSize: 15)
-                  ),
+                      border: OutlineInputBorder(),
+                      hintText: "name@example.dom",
+                      hintStyle: TextStyle(fontSize: 15)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your email!';
+                      return 'Inserisci la tua email!';
                     }
                     return null;
                   },
@@ -78,17 +93,16 @@ class _LoginFormState extends State<LoginForm> {
                 Container(
                     alignment: Alignment.centerLeft,
                     margin: const EdgeInsets.only(bottom: 10, top: 10),
-                    child: const Text("Password: ", style: TextStyle(fontSize: 20)
-                    )),
+                    child: const Text("Password: ",
+                        style: TextStyle(fontSize: 20))),
                 TextFormField(
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "********",
-                      hintStyle: TextStyle(fontSize: 15)
-                  ),
+                      hintStyle: TextStyle(fontSize: 15)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your password';
+                      return 'Inserisci la tua password';
                     }
                     return null;
                   },

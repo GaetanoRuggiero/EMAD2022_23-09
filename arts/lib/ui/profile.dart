@@ -70,7 +70,7 @@ class Profile extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => const LoginScreen()),
                     );
                   },
-                  child: const Text("Go to Login", style: TextStyle(fontSize: 20))),
+                  child: const Text("Vai al Login", style: TextStyle(fontSize: 20))),
 
               Container(
                 padding: const EdgeInsets.all(30),
