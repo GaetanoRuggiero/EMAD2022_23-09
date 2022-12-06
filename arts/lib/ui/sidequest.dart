@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 
-class SideQuest extends StatelessWidget {
+class SideQuest extends StatefulWidget {
   const SideQuest({Key? key}) : super(key: key);
 
   @override
+  State<SideQuest> createState() => _SideQuestState();
+}
+
+class _SideQuestState extends State<SideQuest> {
+  @override
   Widget build(BuildContext context) {
+
+    final deviceOrientation = MediaQuery.of(context).orientation;
+
     return Scaffold(
 
       appBar: AppBar(
@@ -31,14 +39,30 @@ class SideQuest extends StatelessWidget {
             ),
           ),
 
+
+          deviceOrientation == Orientation.portrait
+              ?
           SideQuestCard(
             poi: "Piazza del Plebiscito ",
             startDate: "05/11/2022",
-            endDate: "21/11/2022",
+            endDate: "05/12/2022",
             place: " Museo Nazionale!",
             reward: "un biglietto gratuito",
             image: Image.network("https://images.unsplash.com/photo-1655303717503-c6ab284d7b69?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
                 fit: BoxFit.fitHeight),
+          )
+
+              :
+
+          //const SizedBox(height: 10),
+          SideQuestCard(
+            poi: "Castel Nuovo ",
+            startDate: "06/02/2023",
+            endDate: "06/03/2023",
+            place: " Museo Nazionale!",
+            reward: "un codice sconto",
+            image: Image.network("https://images.unsplash.com/photo-1571075051578-c8cd15385f46?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80",
+                fit: BoxFit.fitWidth),
           ),
         ],
       ),
@@ -79,11 +103,12 @@ class SideQuestCard extends StatelessWidget {
           Container(
               margin: const EdgeInsets.only(left: 70.0),
               height: 250.0,
+              width: double.infinity,
               child: image),
 
           Container(
             height: 250,
-            width: 2000,
+            width: double.infinity,
             decoration: BoxDecoration(
                 gradient: LinearGradient(
                     begin: const AlignmentDirectional(3.5, 0),
@@ -92,7 +117,6 @@ class SideQuestCard extends StatelessWidget {
                       Colors.black.withOpacity(0.0),
                       const Color(0xff113197),
                     ],
-
                     stops: const [
                       0.0,
                       1.0
