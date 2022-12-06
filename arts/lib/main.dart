@@ -1,6 +1,6 @@
+import 'package:arts/ui/login.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import './ui/homepage.dart';
 
 late final CameraDescription camera;
 
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
               iconTheme: IconThemeData(color: Color(0xffE68532))
           )
       ),
-      home: const HomePage(),
+      home: const LoginScreen(),
     );
   }
 }

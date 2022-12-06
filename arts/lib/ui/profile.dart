@@ -1,3 +1,4 @@
+import 'package:arts/ui/login.dart';
 import 'package:arts/ui/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -62,6 +63,15 @@ class Profile extends StatelessWidget {
 
                 ],
               ),
+              InkWell(
+                  onTap: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  },
+                  child: const Text("Go to Login", style: TextStyle(fontSize: 20))),
+
               Container(
                 padding: const EdgeInsets.all(30),
                 child: const Text(textAlign: TextAlign.center,"Badge", style: TextStyle(fontSize: 20))
