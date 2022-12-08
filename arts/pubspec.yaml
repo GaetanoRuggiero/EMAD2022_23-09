@@ -42,7 +42,7 @@ dependencies:
   font_awesome_flutter: ^10.2.1
   google_maps_flutter: ^2.2.1
   http: ^0.13.5
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons: ^0.11.0
   ionicons: ^0.2.1
   envied: ^0.3.0
 
