@@ -1,12 +1,9 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart' as http;
-import '../env/env.dart';
 import './singlepoiview.dart';
 import '../utils/debouncer.dart';
 import '../model/POI.dart';
+import '../api/collection_api.dart';
 
 enum SearchFilter { city, name }
 
@@ -18,35 +15,6 @@ class CollectionScreen extends StatefulWidget {
 }
 
 class _CollectionScreenState extends State<CollectionScreen> {
-  late List<POI> _visitedPOIList = [];
-
-  // TODO: not implemented yet
-  Future<bool> loadVisitedPOI() async {
-    debugPrint('http://${Env.serverIP}:${Env.serverPort}/getPOIList');
-    _visitedPOIList = [];
-    final response = await http
-        .get(Uri.parse('http://${Env.serverIP}:${Env.serverPort}/getPOIList'))
-        .timeout(const Duration(seconds: 10), onTimeout: () {
-      /* We force a 500 http response after timeout to simulate a
-          * connection error with the server. */
-      return http.Response('Timeout', 500);
-    });
-
-    if (response.statusCode == 200) {
-      /*If the server did return a 200 OK response, parse the Json and decode
-      its content with UTF-8 to allow accented characters to be shown correctly */
-      List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
-      for (var x in jsonArray) {
-        POI poi = POI.fromJson(x);
-        _visitedPOIList.add(poi);
-      }
-    } else if (response.statusCode == 500) {
-      return false;
-    } else {
-      throw Exception('Failed to load POI');
-    }
-    return true;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,22 +38,14 @@ class _CollectionScreenState extends State<CollectionScreen> {
             ],
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
             // Visited - First tab
-            FutureBuilder(
-                future: loadVisitedPOI(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    return VisitedTabView(visitedPOIList: _visitedPOIList);
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                }),
+            VisitedTabView(),
             // To Visit - Second tab
-            const ToVisitTabView(),
+            ToVisitTabView(),
             // Search - Third tab
-            const SearchTabView()
+            SearchTabView()
           ],
         ),
       ),
@@ -94,9 +54,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
 }
 
 class VisitedTabView extends StatefulWidget {
-  final List<POI> visitedPOIList;
-
-  const VisitedTabView({Key? key, required this.visitedPOIList})
+  const VisitedTabView({Key? key})
       : super(key: key);
 
   @override
@@ -104,26 +62,52 @@ class VisitedTabView extends StatefulWidget {
 }
 
 class _VisitedTabViewState extends State<VisitedTabView> {
+  List<POI> _visitedPOIList = [];
+
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        padding: const EdgeInsets.all(10),
-        childAspectRatio: 1,
-        children: widget.visitedPOIList.map((poi) {
-          return GestureDetector(
-            child: _GridPOIItem(poi: poi),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SinglePOIView(poi: poi)),
-              );
-            },
-          );
-        }).toList());
+    return FutureBuilder(
+      future: getVisitedPOI(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.data != null) {
+            _visitedPOIList = snapshot.data!;
+            return GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                padding: const EdgeInsets.all(10),
+                childAspectRatio: 1,
+                children: _visitedPOIList.map((poi) {
+                  return GestureDetector(
+                    child: _GridPOIItem(poi: poi),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SinglePOIView(poi: poi)),
+                      );
+                    },
+                  );
+                }).toList());
+          }
+          else {
+            return Container(padding: const EdgeInsets.all(20.0), child: Column(
+              children: const [
+                Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+                Text(textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                    "Impossibile connettersi al server. Controlla la tua connessione o riprova più tardi."
+                )
+              ],
+            ));
+          }
+        }
+        else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      }
+    );
   }
 }
 
@@ -162,61 +146,6 @@ class _SearchTabViewState extends State<SearchTabView> {
   bool _showLoading = true;
   bool _noResultsFound = false;
   final _debouncer = Debouncer(milliseconds: 500);
-
-  Future<List<POI>?> getPOIListByFilter(String searchText, SearchFilter filter) async {
-    Uri uri;
-    if (filter == SearchFilter.city) {
-      uri = Uri(
-          scheme: 'http',
-          host: Env.serverIP,
-          port: Env.serverPort,
-          path: 'getPOIListByCity',
-          queryParameters: {'city' : searchText}
-      );
-    }
-    else {
-      uri = Uri(
-          scheme: 'http',
-          host: Env.serverIP,
-          port: Env.serverPort,
-          path: 'getPOIListByName',
-          queryParameters: {'name' : searchText}
-      );
-    }
-
-    debugPrint("Calling $uri");
-
-    List<POI> filteredList = [];
-    final response = await http
-        .get(uri)
-        .timeout(const Duration(seconds: 4), onTimeout: () {
-      /* We force a 500 http response after timeout to simulate a
-         connection error with the server. */
-      return http.Response('Timeout', 500);
-    }).onError((error, stackTrace) {
-      debugPrint(error.toString());
-      return http.Response('Server unreachable', 500);
-    });
-
-    if (response.statusCode == 200) {
-      /*If the server did return a 200 OK response, parse the Json and decode
-      its content with UTF-8 to allow accented characters to be shown correctly */
-      List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
-      for (var x in jsonArray) {
-        POI poi = POI.fromJson(x);
-        filteredList.add(poi);
-      }
-    }
-    else if (response.statusCode == 500) {
-      debugPrint("Server did not respond at: $uri");
-      return null;
-    }
-    else {
-      throw Exception('Failed to load POI');
-    }
-
-    return filteredList;
-  }
 
   Widget showGridSearchResults() {
     if (_searchText.isEmpty) {

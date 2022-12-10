@@ -1,77 +1,65 @@
 class POI {
   String? city;
-  String? cityLower;
+  List<String>? cityKeywords;
   String? country;
-  String? countryLower;
   String? imageURL;
   double? latitude;
   double? longitude;
   String? name;
-  String? nameLower;
+  List<String>? nameKeywords;
   String? province;
-  String? provinceLower;
   String? region;
-  String? regionLower;
-  String? history;
   String? trivia;
+  String? history;
 
   POI(
       {this.city,
-        this.cityLower,
+        this.cityKeywords,
         this.country,
-        this.countryLower,
         this.imageURL,
         this.latitude,
         this.longitude,
         this.name,
-        this.nameLower,
+        this.nameKeywords,
         this.province,
-        this.provinceLower,
         this.region,
-        this.regionLower,
-        this.history,
-        this.trivia});
+        this.trivia,
+        this.history});
 
   POI.fromJson(Map<String, dynamic> json) {
     city = json['city'];
-    cityLower = json['city_lower'];
+    cityKeywords = json['city_keywords'].cast<String>();
     country = json['country'];
-    countryLower = json['country_lower'];
     imageURL = json['imageURL'];
     latitude = json['latitude'];
     longitude = json['longitude'];
     name = json['name'];
-    nameLower = json['name_lower'];
+    nameKeywords = json['name_keywords'].cast<String>();
     province = json['province'];
-    provinceLower = json['province_lower'];
     region = json['region'];
-    regionLower = json['region_lower'];
-    history = json['history'];
     trivia = json['trivia'];
+    history = json['history'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['city'] = city;
-    data['city_lower'] = cityLower;
+    data['city_keywords'] = cityKeywords;
     data['country'] = country;
-    data['country_lower'] = countryLower;
     data['imageURL'] = imageURL;
     data['latitude'] = latitude;
     data['longitude'] = longitude;
     data['name'] = name;
-    data['name_lower'] = nameLower;
+    data['name_keywords'] = nameKeywords;
     data['province'] = province;
-    data['province_lower'] = provinceLower;
     data['region'] = region;
-    data['region_lower'] = regionLower;
-    data['history'] = history;
     data['trivia'] = trivia;
+    data['history'] = history;
     return data;
   }
 
   @override
   String toString() {
-    return 'POI{city: $city, cityLower: $cityLower, country: $country, countryLower: $countryLower, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameLower: $nameLower, province: $province, provinceLower: $provinceLower, region: $region, regionLower: $regionLower, history: $history, trivia: $trivia}';
+    return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameKeywords: $nameKeywords, province: $province, region: $region}';
   }
 }
