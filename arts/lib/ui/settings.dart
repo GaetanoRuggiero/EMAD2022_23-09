@@ -1,8 +1,9 @@
+import 'package:arts/ui/styles.dart';
+import 'package:arts/utils/theme_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-
-bool isSwitched = false;
-
+import 'package:provider/provider.dart';
+import '../utils/theme_model.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -13,168 +14,247 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
 
-  final Container iconArrow = Container(
-    child: IconButton(
-      onPressed: (){},
-      icon: const Icon(Icons.arrow_forward_ios, color: Colors.black),
-    ),
-  );
+  ThemeMode? _filter = ThemeMode.light;
 
-  final Color iconColor = const Color(0xffE68532);
+  getThemePreferences () async {
+    int? themeMode = await ThemePreferences().getTheme();
 
+    if (themeMode != null && themeMode == ThemeModel.dark) {
+      _filter = ThemeMode.dark;
+    }
+    else if (themeMode != null && themeMode == ThemeModel.light){
+      _filter = ThemeMode.light;
+    }
+    else {
+      _filter = ThemeMode.system;
+    }
+  }
+
+  @override
+  void initState() {
+    //_filter=ThemeMode.light;
+
+    getThemePreferences();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Impostazioni"),
-        actions: <Widget>[
-          IconButton(onPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-              icon: const Icon(Icons.home_rounded)),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Colors.white,
-                  ),
+
+    return Consumer (
+        builder: (context, ThemeModel themeNotifier, child) {
+          return Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: const Text("Impostazioni"),
+              actions: <Widget>[
+                IconButton(onPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                    icon: const Icon(Icons.home_rounded)),
+              ],
+            ),
+            body: SingleChildScrollView(
+              child: SafeArea(
+                child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                          color: Theme.of(context).primaryColorLight,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
 
-                      const Text("Lingua e tema",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          )
+                            const Text("Lingua e tema",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                )
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            SettingsTile(
+                                actionButton: IconButton(
+                                    onPressed: (){},
+                                    icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
+                                icon: Ionicons.language,
+                                title: "Lingua"),
+
+                            const SizedBox(height: 10),
+
+                            SettingsTile(
+                              icon: Ionicons.color_palette_outline,
+                              title: "Tema",
+                              actionButton: IconButton(
+                                icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                onPressed: () {
+                                  showDialog<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                        title: const Text('Scegli il tema: '),
+                                        content: StatefulBuilder(
+                                            builder: (context, setState) {
+                                              return Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+
+                                                  ListTile(
+                                                    title: const Text('Chiaro'),
+                                                    leading: Radio<ThemeMode>(
+                                                        value: ThemeMode.light,
+                                                        groupValue: _filter,
+                                                        onChanged: (ThemeMode? value) {
+                                                          setState(() {
+                                                            themeNotifier.themeMode = ThemeModel.light;
+                                                            _filter = value;
+                                                          });
+                                                        }
+                                                    ),
+                                                  ),
+
+                                                  ListTile(
+                                                    title: const Text('Scuro'),
+                                                    leading: Radio<ThemeMode>(
+                                                        value: ThemeMode.dark,
+                                                        groupValue: _filter,
+                                                        onChanged: (ThemeMode? value) {
+                                                          setState(() {
+                                                            themeNotifier.themeMode = ThemeModel.dark;
+                                                            _filter = value;
+                                                          });
+                                                        }
+                                                    ),
+                                                  ),
+
+                                                  ListTile(
+                                                    title: const Text('Sistema'),
+                                                    leading: Radio<ThemeMode>(
+                                                        value: ThemeMode.system,
+                                                        groupValue: _filter,
+                                                        onChanged: (ThemeMode? value) {
+                                                          setState(() {
+                                                            themeNotifier.themeMode = ThemeModel.system;
+                                                            _filter = value;
+                                                          });
+                                                        }
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            }
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 30),
 
-                      SettingsTile(
-                          cont: iconArrow,
-                          icon: Ionicons.language,
-                          title: "Lingua"),
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                          color: Theme.of(context).primaryColor,
+                        ),
 
-                      const SizedBox(height: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
 
-                      SettingsTile(
-                        icon: Ionicons.color_palette_outline,
-                        title: "Tema scuro",
-                        cont: Container(
-                          child: Switch(
-                            activeColor: Colors.grey,
-                            value: isSwitched,
-                            onChanged: (value) {
-                              setState(() {
-                                isSwitched = !isSwitched;
-                              });
-                            },
-                          ),
+                            const Text("Account",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                )
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            SettingsTile(
+                                actionButton: IconButton(
+                                    onPressed: (){},
+                                    icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
+                                icon: Icons.account_circle,
+                                title: "Info account"
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            SettingsTile(
+                                actionButton: IconButton(
+                                    onPressed: (){},
+                                    icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
+                                icon: Ionicons.log_out_outline,
+                                title: "Logout"
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                          color: Theme.of(context).primaryColor,
+                        ),
+
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            const Text("Info",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            SettingsTile(
+                                actionButton: IconButton(
+                                    onPressed: (){},
+                                    icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
+                                icon: Ionicons.information_circle_sharp,
+                                title: "Info e riconoscimenti"
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 30),
-
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Colors.white,
-                  ),
-
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      const Text("Account",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          )
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      SettingsTile(
-                          cont: iconArrow,
-                          icon: Icons.account_circle,
-                          title: "Info account"
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      SettingsTile(
-                          cont: iconArrow,
-                          icon: Ionicons.log_out_outline,
-                          title: "Logout"
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Colors.white,
-                  ),
-
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      const Text("Info",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      SettingsTile(
-                          cont: iconArrow,
-                          icon: Ionicons.information_circle_sharp,
-                          title: "Info e riconoscimenti"
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        }
     );
   }
 }
-
-
 
 class SettingsTile extends StatelessWidget {
 
   final IconData icon;
   final String title;
-  final Container cont;
+  final Widget actionButton;
 
   const SettingsTile({
     Key? key,
     required this.icon,
     required this.title,
-    required this.cont
+    required this.actionButton
   }) : super(key: key);
 
   @override
@@ -189,7 +269,7 @@ class SettingsTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
             color: Colors.transparent,
           ),
-          child: Icon(icon, color: const Color(0xffE68532)),
+          child: Icon(icon, color: darkOrange),
         ),
 
         const SizedBox(width: 10),
@@ -210,9 +290,8 @@ class SettingsTile extends StatelessWidget {
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: cont,
+          child: actionButton,
         ),
-
       ],
     );
   }

@@ -1,6 +1,9 @@
 import 'package:arts/ui/login.dart';
+import 'package:arts/utils/theme_model.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:arts/ui/styles.dart';
 
 late final CameraDescription camera;
 
@@ -22,19 +25,33 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'artS',
-      theme: ThemeData(
-        // This is the theme of your application.
-          primarySwatch: Colors.blue,
-          appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xff113197),
-              actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
-              iconTheme: IconThemeData(color: Color(0xffE68532))
-          )
+    return ChangeNotifierProvider(
+      create: (_) => ThemeModel(),
+      child: Consumer(
+          builder: (context, ThemeModel themeNotifier, child) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'artS',
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              themeMode: setAppThemeMode(themeNotifier),
+              home: const LoginScreen(),
+            );
+          }
       ),
-      home: const LoginScreen(),
     );
+  }
+
+  ThemeMode setAppThemeMode(ThemeModel themeNotifier) {
+
+    if (themeNotifier.themeMode == ThemeModel.dark) {
+      return ThemeMode.dark;
+    }
+    else if (themeNotifier.themeMode == ThemeModel.system) {
+      return ThemeMode.system;
+    }
+    else {
+      return ThemeMode.light;
+    }
   }
 }

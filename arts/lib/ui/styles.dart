@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+const Color darkOrange = Color(0xffE68532);
+const Color lightOrange = Color(0xFFEB9E5C);
+
 final ButtonStyle largeButtonStyle = ElevatedButton.styleFrom(
   backgroundColor: const Color(0xFFE68532),
   minimumSize: const Size(60, 60),
@@ -24,4 +27,17 @@ final ButtonStyle topButtonStyle = ElevatedButton.styleFrom(
     minimumSize: const Size(80, 50),
     padding: const EdgeInsets.only(left: 20.0),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0))
+);
+
+final ThemeData darkTheme = ThemeData.dark().copyWith(
+
+);
+
+final ThemeData lightTheme = ThemeData.light().copyWith(
+    primaryColorLight: Colors.blue.shade300,
+    appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xff113197),
+        actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
+        iconTheme: IconThemeData(color: Color(0xffE68532))
+    ),
 );

@@ -45,6 +45,8 @@ dependencies:
   flutter_launcher_icons: ^0.11.0
   ionicons: ^0.2.1
   envied: ^0.3.0
+  shared_preferences: ^2.0.15
+  provider:
 
 flutter_icons:
   android: "launcher_icon"
