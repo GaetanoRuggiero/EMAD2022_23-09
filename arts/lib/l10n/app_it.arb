@@ -1,0 +1,11 @@
+{
+  "collectionTitle": "Collezione",
+  "visitedTabTitle": "Visitati",
+  "toVisitTabTitle": "Da visitare",
+  "searchTabTitle": "Cerca",
+  "searchHint": "Ricerca per città, es. Napoli",
+  "connectionError": "Impossibile connettersi al server. Controlla la tua connessione o riprova più tardi.",
+  "resultsNotFound": "Nessun risultato per: ",
+  "city": "Città",
+  "poiName": "Nome Opera"
+}

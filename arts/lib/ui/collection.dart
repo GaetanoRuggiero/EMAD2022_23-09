@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import './singlepoiview.dart';
 import '../utils/debouncer.dart';
 import '../model/POI.dart';
@@ -29,12 +30,12 @@ class _CollectionScreenState extends State<CollectionScreen> {
                 },
                 icon: const Icon(Icons.home_rounded))
           ],
-          title: const Text("Collezione"),
-          bottom: const TabBar(
+          title: Text(AppLocalizations.of(context)!.collectionTitle),
+          bottom: TabBar(
             tabs: [
-              Tab(icon: Icon(FontAwesomeIcons.bookBookmark), text: "Visitate"),
-              Tab(icon: Icon(FontAwesomeIcons.book), text: "Da visitare"),
-              Tab(icon: Icon(FontAwesomeIcons.magnifyingGlass), text: "Cerca"),
+              Tab(icon: const Icon(FontAwesomeIcons.bookBookmark), text: AppLocalizations.of(context)!.visitedTabTitle),
+              Tab(icon: const Icon(FontAwesomeIcons.book), text: AppLocalizations.of(context)!.toVisitTabTitle),
+              Tab(icon: const Icon(FontAwesomeIcons.magnifyingGlass), text: AppLocalizations.of(context)!.searchTabTitle),
             ],
           ),
         ),
@@ -93,11 +94,11 @@ class _VisitedTabViewState extends State<VisitedTabView> {
           }
           else {
             return Container(padding: const EdgeInsets.all(20.0), child: Column(
-              children: const [
-                Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+              children: [
+                const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
                 Text(textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, color: Color(0xFFE68532)),
-                    "Impossibile connettersi al server. Controlla la tua connessione o riprova più tardi."
+                    style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                  AppLocalizations.of(context)!.connectionError
                 )
               ],
             ));
@@ -156,17 +157,17 @@ class _SearchTabViewState extends State<SearchTabView> {
     }
     if (_showError) {
       return Container(padding: const EdgeInsets.all(20.0), child: Column(
-        children: const [
-          Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+        children: [
+          const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
           Text(textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, color: Color(0xFFE68532)),
-              "Impossibile connettersi al server. Controlla la tua connessione o riprova più tardi."
+              style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+              AppLocalizations.of(context)!.connectionError
           )
         ],
       ));
     }
     if (_noResultsFound) {
-      return Center(child: Text(style: TextStyle(fontSize: 20),"Nessun risultato trovato per '$_searchText'"));
+      return Center(child: Text(style: const TextStyle(fontSize: 20), "${AppLocalizations.of(context)!.resultsNotFound}\"$_searchText\""));
     }
 
     /* Show results in a grid */
@@ -194,7 +195,7 @@ class _SearchTabViewState extends State<SearchTabView> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text("Città"),
+        Text(AppLocalizations.of(context)!.city),
         Radio<SearchFilter>(
           value: SearchFilter.city,
           groupValue: _searchFilter,
@@ -204,7 +205,7 @@ class _SearchTabViewState extends State<SearchTabView> {
             });
           },
         ),
-        const Text("Opera"),
+        Text(AppLocalizations.of(context)!.poiName),
         Radio<SearchFilter>(
           value: SearchFilter.name,
           groupValue: _searchFilter,
@@ -289,7 +290,7 @@ class _SearchTabViewState extends State<SearchTabView> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(25),
             ),
-            hintText: "Ricerca per città, es. Napoli",
+            hintText: AppLocalizations.of(context)!.searchHint,
             prefixIcon: const Icon(Icons.search, color: Color(0xffE68532)),
           ),
           style: const TextStyle(fontSize: 18),

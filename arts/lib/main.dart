@@ -1,9 +1,11 @@
-import 'package:arts/ui/login.dart';
-import 'package:arts/utils/theme_model.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:arts/ui/styles.dart';
+import 'package:arts/ui/login.dart';
+import 'package:arts/utils/theme_model.dart';
 
 late final CameraDescription camera;
 
@@ -32,6 +34,16 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               title: 'artS',
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('it', ''),
+                Locale('en', '')
+              ],
               theme: lightTheme,
               darkTheme: darkTheme,
               themeMode: setAppThemeMode(themeNotifier),

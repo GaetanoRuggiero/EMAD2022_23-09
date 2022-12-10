@@ -1,0 +1,11 @@
+{
+  "collectionTitle": "Collection",
+  "visitedTabTitle": "Visited",
+  "toVisitTabTitle": "To Visit",
+  "searchTabTitle": "Search",
+  "searchHint": "Search by city name, e.g Naples",
+  "connectionError": "Could not establish connection with server. Please retry or check your Internet connection.",
+  "resultsNotFound": "No results found for: ",
+  "city": "City",
+  "poiName": "Name"
+}
