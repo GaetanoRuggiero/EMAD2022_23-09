@@ -1,4 +1,6 @@
 {
+  "appName": "ARTS",
+
   "collectionTitle": "Collection",
   "visitedTabTitle": "Visited",
   "toVisitTabTitle": "To Visit",
@@ -32,5 +34,27 @@
   "info": "Info",
   "infoAndRecognitions": "Info and recognitions",
 
-  "selectLanguage": "Choose the language"
+  "selectLanguage": "Choose the language",
+
+  "welcomeReg": "Sign in to unlock all functionalities",
+  "name": "Name",
+  "mandatoryField": "Mandatory field",
+  "surname": "Surname",
+  "email": "Email",
+  "password": "Password",
+  "passConf": "Confirm password",
+  "signUp": "Sign up",
+  "haveAnAcc": "Already have an account?",
+  "clickH": "Click here",
+
+  "welcomeLog": "Welcome to",
+  "welcomeLog1": "your journey starts here",
+  "welcomeLog2": "Happy to see you again",
+  "notHaveAnAcc": "Create new account",
+  "or": "or",
+  "logLater": "Skip this step",
+  "emailExm": "e.g. janedoe@example.com",
+  "missingEmail": "Enter your email!",
+  "missingPsw": "Enter your password!",
+  "login": "Sign in"
 }

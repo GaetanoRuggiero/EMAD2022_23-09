@@ -6,10 +6,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class Profile extends StatelessWidget {
   const Profile({Key? key}) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
           title: const Text("Profilo"),
@@ -21,123 +19,158 @@ class Profile extends StatelessWidget {
                 icon: const Icon(Icons.home_rounded))
           ],
         ),
-        body: Column(
+        body: Column(children: [
+          Stack(
             children: [
-              Stack(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                    child: Column(
-                      children: const [
-                        Icon(size: 70, Icons.account_circle),
-                        Text("Utente"),
-                        SeasonCard(),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    right: 0,
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                      child: Column(
-                        children: [
-                          IconButton(
-                              color: const Color(0xFFEB9E5C),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const SettingsScreen()),
-                                );
-                              },
-                              icon: const Icon(size: 30, Icons.settings)),
-                          IconButton(
-                              color: const Color(0xFFEB9E5C),
-                              onPressed: () {},
-                              icon: const Icon(size: 25, FontAwesomeIcons.gift)),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                ],
-              ),
-              InkWell(
-                  onTap: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    );
-                  },
-                  child: const Text("Vai al Login", style: TextStyle(fontSize: 20))),
-
               Container(
-                padding: const EdgeInsets.all(30),
-                child: const Text(textAlign: TextAlign.center,"Badge", style: TextStyle(fontSize: 20))
+                alignment: Alignment.center,
+                margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                child: Column(
+                  children: const [
+                    Icon(size: 70, Icons.account_circle),
+                    Text("Utente"),
+                    SeasonCard(),
+                  ],
+                ),
               ),
-              Container(
-                padding: const EdgeInsets.only(left: 20),
-                alignment: Alignment.bottomLeft,
-                child: const Text(style: TextStyle(fontSize: 15),"Campania"),
-              ),
-              Card(
-                margin: const EdgeInsets.all(20),
-                elevation: 3,
+              Positioned(
+                right: 0,
                 child: Container(
-                  height: 90,
-                  width: double.maxFinite,
-                  decoration:  const BoxDecoration(
-                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars_outlined)),
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars_outlined)),
-                      ],
-                    ),
+                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                  child: Column(
+                    children: [
+                      IconButton(
+                          color: const Color(0xFFEB9E5C),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SettingsScreen()),
+                            );
+                          },
+                          icon: const Icon(size: 30, Icons.settings)),
+                      IconButton(
+                          color: const Color(0xFFEB9E5C),
+                          onPressed: () {},
+                          icon: const Icon(size: 25, FontAwesomeIcons.gift)),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 30,
+            ],
+          ),
+          Container(
+            margin: const EdgeInsets.only(top: 10),
+            child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
+                },
+                child:
+                    const Text("Vai al Login", style: TextStyle(fontSize: 20))),
+          ),
+          Container(
+              padding: const EdgeInsets.all(20),
+              child: const Text(
+                  textAlign: TextAlign.center,
+                  "Badge",
+                  style: TextStyle(fontSize: 20))),
+          Container(
+            padding: const EdgeInsets.only(left: 20),
+            alignment: Alignment.bottomLeft,
+            child: const Text(style: TextStyle(fontSize: 15), "Campania"),
+          ),
+          Card(
+            margin: const EdgeInsets.all(20),
+            elevation: 3,
+            child: Container(
+              height: 90,
+              width: double.maxFinite,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20)),
               ),
-              Container(
-                padding: const EdgeInsets.only(left: 20),
-                alignment: Alignment.bottomLeft,
-                child: const Text(style: TextStyle(fontSize: 15),"Toscana"),
-              ),
-              Card(
-                margin: const EdgeInsets.all(20),
-                elevation: 3,
-                child: Container(
-                  height: 90,
-                  width: double.maxFinite,
-                  decoration:  const BoxDecoration(
-                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars)),
-                        IconButton(iconSize: 50, onPressed: (){}, icon: const Icon(Icons.stars_outlined)),
-                      ],
-                    ),
-                  ),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars)),
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars)),
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars)),
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars_outlined)),
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars_outlined)),
+                  ],
                 ),
               ),
-        ]
-        )
-    );
+            ),
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          Container(
+            padding: const EdgeInsets.only(left: 20),
+            alignment: Alignment.bottomLeft,
+            child: const Text(style: TextStyle(fontSize: 15), "Toscana"),
+          ),
+          Card(
+            margin: const EdgeInsets.all(20),
+            elevation: 3,
+            child: Container(
+              height: 90,
+              width: double.maxFinite,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20)),
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars)),
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars)),
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars)),
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars)),
+                    IconButton(
+                        iconSize: 50,
+                        onPressed: () {},
+                        icon: const Icon(Icons.stars_outlined)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ]));
   }
 }
 
@@ -163,13 +196,12 @@ class SeasonCard extends StatelessWidget {
           children: [
             Text("La stagione termina il $day/$month/$year"),
             IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () {
-                //TODO: link to page with season rewards
-              },
-              icon: const Icon(Icons.navigate_next)
-            ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  //TODO: link to page with season rewards
+                },
+                icon: const Icon(Icons.navigate_next)),
           ],
         ),
       ),
