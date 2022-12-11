@@ -2,6 +2,9 @@ import 'package:arts/ui/login.dart';
 import 'package:arts/ui/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import 'rewards.dart';
 
 class Profile extends StatelessWidget {
   const Profile({Key? key}) : super(key: key);
@@ -10,7 +13,7 @@ class Profile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Profilo"),
+          title: Text(AppLocalizations.of(context)!.profile),
           actions: <Widget>[
             IconButton(
                 onPressed: () {
@@ -26,10 +29,10 @@ class Profile extends StatelessWidget {
                 alignment: Alignment.center,
                 margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                 child: Column(
-                  children: const [
-                    Icon(size: 70, Icons.account_circle),
-                    Text("Utente"),
-                    SeasonCard(),
+                  children: [
+                    const Icon(size: 70, Icons.account_circle),
+                    Text(AppLocalizations.of(context)!.name),
+                    const SeasonCard(),
                   ],
                 ),
               ),
@@ -51,7 +54,12 @@ class Profile extends StatelessWidget {
                           icon: const Icon(size: 30, Icons.settings)),
                       IconButton(
                           color: const Color(0xFFEB9E5C),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const RewardsPage()));
+                          },
                           icon: const Icon(size: 25, FontAwesomeIcons.gift)),
                     ],
                   ),
@@ -65,11 +73,12 @@ class Profile extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
                   );
                 },
-                child:
-                    const Text("Vai al Login", style: TextStyle(fontSize: 20))),
+                child: Text(AppLocalizations.of(context)!.redirectLog,
+                    style: const TextStyle(fontSize: 20))),
           ),
           Container(
               padding: const EdgeInsets.all(20),
@@ -194,13 +203,11 @@ class SeasonCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("La stagione termina il $day/$month/$year"),
+            Text("${AppLocalizations.of(context)!.seasonMex}$day/$month/$year"),
             IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                onPressed: () {
-                  //TODO: link to page with season rewards
-                },
+                onPressed: () {},
                 icon: const Icon(Icons.navigate_next)),
           ],
         ),

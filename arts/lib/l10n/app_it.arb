@@ -56,5 +56,10 @@
   "emailExm": "Es. mariorossi@esempio.it",
   "missingEmail": "Inserisci la tua email!",
   "missingPsw": "Inserisci la tua password!",
-  "login": "Entra"
+  "login": "Entra",
+
+  "profile": "Profilo",
+  "redirectLog": "Accedi",
+  "rewards": "Premi",
+  "seasonMex": "La stagione termina il "
 }

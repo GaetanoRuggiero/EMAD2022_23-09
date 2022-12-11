@@ -56,5 +56,10 @@
   "emailExm": "e.g. janedoe@example.com",
   "missingEmail": "Enter your email!",
   "missingPsw": "Enter your password!",
-  "login": "Sign in"
+  "login": "Sign in",
+
+  "profile": "Profile",
+  "redirectLog": "Login now",
+  "rewards": "Rewards",
+  "seasonMex": "The season ends on "
 }
