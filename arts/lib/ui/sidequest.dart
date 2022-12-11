@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class SideQuest extends StatefulWidget {
   const SideQuest({Key? key}) : super(key: key);
@@ -17,7 +19,7 @@ class _SideQuestState extends State<SideQuest> {
 
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Missioni"),
+        title: Text(AppLocalizations.of(context)!.mission),
         actions: <Widget>[
           IconButton(onPressed: () {
             Navigator.of(context).popUntil((route) => route.isFirst);
@@ -33,8 +35,8 @@ class _SideQuestState extends State<SideQuest> {
             margin: const EdgeInsets.only(top: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text("Sono disponibili i seguenti eventi:"),
+              children: [
+                Text(AppLocalizations.of(context)!.sideQuestAvailableEvents),
               ],
             ),
           ),
@@ -59,7 +61,7 @@ class _SideQuestState extends State<SideQuest> {
             poi: "Castel Nuovo ",
             startDate: "06/02/2023",
             endDate: "06/03/2023",
-            place: " Museo Nazionale!",
+            place: "Museo Nazionale!",
             reward: "un codice sconto",
             image: Image.network("https://images.unsplash.com/photo-1571075051578-c8cd15385f46?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80",
                 fit: BoxFit.fitWidth),
@@ -131,11 +133,11 @@ class SideQuestCard extends StatelessWidget {
               text: TextSpan(
                 style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white,),
                 children: <TextSpan> [
-                  const TextSpan(text: "Recati presso "),
+                  TextSpan(text: (AppLocalizations.of(context)!.sideQuestGoToUpper)),
                   TextSpan(text: poi , style: const TextStyle(color: Color(0xffE68532))),
-                  const TextSpan(text: "e scansionalo per ricevere "),
+                  TextSpan(text: (AppLocalizations.of(context)!.sideQuestScan)),
                   TextSpan(text: reward),
-                  const TextSpan(text: " presso il"),
+                  TextSpan(text: (AppLocalizations.of(context)!.articleToThe)),
                   TextSpan(text: place, style: const TextStyle(color: Color(0xffE68532)),),
                 ],
               ),
@@ -144,8 +146,8 @@ class SideQuestCard extends StatelessWidget {
 
           Positioned(
             bottom: 12,
-            left: 40,
-            child: Text("Evento in corso: dal $startDate al $endDate",
+            left: 30,
+            child: Text(AppLocalizations.of(context)!.sideQuestEventProgess + startDate + AppLocalizations.of(context)!.articleToThe + endDate,
               style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600

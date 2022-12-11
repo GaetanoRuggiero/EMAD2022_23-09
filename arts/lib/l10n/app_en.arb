@@ -7,5 +7,30 @@
   "connectionError": "Could not establish connection with server. Please retry or check your Internet connection.",
   "resultsNotFound": "No results found for: ",
   "city": "City",
-  "poiName": "Name"
+  "poiName": "Name",
+
+  "mission": "Missions",
+  "sideQuestAvailableEvents": "The following events are available:",
+  "sideQuestGoToUpper": "Go to ",
+  "sideQuestScan": "and scan it to receive ",
+  "sideQuestGoToLower": " go to",
+  "sideQuestEventProgess": "Current event: from ",
+  "articleToThe": " to the ",
+  "sideQuestEventCompleted": "Event completed!",
+
+  "settings": "Settings",
+  "languageAndTheme": "Language and theme",
+  "language": "Language",
+  "theme": "Theme",
+  "chooseTheTheme": "Choose the theme:",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System",
+  "account": "Account",
+  "infoAccount": "Info account",
+  "logout": "Logout",
+  "info": "Info",
+  "infoAndRecognitions": "Info and recognitions",
+
+  "selectLanguage": "Choose the language"
 }

@@ -7,5 +7,30 @@
   "connectionError": "Impossibile connettersi al server. Controlla la tua connessione o riprova più tardi.",
   "resultsNotFound": "Nessun risultato per: ",
   "city": "Città",
-  "poiName": "Nome Opera"
+  "poiName": "Nome Opera",
+
+  "mission": "Missioni",
+  "sideQuestAvailableEvents": "Sono disponibili i seguenti eventi:",
+  "sideQuestGoToUpper": "Recati presso ",
+  "sideQuestScan": "e scansionalo per ricevere ",
+  "sideQuestGoToLower": " presso il",
+  "sideQuestEventProgess": "Evento in corso: dal ",
+  "articleToThe": " al ",
+  "sideQuestEventCompleted": "Evento completato!",
+
+  "settings": "Impostazioni",
+  "languageAndTheme": "Lingua e tema",
+  "language": "Lingua",
+  "theme": "Tema",
+  "chooseTheTheme": "Scegli il tema:",
+  "light": "Chiaro",
+  "dark": "Scuro",
+  "system": "Sistema",
+  "account": "Account",
+  "infoAccount": "Info account",
+  "logout": "Logout",
+  "info": "Info",
+  "infoAndRecognitions": "Info e riconoscimenti",
+
+  "selectLanguage": "Seleziona la lingua"
 }

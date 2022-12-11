@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import '../utils/theme_model.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -46,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return Scaffold(
             appBar: AppBar(
               centerTitle: true,
-              title: const Text("Impostazioni"),
+              title: Text(AppLocalizations.of(context)!.settings),
               actions: <Widget>[
                 IconButton(onPressed: () {
                   Navigator.of(context).popUntil((route) => route.isFirst);
@@ -70,8 +71,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
 
-                            const Text("Lingua e tema",
-                                style: TextStyle(
+                            Text(AppLocalizations.of(context)!.languageAndTheme,
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
                                 )
@@ -84,13 +85,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     onPressed: (){},
                                     icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
                                 icon: Ionicons.language,
-                                title: "Lingua"),
+                                title: AppLocalizations.of(context)!.language),
 
                             const SizedBox(height: 10),
 
                             SettingsTile(
                               icon: Ionicons.color_palette_outline,
-                              title: "Tema",
+                              title: AppLocalizations.of(context)!.theme,
                               actionButton: IconButton(
                                 icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
                                 onPressed: () {
@@ -99,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     builder: (BuildContext context) {
                                       return AlertDialog(
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                        title: const Text('Scegli il tema: '),
+                                        title: Text(AppLocalizations.of(context)!.chooseTheTheme),
                                         content: StatefulBuilder(
                                             builder: (context, setState) {
                                               return Column(
@@ -107,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 children: [
 
                                                   ListTile(
-                                                    title: const Text('Chiaro'),
+                                                    title: Text(AppLocalizations.of(context)!.light),
                                                     leading: Radio<ThemeMode>(
                                                         value: ThemeMode.light,
                                                         groupValue: _filter,
@@ -121,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   ),
 
                                                   ListTile(
-                                                    title: const Text('Scuro'),
+                                                    title: Text(AppLocalizations.of(context)!.dark),
                                                     leading: Radio<ThemeMode>(
                                                         value: ThemeMode.dark,
                                                         groupValue: _filter,
@@ -135,7 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   ),
 
                                                   ListTile(
-                                                    title: const Text('Sistema'),
+                                                    title: Text(AppLocalizations.of(context)!.system),
                                                     leading: Radio<ThemeMode>(
                                                         value: ThemeMode.system,
                                                         groupValue: _filter,
@@ -174,8 +175,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
 
-                            const Text("Account",
-                                style: TextStyle(
+                            Text(AppLocalizations.of(context)!.account,
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
                                 )
@@ -188,7 +189,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     onPressed: (){},
                                     icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
                                 icon: Icons.account_circle,
-                                title: "Info account"
+                                title: AppLocalizations.of(context)!.infoAccount
                             ),
 
                             const SizedBox(height: 10),
@@ -198,7 +199,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     onPressed: (){},
                                     icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
                                 icon: Ionicons.log_out_outline,
-                                title: "Logout"
+                                title: AppLocalizations.of(context)!.logout
                             ),
                           ],
                         ),
@@ -217,8 +218,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
 
-                            const Text("Info",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
+                            Text(AppLocalizations.of(context)!.info,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
                             ),
 
                             const SizedBox(height: 10),
@@ -228,7 +229,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     onPressed: (){},
                                     icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
                                 icon: Ionicons.information_circle_sharp,
-                                title: "Info e riconoscimenti"
+                                title: AppLocalizations.of(context)!.infoAndRecognitions
                             ),
                           ],
                         ),
