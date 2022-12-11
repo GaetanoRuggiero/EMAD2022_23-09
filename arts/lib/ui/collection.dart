@@ -1,3 +1,4 @@
+import 'package:arts/ui/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -21,33 +22,68 @@ class _CollectionScreenState extends State<CollectionScreen> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            IconButton(
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.home_rounded),
                 onPressed: () {
                   Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                icon: const Icon(Icons.home_rounded))
-          ],
-          title: Text(AppLocalizations.of(context)!.collectionTitle),
-          bottom: TabBar(
-            tabs: [
-              Tab(icon: const Icon(FontAwesomeIcons.bookBookmark), text: AppLocalizations.of(context)!.visitedTabTitle),
-              Tab(icon: const Icon(FontAwesomeIcons.book), text: AppLocalizations.of(context)!.toVisitTabTitle),
-              Tab(icon: const Icon(FontAwesomeIcons.magnifyingGlass), text: AppLocalizations.of(context)!.searchTabTitle),
+                }),
+            ],
+            title: Text(AppLocalizations.of(context)!.collectionTitle),
+            bottom: TabBar(
+              tabs: [
+                Tab(child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(FontAwesomeIcons.bookBookmark, size: 22),
+                    ),
+                    Text(AppLocalizations.of(context)!.visitedTabTitle),
+                  ],
+                )),
+                Tab(child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(FontAwesomeIcons.book, size: 22),
+                    ),
+                    Text(AppLocalizations.of(context)!.toVisitTabTitle),
+                  ],
+                )),
+                Tab(child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(Icons.search, size: 22),
+                    ),
+                    Text(AppLocalizations.of(context)!.searchTabTitle),
+                  ],
+                )),
+              ],
+            ),
+          ),
+          body: const TabBarView(
+            children: [
+              // Visited - First tab
+              VisitedTabView(),
+              // To Visit - Second tab
+              ToVisitTabView(),
+              // Search - Third tab
+              SearchTabView()
             ],
           ),
-        ),
-        body: const TabBarView(
-          children: [
-            // Visited - First tab
-            VisitedTabView(),
-            // To Visit - Second tab
-            ToVisitTabView(),
-            // Search - Third tab
-            SearchTabView()
-          ],
         ),
       ),
     );
@@ -140,12 +176,14 @@ class SearchTabView extends StatefulWidget {
 }
 
 class _SearchTabViewState extends State<SearchTabView> {
-  SearchFilter? _searchFilter = SearchFilter.city;
+  final _searchTextController = TextEditingController();
   String _searchText = '';
+  SearchFilter? _searchFilter = SearchFilter.city;
   late List<POI> _filteredList = [];
   bool _showError = false;
   bool _showLoading = true;
   bool _noResultsFound = false;
+  bool _showCancelButton = false;
   final _debouncer = Debouncer(milliseconds: 500);
 
   Widget showGridSearchResults() {
@@ -156,7 +194,7 @@ class _SearchTabViewState extends State<SearchTabView> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_showError) {
-      return Container(padding: const EdgeInsets.all(20.0), child: Column(
+      return Container(padding: const EdgeInsets.all(10.0), child: Column(
         children: [
           const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
           Text(textAlign: TextAlign.center,
@@ -219,6 +257,24 @@ class _SearchTabViewState extends State<SearchTabView> {
     );
   }
 
+  void resetSearchUI() {
+    debugPrint("No input given. UI is clear.");
+    setState(() {
+      _searchTextController.clear();
+      _searchText = '';
+      _filteredList = [];
+      _showError = false;
+      _showLoading = false;
+      _showCancelButton = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchTextController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -226,12 +282,18 @@ class _SearchTabViewState extends State<SearchTabView> {
       Container(
         padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
         child: TextField(
+          controller: _searchTextController,
           onChanged: (String text) {
+            if (text.isNotEmpty) {
+              setState(() {
+                _showCancelButton = true;
+              });
+            }
             _debouncer.run(() async {
               /* The second condition blocks the call of onChanged even when
             the focus of TextField is loss (e.g when the back button is pressed to hide keyboard). */
               if (text.length >= 3 && text != _searchText) {
-                _searchText = text;
+                _searchText = _searchTextController.text;
                 if (_filteredList.isEmpty) {
                   debugPrint("Loading...");
                   setState(() {
@@ -272,26 +334,27 @@ class _SearchTabViewState extends State<SearchTabView> {
               }
               else if (text.isEmpty && _searchText.isNotEmpty) {
                 /* Reset UI. The user has cleaned the TextField */
-                debugPrint("No input given. UI is clear.");
-                setState(() {
-                  _filteredList = [];
-                  _showError = false;
-                  _showLoading = false;
-                  _searchText = '';
-                });
+                resetSearchUI();
               }
               else { return; }
             });
           },
           decoration: InputDecoration(
             contentPadding: EdgeInsets.zero,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).dialogBackgroundColor,
             filled: true,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(25),
             ),
             hintText: AppLocalizations.of(context)!.searchHint,
-            prefixIcon: const Icon(Icons.search, color: Color(0xffE68532)),
+            prefixIcon: const Icon(Icons.search, color: darkOrange),
+            suffixIcon: _showCancelButton
+                ? IconButton(
+                    icon: const Icon(Icons.cancel),
+                    onPressed: () {
+                      resetSearchUI();
+                    },)
+                : null
           ),
           style: const TextStyle(fontSize: 18),
         ),

@@ -7,7 +7,7 @@
   "connectionError": "Impossibile connettersi al server. Controlla la tua connessione o riprova più tardi.",
   "resultsNotFound": "Nessun risultato per: ",
   "city": "Città",
-  "poiName": "Nome Opera",
+  "poiName": "Nome opera",
 
   "mission": "Missioni",
   "sideQuestAvailableEvents": "Sono disponibili i seguenti eventi:",
