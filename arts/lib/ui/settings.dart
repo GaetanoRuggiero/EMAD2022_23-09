@@ -3,8 +3,9 @@ import 'package:arts/utils/theme_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
-import '../utils/theme_model.dart';
+import '../utils/settings_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'languagescreen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -20,10 +21,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   getThemePreferences () async {
     int? themeMode = await ThemePreferences().getTheme();
 
-    if (themeMode != null && themeMode == ThemeModel.dark) {
+    if (themeMode != null && themeMode == SettingsModel.dark) {
       _filter = ThemeMode.dark;
     }
-    else if (themeMode != null && themeMode == ThemeModel.light){
+    else if (themeMode != null && themeMode == SettingsModel.light){
       _filter = ThemeMode.light;
     }
     else {
@@ -33,17 +34,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-    //_filter=ThemeMode.light;
-
     getThemePreferences();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return Consumer (
-        builder: (context, ThemeModel themeNotifier, child) {
+    return Consumer(
+        builder: (context, SettingsModel settingsNotifier, child) {
           return Scaffold(
             appBar: AppBar(
               centerTitle: true,
@@ -65,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          color: Theme.of(context).primaryColorLight,
+                          color: Theme.of(context).canvasColor,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +80,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                             SettingsTile(
                                 actionButton: IconButton(
-                                    onPressed: (){},
+                                    onPressed: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const LanguageScreen()),
+                                      );
+                                    },
                                     icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
                                 icon: Ionicons.language,
                                 title: AppLocalizations.of(context)!.language),
@@ -114,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                         groupValue: _filter,
                                                         onChanged: (ThemeMode? value) {
                                                           setState(() {
-                                                            themeNotifier.themeMode = ThemeModel.light;
+                                                            settingsNotifier.themeMode = SettingsModel.light;
                                                             _filter = value;
                                                           });
                                                         }
@@ -128,7 +131,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                         groupValue: _filter,
                                                         onChanged: (ThemeMode? value) {
                                                           setState(() {
-                                                            themeNotifier.themeMode = ThemeModel.dark;
+                                                            settingsNotifier.themeMode = SettingsModel.dark;
                                                             _filter = value;
                                                           });
                                                         }
@@ -142,7 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                         groupValue: _filter,
                                                         onChanged: (ThemeMode? value) {
                                                           setState(() {
-                                                            themeNotifier.themeMode = ThemeModel.system;
+                                                            settingsNotifier.themeMode = SettingsModel.system;
                                                             _filter = value;
                                                           });
                                                         }
@@ -168,7 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          color: Theme.of(context).primaryColor,
+                          //color: Theme.of(context).primaryColor,
                         ),
 
                         child: Column(
@@ -196,7 +199,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                             SettingsTile(
                                 actionButton: IconButton(
-                                    onPressed: (){},
+                                    onPressed: (){
+                                      showDialog<void>(
+                                          context: context,
+                                          builder: (BuildContext context) {
+
+                                            return AlertDialog(
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                                title: Text(AppLocalizations.of(context)!.logout),
+                                                actions: [
+                                            TextButton(
+                                            child: Text(AppLocalizations.of(context)!.ok),
+                                            onPressed: () => Navigator.pop(context),
+                                            ),
+                                                ],
+                                                content: StatefulBuilder(
+                                                    builder: (context, setState) {
+                                                      return Column(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Text(AppLocalizations.of(context)!.logoutCompleted, textAlign: TextAlign.center,)
+                                                          ]
+                                                      );
+                                                    }
+                                                )
+                                            );
+                                          }
+                                      );
+                                    },
                                     icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
                                 icon: Ionicons.log_out_outline,
                                 title: AppLocalizations.of(context)!.logout
@@ -211,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          color: Theme.of(context).primaryColor,
+                          //color: Theme.of(context).primaryColor,
                         ),
 
                         child: Column(

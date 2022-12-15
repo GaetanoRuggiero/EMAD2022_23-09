@@ -31,10 +31,12 @@
   "account": "Account",
   "infoAccount": "Info account",
   "logout": "Logout",
+  "logoutCompleted": "Successful logout!",
   "info": "Info",
   "infoAndRecognitions": "Info and recognitions",
 
   "selectLanguage": "Choose the language",
+  "ok": "OK",
 
   "welcomeReg": "Sign in to unlock all functionalities",
   "name": "Name",

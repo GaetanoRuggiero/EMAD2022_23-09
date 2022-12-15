@@ -1,4 +1,4 @@
-import '../utils/theme_model.dart';
+import '../utils/settings_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemePreferences {
@@ -11,7 +11,7 @@ class ThemePreferences {
       sharedPreferences.setInt(prefKey, value);
     }
     else {
-      sharedPreferences.setInt(prefKey, ThemeModel.light);
+      sharedPreferences.setInt(prefKey, SettingsModel.light);
     }
   }
 
@@ -22,7 +22,7 @@ class ThemePreferences {
       return sharedPreferences.getInt(prefKey);
     }
     else {
-      return ThemeModel.light;
+      return SettingsModel.light;
     }
   }
 }
