@@ -63,5 +63,9 @@
   "profile": "Profilo",
   "redirectLog": "Accedi",
   "rewards": "Premi",
-  "seasonMex": "La stagione termina il "
+  "seasonMex": "La stagione termina il ",
+
+  "poiRecognitionTitleBar": "Scatta la foto",
+  "deviceLocationNotAvailable": "Impossibile ottenere la posizione del dispositivo",
+  "deviceLocationAvailable": "Posizione del dispositivo stabilita"
 }

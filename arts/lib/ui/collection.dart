@@ -5,7 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import './singlepoiview.dart';
 import '../utils/debouncer.dart';
 import '../model/POI.dart';
-import '../api/collection_api.dart';
+import '../api/poi_api.dart';
 
 enum SearchFilter { city, name }
 
@@ -42,7 +42,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.only(right: 5),
                       child: Icon(FontAwesomeIcons.bookBookmark, size: 22),
                     ),
@@ -53,7 +53,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.only(right: 5),
                       child: Icon(FontAwesomeIcons.book, size: 22),
                     ),
@@ -302,7 +302,14 @@ class _SearchTabViewState extends State<SearchTabView> {
                   });
                 }
 
-                var newFilteredList = await getPOIListByFilter(text, _searchFilter!);
+                List<POI>? newFilteredList;
+                if (_searchFilter == SearchFilter.city) {
+                  newFilteredList = await getPOIListByCity(text);
+                }
+                else {
+                  newFilteredList = await getPOIListByName(text);
+                }
+
 
                 if (newFilteredList == null) {
                   /* Server did not respond. */
@@ -316,7 +323,7 @@ class _SearchTabViewState extends State<SearchTabView> {
                   /* Server responded successfully, we turn off all the flags. */
                   debugPrint("Ready! Showing results.");
                   setState(() {
-                    _filteredList = newFilteredList;
+                    _filteredList = newFilteredList!;
                     _showLoading = false;
                     _showError = false;
                     _noResultsFound = false;

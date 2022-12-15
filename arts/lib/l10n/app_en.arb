@@ -63,5 +63,9 @@
   "profile": "Profile",
   "redirectLog": "Login now",
   "rewards": "Rewards",
-  "seasonMex": "The season ends on "
+  "seasonMex": "The season ends on ",
+
+  "poiRecognitionTitleBar": "Take a pitcure",
+  "deviceLocationNotAvailable": "Could not retrieve the device's location",
+  "deviceLocationAvailable": "Device's location obtained"
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/login.dart';
 import 'package:arts/utils/settings_model.dart';
@@ -18,6 +19,7 @@ Future<void> main() async {
   // Get a specific camera from the list of available cameras.
   camera = cameras.first;
 
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
   runApp(const MyApp());
 }
 
