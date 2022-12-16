@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class RewardsPage extends StatefulWidget {
-  const RewardsPage({Key? key}) : super(key: key);
+class SeasonRewardsPage extends StatefulWidget {
+  const SeasonRewardsPage({Key? key}) : super(key: key);
 
   @override
-  State<RewardsPage> createState() => _RewardsPageState();
+  State<SeasonRewardsPage> createState() => _SeasonRewardsPageState();
 }
 
-class _RewardsPageState extends State<RewardsPage> {
+class _SeasonRewardsPageState extends State<SeasonRewardsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,12 +22,30 @@ class _RewardsPageState extends State<RewardsPage> {
                 icon: const Icon(Icons.home))
           ],
         ),
-        body: const RewardCard());
+        body: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(20),
+
+
+            child: Card(
+                elevation: 0,
+                shape: const RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                 child: Container(margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),child: Text(style: TextStyle(fontSize: 18),
+                     AppLocalizations.of(context)!.seasonRewardMex)))),
+            const Expanded(child: SeasonRewardsCard()),
+          ],
+        ));
   }
 }
 
-class RewardCard extends StatelessWidget {
-  const RewardCard({super.key});
+class SeasonRewardsCard extends StatelessWidget {
+  const SeasonRewardsCard({super.key});
 
   @override
   Widget build(BuildContext context) {

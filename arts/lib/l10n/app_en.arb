@@ -64,6 +64,7 @@
   "redirectLog": "Login now",
   "rewards": "Rewards",
   "seasonMex": "The season ends on ",
+  "seasonRewardMex": "By finishing the goals you can receive the following rewards.",
 
   "poiRecognitionTitleBar": "Take a pitcure",
   "deviceLocationNotAvailable": "Could not retrieve the device's location",
