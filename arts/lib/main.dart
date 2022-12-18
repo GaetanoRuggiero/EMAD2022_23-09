@@ -9,6 +9,7 @@ import 'package:arts/ui/login.dart';
 import 'package:arts/utils/settings_model.dart';
 
 late final CameraDescription camera;
+const String authToken = "authToken";
 
 Future<void> main() async {
   /* Ensure that plugin services are initialized so that 'availableCameras()'

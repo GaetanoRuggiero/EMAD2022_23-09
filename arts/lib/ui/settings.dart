@@ -1,3 +1,4 @@
+import 'package:arts/ui/login.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/utils/theme_preferences.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../utils/settings_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'languagescreen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:arts/main.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -208,10 +211,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                                 title: Text(AppLocalizations.of(context)!.logout),
                                                 actions: [
-                                            TextButton(
-                                            child: Text(AppLocalizations.of(context)!.ok),
-                                            onPressed: () => Navigator.pop(context),
-                                            ),
+                                                  TextButton(
+                                                    child: Text(AppLocalizations.of(context)!.ok),
+                                                    onPressed: () async {
+                                                      const storage = FlutterSecureStorage();
+                                                      await storage.delete(key: authToken);
+                                                      if (!mounted) return;
+                                                      debugPrint("Logout");
+                                                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                                          builder: (context) => const LoginScreen()), (Route route) => false);
+                                                      },
+                                                  ),
                                                 ],
                                                 content: StatefulBuilder(
                                                     builder: (context, setState) {
