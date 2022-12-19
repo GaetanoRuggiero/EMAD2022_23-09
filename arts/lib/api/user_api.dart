@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../env/env.dart';
 import '../model/user.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:arts/main.dart';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 
@@ -49,7 +47,7 @@ Future<bool> loginUser(String email, String password, String token) async {
       port: Env.serverPort,
       path: 'users/login');
 
-  final body = {'email': email, 'password': password};
+  final body = {'email': email, 'password': password, 'token': token};
 
   final headers = <String, String> {
     "Content-Type": "application/json; charset=utf-8"

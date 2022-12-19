@@ -175,10 +175,11 @@ class _LoginFormState extends State<LoginForm> {
               if (_formKey.currentState!.validate()) {
                 String newToken = generateToken();
                 const storage = FlutterSecureStorage();
-                await storage.write(key: tokenKey, value: newToken);
                 bool isLogged = await loginUser(
                     _controllerEmail.text, _controllerPass.text, newToken);
                 if (isLogged) {
+                  await storage.write(key: tokenKey, value: newToken);
+                  await storage.write(key: emailKey, value: _controllerEmail.text);
                   if (!mounted) return;
                   Navigator.pushReplacement(
                       context,

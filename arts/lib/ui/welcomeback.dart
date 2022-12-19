@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:arts/main.dart';
 import 'package:arts/ui/homepage.dart';
 import 'package:arts/ui/login.dart';
@@ -15,12 +17,10 @@ class WelcomeBackScreen extends StatefulWidget {
 }
 
 class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
-  late Future<bool?> isLoggedFuture;
-
-  @override
-  Future<void> initState() async {
-    super.initState();
-  }
+  final Future<String> _greetings = Future<String>.delayed(
+    const Duration(seconds: 5),
+        () => 'Accesso effettuato',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -33,28 +33,60 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
                   text: AppLocalizations.of(context)!.welcomeLog2,
                   style: const TextStyle(fontSize: 30))),
         ),
-        FutureBuilder(
-            future: isLoggedFuture,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (snapshot.data!) {
-                  Future.microtask(() => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const HomePage())));
-                } else {
-                  Future.microtask(() => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginScreen())));
-                }
-                return Container();
-              } else {
-                return const Center(
+        FutureBuilder<String>(
+          future: _greetings,
+          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            List<Widget> children;
+            if (snapshot.hasData) {
+              children = <Widget>[
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 30,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('${snapshot.data}'),
+                ),
+              ];
+              Future.microtask(() => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const HomePage())));
+            } else if (snapshot.hasError) {
+              children = <Widget>[
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 30,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('Error: ${snapshot.error}'),
+                ),
+              ];
+            } else {
+              children = const <Widget>[
+                SizedBox(
+                  width: 30,
+                  height: 30,
                   child: CircularProgressIndicator(),
-                );
-              }
-            }),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Text('Caricamento...'),
+                ),
+              ];
+            }
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: children,
+              ),
+            );
+          },
+        )
+
       ]),
     );
   }

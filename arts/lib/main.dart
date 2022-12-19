@@ -107,11 +107,14 @@ class _MyAppState extends State<MyApp> {
 
   Widget setStartingPoint(bool? isLogged) {
     if (isLogged == null) {
+      debugPrint("islogged==null");
       //TODO: we should pass parameter to show "token expired message"
       return const LoginScreen();
     } else if (isLogged) {
+      debugPrint("islogged==true");
       return const WelcomeBackScreen();
     } else {
+      debugPrint("islogged==false");
       return const LoginScreen();
     }
   }
