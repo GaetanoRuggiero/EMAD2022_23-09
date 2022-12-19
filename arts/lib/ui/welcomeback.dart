@@ -1,10 +1,11 @@
 import 'package:arts/main.dart';
 import 'package:arts/ui/homepage.dart';
 import 'package:arts/ui/login.dart';
-import 'package:arts/ui/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../api/user_api.dart';
 
 class WelcomeBackScreen extends StatefulWidget {
   const WelcomeBackScreen({Key? key}) : super(key: key);
@@ -14,25 +15,11 @@ class WelcomeBackScreen extends StatefulWidget {
 }
 
 class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
-  final storage = const FlutterSecureStorage();
-  late String _token;
-  late Future<bool> isLoggedFuture;
-
-  Future<bool> checkIfLogged() async {
-    String? token = await storage.read(key: authToken);
-    if (token == null) {
-      //TODO:create token
-      return false;
-    } else {
-      //TODO:check validity of token
-      return true;
-    }
-  }
+  late Future<bool?> isLoggedFuture;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
-    isLoggedFuture = checkIfLogged();
   }
 
   @override

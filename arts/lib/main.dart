@@ -1,15 +1,21 @@
+import 'package:arts/ui/welcomeback.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/login.dart';
 import 'package:arts/utils/settings_model.dart';
 
+import 'api/user_api.dart';
+
 late final CameraDescription camera;
-const String authToken = "authToken";
+const String tokenKey = "authToken";
+const String emailKey = "email";
+bool? isLogged = false;
 
 Future<void> main() async {
   /* Ensure that plugin services are initialized so that 'availableCameras()'
@@ -20,6 +26,12 @@ Future<void> main() async {
   // Get a specific camera from the list of available cameras.
   camera = cameras.first;
 
+  const storage = FlutterSecureStorage();
+  String? token = await storage.read(key: tokenKey);
+  String? email = await storage.read(key: emailKey);
+  if (token != null && email != null) {
+    isLogged = await checkIfLogged(email, token);
+  }
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
   runApp(const MyApp());
 }
@@ -56,7 +68,7 @@ class _MyAppState extends State<MyApp> {
               theme: lightTheme,
               darkTheme: darkTheme,
               themeMode: setAppThemeMode(settingsNotifier),
-              home: const LoginScreen(),
+              home: setStartingPoint(isLogged) ,
             );
           }
       ),
@@ -91,6 +103,17 @@ class _MyAppState extends State<MyApp> {
     countryCode = SettingsModel.english.substring(3,5);
     debugPrint("LanguageCode: $languageCode\n CountryCode: $countryCode");
     return Locale.fromSubtags(languageCode: languageCode, countryCode: countryCode);
+  }
+
+  Widget setStartingPoint(bool? isLogged) {
+    if (isLogged == null) {
+      //TODO: we should pass parameter to show "token expired message"
+      return const LoginScreen();
+    } else if (isLogged) {
+      return const WelcomeBackScreen();
+    } else {
+      return const LoginScreen();
+    }
   }
 
 }

@@ -4,7 +4,9 @@ import 'package:arts/ui/styles.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'homepage.dart';
+import 'package:arts/main.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -280,7 +282,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               } else if (_controllerPass.text != value) {
 
                                   setState(() {
-                                    errorPassword = "La password non coincide";
+                                    errorPassword = AppLocalizations.of(context)!.noMatchingPass;
                                   });
 
                                 return errorPassword;
@@ -298,17 +300,23 @@ class _RegisterPageState extends State<RegisterPage> {
                 GestureDetector(
                   onTap: () async {
                     if (_formKey.currentState!.validate()) {
+                      String newToken = generateToken();
                         bool reg = await signUpUser(
                             _controllerName.text,
                             _controllerSurname.text,
                             _controllerEmail.text,
-                            _controllerPass.text);
+                            _controllerPass.text,
+                            newToken);
                         if (reg) {
+                          const storage = FlutterSecureStorage();
+                          await storage.write(key: tokenKey, value: newToken);
                           if (!mounted) return;
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const HomePage()));
+                        } else {
+                          //TODO: error clause
                         }
                     }
                   },

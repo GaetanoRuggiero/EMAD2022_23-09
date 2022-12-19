@@ -3,8 +3,10 @@ import 'package:arts/ui/styles.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../api/user_api.dart';
+import '../main.dart';
 import 'homepage.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -24,7 +26,8 @@ class LoginScreen extends StatelessWidget {
               child: RichText(
                 text: TextSpan(
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
                       color: Theme.of(context).textTheme.bodyText1?.color),
                   children: <TextSpan>[
                     TextSpan(
@@ -33,7 +36,7 @@ class LoginScreen extends StatelessWidget {
                     TextSpan(
                       text: AppLocalizations.of(context)!.appName,
                       style:
-                          const TextStyle(fontFamily: "DaVinci", fontSize: 25),
+                          const TextStyle(fontFamily: "DaVinci", fontSize: 35, color: lightOrange),
                     ),
                     TextSpan(
                       text:
@@ -170,8 +173,11 @@ class _LoginFormState extends State<LoginForm> {
             onTap: () async {
               // Validate returns true if the form is valid, or false otherwise.
               if (_formKey.currentState!.validate()) {
+                String newToken = generateToken();
+                const storage = FlutterSecureStorage();
+                await storage.write(key: tokenKey, value: newToken);
                 bool isLogged = await loginUser(
-                    _controllerEmail.text, _controllerPass.text);
+                    _controllerEmail.text, _controllerPass.text, newToken);
                 if (isLogged) {
                   if (!mounted) return;
                   Navigator.pushReplacement(

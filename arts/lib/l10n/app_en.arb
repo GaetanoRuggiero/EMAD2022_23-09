@@ -59,6 +59,7 @@
   "missingEmail": "Enter your email!",
   "missingPsw": "Enter your password!",
   "login": "Sign in",
+  "noMatchingPass": "The passwords do not match",
 
   "profile": "Profile",
   "redirectLog": "Login now",

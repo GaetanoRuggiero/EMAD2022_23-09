@@ -215,7 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     child: Text(AppLocalizations.of(context)!.ok),
                                                     onPressed: () async {
                                                       const storage = FlutterSecureStorage();
-                                                      await storage.delete(key: authToken);
+                                                      await storage.delete(key: tokenKey);
                                                       if (!mounted) return;
                                                       debugPrint("Logout");
                                                       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
