@@ -1,6 +1,9 @@
+import 'package:arts/model/sidequest.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
+import '../api/sidequest_api.dart';
 
 class SideQuest extends StatefulWidget {
   const SideQuest({Key? key}) : super(key: key);
@@ -10,10 +13,12 @@ class SideQuest extends StatefulWidget {
 }
 
 class _SideQuestState extends State<SideQuest> {
+
+  List<Sidequest> _sideQuestList = [];
+
   @override
   Widget build(BuildContext context) {
 
-    final deviceOrientation = MediaQuery.of(context).orientation;
 
     return Scaffold(
 
@@ -28,9 +33,8 @@ class _SideQuestState extends State<SideQuest> {
         ],
       ),
 
-      body: ListView(
+      body: Column(
         children: [
-
           Container(
             margin: const EdgeInsets.only(top: 10.0),
             child: Row(
@@ -41,31 +45,37 @@ class _SideQuestState extends State<SideQuest> {
             ),
           ),
 
-
-          deviceOrientation == Orientation.portrait
-              ?
-          SideQuestCard(
-            poi: "Piazza del Plebiscito ",
-            startDate: "05/11/2022",
-            endDate: "05/12/2022",
-            place: " Museo Nazionale!",
-            reward: "un biglietto gratuito",
-            image: Image.network("https://images.unsplash.com/photo-1655303717503-c6ab284d7b69?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
-                fit: BoxFit.fitHeight),
-          )
-
-              :
-
-          //const SizedBox(height: 10),
-          SideQuestCard(
-            poi: "Castel Nuovo ",
-            startDate: "06/02/2023",
-            endDate: "06/03/2023",
-            place: "Museo Nazionale!",
-            reward: "un codice sconto",
-            image: Image.network("https://images.unsplash.com/photo-1571075051578-c8cd15385f46?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80",
-                fit: BoxFit.fitWidth),
+          FutureBuilder(
+              future: getAllSidequest(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  var sideQuestList = snapshot.data;
+                  if (sideQuestList == null){
+                    return Center(child: Text(style: const TextStyle(fontSize: 20), "Errore di connessione"));
+                  }
+                  _sideQuestList = sideQuestList;
+                  if (sideQuestList.isNotEmpty) {
+                    return Expanded(
+                      child: ListView.separated(
+                          itemBuilder: (context, index) {
+                            return SideQuestCard(sidequest: _sideQuestList[index]);
+                          },
+                          separatorBuilder: (BuildContext context, int index) {return const Divider();},
+                          itemCount: _sideQuestList.length
+                      ),
+                    );
+                  }
+                  else {
+                    //quando è vuoto
+                    return Center(child: Text(style: const TextStyle(fontSize: 20), "Nessuna missione disponibile!"));
+                  }
+                }
+                else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              }
           ),
+
         ],
       ),
     );
@@ -74,23 +84,24 @@ class _SideQuestState extends State<SideQuest> {
 
 class SideQuestCard extends StatelessWidget {
 
-  final String poi, reward, place, startDate, endDate;
-  final Image image;
-
   const SideQuestCard({
     Key? key,
-    required this.poi,
-    required this.reward,
-    required this.place,
-    required this.startDate,
-    required this.endDate,
-    required this.image
+    required this.sidequest,
   }) : super(key: key);
+
+  final Sidequest sidequest;
+
 
   @override
   Widget build(BuildContext context) {
-    return Card(
 
+    final deviceOrientation = MediaQuery.of(context).orientation;
+    final startDate = DateTime.fromMillisecondsSinceEpoch(sidequest.startDate!.seconds! * 1000);
+    final endDate = DateTime.fromMillisecondsSinceEpoch(sidequest.endDate!.seconds! * 1000);
+    final formattedStartDate = DateFormat("dd/MM/yyyy").format(startDate);
+    final formattedEndDate = DateFormat("dd/MM/yyyy").format(endDate);
+
+    return Card(
       color: const Color(0xff113197),
       margin: const EdgeInsets.all(10),
       elevation: 2.0,
@@ -106,7 +117,9 @@ class SideQuestCard extends StatelessWidget {
               margin: const EdgeInsets.only(left: 70.0),
               height: 250.0,
               width: double.infinity,
-              child: image),
+              child: Image.network(sidequest.reward!.poster!,
+                  fit: ( deviceOrientation == Orientation.portrait ? BoxFit.fitHeight : BoxFit.fitWidth))
+          ),
 
           Container(
             height: 250,
@@ -133,12 +146,12 @@ class SideQuestCard extends StatelessWidget {
               text: TextSpan(
                 style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white,),
                 children: <TextSpan> [
-                  TextSpan(text: (AppLocalizations.of(context)!.sideQuestGoToUpper)),
-                  TextSpan(text: poi , style: const TextStyle(color: Color(0xffE68532))),
-                  TextSpan(text: (AppLocalizations.of(context)!.sideQuestScan)),
-                  TextSpan(text: reward),
-                  TextSpan(text: (AppLocalizations.of(context)!.articleToThe)),
-                  TextSpan(text: place, style: const TextStyle(color: Color(0xffE68532)),),
+                  TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestGoToUpper} ")),
+                  TextSpan(text: "${sidequest.poi!.name!} ", style: const TextStyle(color: Color(0xffE68532))),
+                  TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestScan} ")),
+                  TextSpan(text: sidequest.reward!.type!),
+                  TextSpan(text: (" ${AppLocalizations.of(context)!.articleToThe} ")),
+                  TextSpan(text: sidequest.reward!.placeEvent!, style: const TextStyle(color: Color(0xffE68532)),),
                 ],
               ),
             ),
@@ -147,7 +160,7 @@ class SideQuestCard extends StatelessWidget {
           Positioned(
             bottom: 12,
             left: 30,
-            child: Text(AppLocalizations.of(context)!.sideQuestEventProgess + startDate + AppLocalizations.of(context)!.articleToThe + endDate,
+            child: Text("${AppLocalizations.of(context)!.sideQuestEventProgess} $formattedStartDate ${AppLocalizations.of(context)!.articleToThe} $formattedEndDate",
               style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600

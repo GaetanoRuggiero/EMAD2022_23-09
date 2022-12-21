@@ -13,11 +13,11 @@
 
   "mission": "Missioni",
   "sideQuestAvailableEvents": "Sono disponibili i seguenti eventi:",
-  "sideQuestGoToUpper": "Recati presso ",
-  "sideQuestScan": "e scansionalo per ricevere ",
-  "sideQuestGoToLower": " presso il",
-  "sideQuestEventProgess": "Evento in corso: dal ",
-  "articleToThe": " al ",
+  "sideQuestGoToUpper": "Recati presso",
+  "sideQuestScan": "e scansionalo per ricevere",
+  "sideQuestGoToLower": "presso il",
+  "sideQuestEventProgess": "Evento in corso: dal",
+  "articleToThe": "al",
   "sideQuestEventCompleted": "Evento completato!",
 
   "settings": "Impostazioni",
@@ -63,9 +63,14 @@
   "profile": "Profilo",
   "redirectLog": "Accedi",
   "rewards": "Premi",
-  "seasonMex": "La stagione termina il ",
+  "seasonMex": "La stagione termina il",
 
   "poiRecognitionTitleBar": "Scatta la foto",
   "deviceLocationNotAvailable": "Impossibile ottenere la posizione del dispositivo",
-  "deviceLocationAvailable": "Posizione del dispositivo stabilita"
+  "deviceLocationAvailable": "Posizione del dispositivo stabilita",
+
+  "itineraryList": "Lista itinerari",
+  "recommendedItinerary": "Itinerario consigliato",
+  "thematicItineraries": "Itinerari tematici"
+
 }

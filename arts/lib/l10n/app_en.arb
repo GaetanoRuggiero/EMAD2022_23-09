@@ -13,11 +13,11 @@
 
   "mission": "Missions",
   "sideQuestAvailableEvents": "The following events are available:",
-  "sideQuestGoToUpper": "Go to ",
-  "sideQuestScan": "and scan it to receive ",
-  "sideQuestGoToLower": " go to",
-  "sideQuestEventProgess": "Current event: from ",
-  "articleToThe": " to the ",
+  "sideQuestGoToUpper": "Go to",
+  "sideQuestScan": "and scan it to receive",
+  "sideQuestGoToLower": "go to",
+  "sideQuestEventProgess": "Current event: from",
+  "articleToThe": "to the",
   "sideQuestEventCompleted": "Event completed!",
 
   "settings": "Settings",
@@ -67,5 +67,9 @@
 
   "poiRecognitionTitleBar": "Take a pitcure",
   "deviceLocationNotAvailable": "Could not retrieve the device's location",
-  "deviceLocationAvailable": "Device's location obtained"
+  "deviceLocationAvailable": "Device's location obtained",
+
+  "itineraryList": "Itinerary list",
+  "recommendedItinerary": "Recommended itinerary",
+  "thematicItineraries": "Thematic itineraries"
 }
