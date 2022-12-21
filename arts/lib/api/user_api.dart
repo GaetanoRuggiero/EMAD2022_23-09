@@ -2,14 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../env/env.dart';
-import '../model/user.dart';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 
 
 
 
-Future<Type?> getUser() async {
+/*Future<Type?> getUser() async {
   Uri uri = Uri(
       scheme: 'http', host: Env.serverIP, port: Env.serverPort, path: 'users');
   debugPrint("Calling $uri");
@@ -38,7 +37,7 @@ Future<Type?> getUser() async {
     throw Exception('Failed to load POI');
   }
   return User;
-}
+}*/
 
 Future<bool> loginUser(String email, String password, String token) async {
   Uri uri = Uri(

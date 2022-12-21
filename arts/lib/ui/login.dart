@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+import 'package:email_validator/email_validator.dart';
 import '../api/user_api.dart';
 import '../main.dart';
 import 'homepage.dart';
@@ -123,12 +123,8 @@ class _LoginFormState extends State<LoginForm> {
                         border: const OutlineInputBorder(),
                         hintText: AppLocalizations.of(context)!.emailExm,
                         hintStyle: const TextStyle(fontSize: 15)),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(context)!.mandatoryField;
-                      }
-                      return null;
-                    }),
+                    validator: validateEmail,
+                ),
                 Container(
                     alignment: Alignment.centerLeft,
                     margin: const EdgeInsets.only(bottom: 10, top: 10),
@@ -159,12 +155,7 @@ class _LoginFormState extends State<LoginForm> {
                       hintStyle: TextStyle(
                           color: Theme.of(context).textTheme.headline1?.color,
                           fontSize: 15)),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.mandatoryField;
-                    }
-                    return null;
-                  },
+                  validator: validatePass,
                 )
               ],
             ),
@@ -214,4 +205,26 @@ class _LoginFormState extends State<LoginForm> {
       ),
     );
   }
+
+  String? validateEmail(String? val) {
+    if (val!.isEmpty){
+      return AppLocalizations.of(context)!.mandatoryField;
+    } else if (!EmailValidator.validate(val, true)){
+      return AppLocalizations.of(context)!.invalidEmail;
+    }else{
+      return null;
+    }
+  }
+
+  String? validatePass(String? val) {
+    if (val!.isEmpty){
+      return AppLocalizations.of(context)!.mandatoryField;
+    } else if (val.length<8){
+      return AppLocalizations.of(context)!.invalidPass;
+    }else{
+      return null;
+    }
+
+  }
+
 }

@@ -41,6 +41,8 @@
   "welcomeReg": "Iscriviti per usufruire di tutte le funzionalità",
   "name": "Nome",
   "mandatoryField": "Campo obbligatorio",
+  "invalidEmail": "Email non valida",
+  "invalidPass": "Inserisci almeno 8 caratteri",
   "surname": "Cognome",
   "email": "Email",
   "password": "Password",
@@ -69,5 +71,8 @@
 
   "poiRecognitionTitleBar": "Scatta la foto",
   "deviceLocationNotAvailable": "Impossibile ottenere la posizione del dispositivo",
-  "deviceLocationAvailable": "Posizione del dispositivo stabilita"
+  "deviceLocationAvailable": "Posizione del dispositivo stabilita",
+  "loggedSuccessfully": "Accesso effettuato con successo",
+  "errorGeneric": "Errore",
+  "loading": "Caricamento..."
 }

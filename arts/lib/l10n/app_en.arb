@@ -41,6 +41,8 @@
   "welcomeReg": "Sign in to unlock all functionalities",
   "name": "Name",
   "mandatoryField": "Mandatory field",
+  "invalidEmail": "Invalid Email Address",
+  "invalidPass": "Use at least 8 characters",
   "surname": "Surname",
   "email": "Email",
   "password": "Password",
@@ -69,5 +71,8 @@
 
   "poiRecognitionTitleBar": "Take a pitcure",
   "deviceLocationNotAvailable": "Could not retrieve the device's location",
-  "deviceLocationAvailable": "Device's location obtained"
+  "deviceLocationAvailable": "Device's location obtained",
+  "loggedSuccessfully": "Signed in successfully",
+  "errorGeneric": "Error",
+  "loading": "Loading..."
 }

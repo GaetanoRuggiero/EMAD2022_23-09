@@ -1,13 +1,7 @@
 import 'dart:async';
-
-import 'package:arts/main.dart';
 import 'package:arts/ui/homepage.dart';
-import 'package:arts/ui/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import '../api/user_api.dart';
 
 class WelcomeBackScreen extends StatefulWidget {
   const WelcomeBackScreen({Key? key}) : super(key: key);
@@ -17,19 +11,19 @@ class WelcomeBackScreen extends StatefulWidget {
 }
 
 class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
-  final Future<String> _greetings = Future<String>.delayed(
-    const Duration(seconds: 5),
-        () => 'Accesso effettuato',
-  );
 
   @override
   Widget build(BuildContext context) {
+    final Future<String> greetings = Future<String>.delayed(
+      const Duration(seconds: 3),
+          () => AppLocalizations.of(context)!.loggedSuccessfully,
+    );
     return Scaffold(
       body: Column(
         mainAxisAlignment:  MainAxisAlignment.center,
         children: [
           FutureBuilder<String>(
-            future: _greetings,
+            future: greetings,
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               List<Widget> children;
               if (snapshot.hasData) {
@@ -58,19 +52,19 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
-                    child: Text('Error: ${snapshot.error}'),
+                    child: Text('${AppLocalizations.of(context)!.errorGeneric}: ${snapshot.error}'),
                   ),
                 ];
               } else {
-                children = const <Widget>[
-                  SizedBox(
+                children = <Widget>[
+                  const SizedBox(
                     width: 40,
                     height: 40,
                     child: CircularProgressIndicator(),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Text('Caricamento...'),
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(AppLocalizations.of(context)!.loading),
                   ),
                 ];
               }

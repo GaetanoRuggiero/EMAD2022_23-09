@@ -52,6 +52,7 @@ dependencies:
   provider:
   geolocator: ^9.0.2
   flutter_secure_storage: ^7.0.1
+  email_validator: ^2.1.17
 
 flutter_icons:
   android: "launcher_icon"
