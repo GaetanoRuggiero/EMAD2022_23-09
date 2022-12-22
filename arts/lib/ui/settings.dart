@@ -64,9 +64,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          color: Theme.of(context).canvasColor,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,87 +80,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                             const SizedBox(height: 10),
 
-                            SettingsTile(
-                                actionButton: IconButton(
-                                    onPressed: (){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => const LanguageScreen()),
-                                      );
-                                    },
-                                    icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
-                                icon: Ionicons.language,
-                                title: AppLocalizations.of(context)!.language),
+                            InkWell(
+                              onTap: (){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const LanguageScreen()),
+                                );
+                              },
+                              child: SettingsTile(
+                                  rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                  leftIcon: Ionicons.language,
+                                  title: AppLocalizations.of(context)!.language),
+                            ),
 
                             const SizedBox(height: 10),
 
-                            SettingsTile(
-                              icon: Ionicons.color_palette_outline,
-                              title: AppLocalizations.of(context)!.theme,
-                              actionButton: IconButton(
-                                icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                                onPressed: () {
-                                  showDialog<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                        title: Text(AppLocalizations.of(context)!.chooseTheTheme),
-                                        content: StatefulBuilder(
-                                            builder: (context, setState) {
-                                              return Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
+                            InkWell(
+                              onTap: () {
+                                showDialog<void>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                      title: Text(AppLocalizations.of(context)!.chooseTheTheme),
+                                      content: StatefulBuilder(
+                                          builder: (context, setState) {
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
 
-                                                  ListTile(
-                                                    title: Text(AppLocalizations.of(context)!.light),
-                                                    leading: Radio<ThemeMode>(
-                                                        value: ThemeMode.light,
-                                                        groupValue: _filter,
-                                                        onChanged: (ThemeMode? value) {
-                                                          setState(() {
-                                                            settingsNotifier.themeMode = SettingsModel.light;
-                                                            _filter = value;
-                                                          });
-                                                        }
-                                                    ),
+                                                ListTile(
+                                                  title: Text(AppLocalizations.of(context)!.light),
+                                                  leading: Radio<ThemeMode>(
+                                                      value: ThemeMode.light,
+                                                      groupValue: _filter,
+                                                      onChanged: (ThemeMode? value) {
+                                                        setState(() {
+                                                          settingsNotifier.themeMode = SettingsModel.light;
+                                                          _filter = value;
+                                                        });
+                                                      }
                                                   ),
+                                                ),
 
-                                                  ListTile(
-                                                    title: Text(AppLocalizations.of(context)!.dark),
-                                                    leading: Radio<ThemeMode>(
-                                                        value: ThemeMode.dark,
-                                                        groupValue: _filter,
-                                                        onChanged: (ThemeMode? value) {
-                                                          setState(() {
-                                                            settingsNotifier.themeMode = SettingsModel.dark;
-                                                            _filter = value;
-                                                          });
-                                                        }
-                                                    ),
+                                                ListTile(
+                                                  title: Text(AppLocalizations.of(context)!.dark),
+                                                  leading: Radio<ThemeMode>(
+                                                      value: ThemeMode.dark,
+                                                      groupValue: _filter,
+                                                      onChanged: (ThemeMode? value) {
+                                                        setState(() {
+                                                          settingsNotifier.themeMode = SettingsModel.dark;
+                                                          _filter = value;
+                                                        });
+                                                      }
                                                   ),
+                                                ),
 
-                                                  ListTile(
-                                                    title: Text(AppLocalizations.of(context)!.system),
-                                                    leading: Radio<ThemeMode>(
-                                                        value: ThemeMode.system,
-                                                        groupValue: _filter,
-                                                        onChanged: (ThemeMode? value) {
-                                                          setState(() {
-                                                            settingsNotifier.themeMode = SettingsModel.system;
-                                                            _filter = value;
-                                                          });
-                                                        }
-                                                    ),
+                                                ListTile(
+                                                  title: Text(AppLocalizations.of(context)!.system),
+                                                  leading: Radio<ThemeMode>(
+                                                      value: ThemeMode.system,
+                                                      groupValue: _filter,
+                                                      onChanged: (ThemeMode? value) {
+                                                        setState(() {
+                                                          settingsNotifier.themeMode = SettingsModel.system;
+                                                          _filter = value;
+                                                        });
+                                                      }
                                                   ),
-                                                ],
-                                              );
-                                            }
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
+                                                ),
+                                              ],
+                                            );
+                                          }
+                                      ),
+                                    );
+                                  },
+                                );
+
+                              },
+                              child: SettingsTile(
+                                leftIcon: Ionicons.color_palette_outline,
+                                title: AppLocalizations.of(context)!.theme,
+                                rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
                               ),
                             ),
                           ],
@@ -173,8 +174,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          //color: Theme.of(context).primaryColor,
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        //color: Theme.of(context)!.shadowColor,
                         ),
 
                         child: Column(
@@ -190,56 +191,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                             const SizedBox(height: 10),
 
-                            SettingsTile(
-                                actionButton: IconButton(
-                                    onPressed: (){},
-                                    icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
-                                icon: Icons.account_circle,
-                                title: AppLocalizations.of(context)!.infoAccount
+                            InkWell(
+                              onTap: () {},
+                              child: SettingsTile(
+                                  rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                  leftIcon: Icons.account_circle,
+                                  title: AppLocalizations.of(context)!.infoAccount
+                              ),
                             ),
 
                             const SizedBox(height: 10),
 
-                            SettingsTile(
-                                actionButton: IconButton(
-                                    onPressed: (){
-                                      showDialog<void>(
-                                          context: context,
-                                          builder: (BuildContext context) {
-
-                                            return AlertDialog(
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                                title: Text(AppLocalizations.of(context)!.logout),
-                                                actions: [
-                                                  TextButton(
-                                                    child: Text(AppLocalizations.of(context)!.ok),
-                                                    onPressed: () async {
-                                                      const storage = FlutterSecureStorage();
-                                                      await storage.delete(key: tokenKey);
-                                                      if (!mounted) return;
-                                                      debugPrint("Logout");
-                                                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-                                                          builder: (context) => const LoginScreen()), (Route route) => false);
-                                                      },
-                                                  ),
-                                                ],
-                                                content: StatefulBuilder(
-                                                    builder: (context, setState) {
-                                                      return Column(
-                                                          mainAxisSize: MainAxisSize.min,
-                                                          children: [
-                                                            Text(AppLocalizations.of(context)!.logoutCompleted, textAlign: TextAlign.center,)
-                                                          ]
-                                                      );
-                                                    }
-                                                )
-                                            );
-                                          }
+                            InkWell(
+                              onTap: () {
+                                showDialog<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                          title: Text(AppLocalizations.of(context)!.logout),
+                                          actions: [
+                                            TextButton(
+                                              child: Text(AppLocalizations.of(context)!.ok),
+                                              onPressed: () async {
+                                                const storage = FlutterSecureStorage();
+                                                await storage.delete(key: tokenKey);
+                                                if (!mounted) return;
+                                                debugPrint("Logout");
+                                                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                                    builder: (context) => const LoginScreen()), (Route route) => false);
+                                              },
+                                            ),
+                                          ],
+                                          content: StatefulBuilder(
+                                              builder: (context, setState) {
+                                                return Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Text(AppLocalizations.of(context)!.logoutCompleted, textAlign: TextAlign.center,)
+                                                    ]
+                                                );
+                                              }
+                                          )
                                       );
-                                    },
-                                    icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
-                                icon: Ionicons.log_out_outline,
-                                title: AppLocalizations.of(context)!.logout
+                                    }
+                                );
+                              },
+                              child: SettingsTile(
+                                  rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                  leftIcon: Ionicons.log_out_outline,
+                                  title: AppLocalizations.of(context)!.logout
+                              ),
                             ),
                           ],
                         ),
@@ -249,9 +251,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       Container(
                         padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          //color: Theme.of(context).primaryColor,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
 
                         child: Column(
@@ -264,12 +265,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                             const SizedBox(height: 10),
 
-                            SettingsTile(
-                                actionButton: IconButton(
-                                    onPressed: (){},
-                                    icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color)),
-                                icon: Ionicons.information_circle_sharp,
-                                title: AppLocalizations.of(context)!.infoAndRecognitions
+                            InkWell(
+                              onTap: () {},
+                              child: SettingsTile(
+                                  rightIcon:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                  leftIcon: Ionicons.information_circle_sharp,
+                                  title: AppLocalizations.of(context)!.infoAndRecognitions
+                              ),
                             ),
                           ],
                         ),
@@ -287,15 +289,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 class SettingsTile extends StatelessWidget {
 
-  final IconData icon;
+  final IconData leftIcon;
   final String title;
-  final Widget actionButton;
+  final Widget rightIcon;
 
   const SettingsTile({
     Key? key,
-    required this.icon,
+    required this.leftIcon,
     required this.title,
-    required this.actionButton
+    required this.rightIcon
   }) : super(key: key);
 
   @override
@@ -310,7 +312,7 @@ class SettingsTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
             color: Colors.transparent,
           ),
-          child: Icon(icon, color: darkOrange),
+          child: Icon(leftIcon),
         ),
 
         const SizedBox(width: 10),
@@ -331,7 +333,7 @@ class SettingsTile extends StatelessWidget {
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: actionButton,
+          child: rightIcon,
         ),
       ],
     );

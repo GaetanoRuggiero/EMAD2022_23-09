@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class TourListScreen extends StatelessWidget {
   const TourListScreen({Key? key}) : super(key: key);
@@ -8,7 +10,7 @@ class TourListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Lista itinerari"),
+        title: Text(AppLocalizations.of(context)!.itineraryList),
         actions: <Widget>[
           IconButton(onPressed: () {
             Navigator.of(context).popUntil((route) => route.isFirst);
@@ -16,15 +18,14 @@ class TourListScreen extends StatelessWidget {
               icon: const Icon(Icons.home_rounded,))
         ],
       ),
-      backgroundColor: const Color(0xff5A7CED),
       body: ListView(
         children: [
           Container(
             color: Colors.green.shade300,
             child: Row(
               children: [
-                IconButton(onPressed: () {}, icon: const Icon(Icons.location_on, color: Colors.white,)),
-                const Text("Posizione attiva", style: TextStyle(color: Colors.white)),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.location_on)),
+                Text(AppLocalizations.of(context)!.deviceLocationAvailable),
               ],
             ),
           ),
@@ -33,8 +34,8 @@ class TourListScreen extends StatelessWidget {
 
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Text("Itinerario consigliato", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+            children: [
+              Text(AppLocalizations.of(context)!.recommendedItinerary, style: const TextStyle(fontWeight: FontWeight.bold))
             ],
           ),
 
@@ -52,8 +53,8 @@ class TourListScreen extends StatelessWidget {
 
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Text("Itinerari tematici", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+            children: [
+              Text(AppLocalizations.of(context)!.thematicItineraries, style: const TextStyle(fontWeight: FontWeight.bold))
             ],
           ),
 
@@ -70,7 +71,7 @@ class TourListScreen extends StatelessWidget {
           const SizedBox(height: 10.0),
 
           Container(
-            margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+            margin: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
             child:  const PathCard(
               endPOI: "ENDpoi",
               lengthPath: "19km",
@@ -144,9 +145,8 @@ class PathCardDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Divider(
-      color: Colors.white30,
       height: 20,
-      thickness: 0.5,
+      thickness: 1.5,
       indent:20,
       endIndent: 20,
     );

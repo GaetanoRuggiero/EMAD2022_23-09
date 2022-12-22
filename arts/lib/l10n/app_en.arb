@@ -13,11 +13,11 @@
 
   "mission": "Missions",
   "sideQuestAvailableEvents": "The following events are available:",
-  "sideQuestGoToUpper": "Go to ",
-  "sideQuestScan": "and scan it to receive ",
-  "sideQuestGoToLower": " go to",
-  "sideQuestEventProgess": "Current event: from ",
-  "articleToThe": " to the ",
+  "sideQuestGoToUpper": "Go to",
+  "sideQuestScan": "and scan it to receive",
+  "sideQuestGoToLower": "go to",
+  "sideQuestEventProgess": "Current event: from",
+  "articleToThe": "to the",
   "sideQuestEventCompleted": "Event completed!",
 
   "settings": "Settings",
@@ -74,5 +74,9 @@
   "deviceLocationAvailable": "Device's location obtained",
   "loggedSuccessfully": "Signed in successfully",
   "errorGeneric": "Error",
-  "loading": "Loading..."
+  "loading": "Loading...",
+
+  "itineraryList": "Itinerary list",
+  "recommendedItinerary": "Recommended itinerary",
+  "thematicItineraries": "Thematic itineraries"
 }

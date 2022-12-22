@@ -14,8 +14,8 @@ class SettingsModel extends ChangeNotifier {
   int? _themeMode;
   String? _languageMode;
 
-  ThemePreferences _themePreferences = ThemePreferences();
-  LanguagePreferences _languagePreferences = LanguagePreferences();
+  late ThemePreferences _themePreferences;
+  late LanguagePreferences _languagePreferences;
 
   int? get themeMode => _themeMode;
   String? get languageMode => _languageMode;
@@ -28,6 +28,7 @@ class SettingsModel extends ChangeNotifier {
 
   Future<int?> getThemePreferences() async {
     _themeMode = (await _themePreferences.getTheme())!;
+    debugPrint("Called getThemePreferences");
     notifyListeners();
     return _themeMode;
   }
@@ -40,6 +41,7 @@ class SettingsModel extends ChangeNotifier {
 
   Future<String?> getLanguagePreferences() async {
     _languageMode = (await _languagePreferences.getLanguage())!;
+    debugPrint("Called getLanguagePreferences");
     notifyListeners();
     return _languageMode;
   }

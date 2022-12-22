@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/login.dart';
 import 'package:arts/utils/settings_model.dart';
-
 import 'api/user_api.dart';
 
 late final CameraDescription camera;
@@ -77,6 +76,7 @@ class _MyAppState extends State<MyApp> {
 
   ThemeMode setAppThemeMode(SettingsModel settingsNotifier) {
 
+    debugPrint("Called setAppThemeMode");
     if (settingsNotifier.themeMode == SettingsModel.dark) {
       return ThemeMode.dark;
     }
@@ -90,19 +90,21 @@ class _MyAppState extends State<MyApp> {
 
   Locale setAppLanguage(SettingsModel settingsNotifier) {
 
+    debugPrint("Called setAppLanguage");
     String languageCode, countryCode;
+    debugPrint("Print LanguageMode${settingsNotifier.languageMode!}");
 
     if (settingsNotifier.languageMode == SettingsModel.italian) {
       languageCode = SettingsModel.italian.substring(0,2);
       countryCode = SettingsModel.italian.substring(3,5);
       debugPrint("LanguageCode: $languageCode\n CountryCode: $countryCode");
-      return Locale.fromSubtags(languageCode: languageCode, countryCode: countryCode);
+      return Locale(languageCode, countryCode);
+    } else {
+      languageCode = SettingsModel.english.substring(0, 2);
+      countryCode = SettingsModel.english.substring(3, 5);
+      debugPrint("LanguageCode: $languageCode\n CountryCode: $countryCode");
+      return Locale(languageCode, countryCode);
     }
-
-    languageCode = SettingsModel.english.substring(0,2);
-    countryCode = SettingsModel.english.substring(3,5);
-    debugPrint("LanguageCode: $languageCode\n CountryCode: $countryCode");
-    return Locale.fromSubtags(languageCode: languageCode, countryCode: countryCode);
   }
 
   Widget setStartingPoint(bool? isLogged) {
