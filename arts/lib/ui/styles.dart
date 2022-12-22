@@ -30,17 +30,17 @@ final ButtonStyle topButtonStyle = ElevatedButton.styleFrom(
 );
 
 final ThemeData lightTheme = ThemeData.light().copyWith(
-    primaryColorLight: Colors.blue.shade300,
-    appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xff113197),
-        actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
-        iconTheme: IconThemeData(color: Color(0xffE68532))
-    ),
+  primaryColorLight: Colors.blue.shade300,
+  appBarTheme: const AppBarTheme(
+      backgroundColor: Color(0xff113197),
+      actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
+      iconTheme: IconThemeData(color: Color(0xffE68532))
+  ),
   backgroundColor: Colors.white,
   iconTheme: const IconThemeData(color: Color(0xffE68532)),
   colorScheme: const ColorScheme.dark().copyWith(secondary: const Color(0xff89E649)),
   cardColor: Colors.white54,
-  dividerColor: Colors.white54
+  dividerColor: Colors.white54,
 );
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
@@ -53,5 +53,5 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
   iconTheme: const IconThemeData(color: Color(0xffE68532)),
   colorScheme: const ColorScheme.light().copyWith(secondary: const Color(0xff89E649)),
   cardColor: const Color(0xff414C9C),
-  dividerColor:  const Color(0xff414C9C)
+  dividerColor: const Color(0xff414C9C),
 );
