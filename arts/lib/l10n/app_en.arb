@@ -31,12 +31,13 @@
   "account": "Account",
   "infoAccount": "Info account",
   "logout": "Logout",
+  "askForLogout": "Sei sicuro di voler uscire?",
   "logoutCompleted": "Successful logout!",
   "info": "Info",
   "infoAndRecognitions": "Info and recognitions",
 
   "selectLanguage": "Choose the language",
-  "ok": "OK",
+  "yes": "Yes",
 
   "welcomeReg": "Sign in to unlock all functionalities",
   "name": "Name",
@@ -62,6 +63,8 @@
   "missingPsw": "Enter your password!",
   "login": "Sign in",
   "noMatchingPass": "The passwords do not match",
+  "loginFailed": "Incorrect email or password.",
+  "regFailed": "Registration failed, email already taken.",
 
   "profile": "Profile",
   "redirectLog": "Login now",

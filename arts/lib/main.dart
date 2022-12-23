@@ -1,19 +1,16 @@
 import 'package:arts/ui/welcomeback.dart';
+import 'package:arts/utils/user_utils.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/login.dart';
 import 'package:arts/utils/settings_model.dart';
-import 'api/user_api.dart';
 
 late final CameraDescription camera;
-const String tokenKey = "authToken";
-const String emailKey = "email";
 bool? isLogged = false;
 
 Future<void> main() async {
@@ -24,13 +21,8 @@ Future<void> main() async {
   final cameras = await availableCameras();
   // Get a specific camera from the list of available cameras.
   camera = cameras.first;
+  isLogged = await UserUtils.isLogged();
 
-  const storage = FlutterSecureStorage();
-  String? token = await storage.read(key: tokenKey);
-  String? email = await storage.read(key: emailKey);
-  if (token != null && email != null) {
-    isLogged = await checkIfLogged(email, token);
-  }
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
   runApp(const MyApp());
 }

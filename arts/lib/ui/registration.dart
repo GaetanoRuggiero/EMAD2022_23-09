@@ -5,8 +5,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../utils/user_utils.dart';
 import 'homepage.dart';
-import 'package:arts/main.dart';
+
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -24,6 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _controllerPass = TextEditingController(),
       _controllerPassVal = TextEditingController();
   String errorPassword = "";
+  bool _showRegError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +48,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
-                              color:
-                                  Theme.of(context).textTheme.bodyText1?.color))),
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  ?.color))),
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -141,8 +145,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: TextFormField(
                             controller: _controllerEmail,
                             style: TextStyle(
-                                color:
-                                    Theme.of(context).textTheme.headline1?.color,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .headline1
+                                    ?.color,
                                 fontSize: 15),
                             decoration: InputDecoration(
                               border: const OutlineInputBorder(),
@@ -158,8 +164,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               if (value == null || value.isEmpty) {
                                 return AppLocalizations.of(context)!
                                     .mandatoryField;
+                              } else if (!UserUtils.validateEmail(value)) {
+                                return AppLocalizations.of(context)!
+                                    .invalidEmail;
+                              } else {
+                                return null;
                               }
-                              return null;
                             }),
                       ),
                     ),
@@ -220,8 +230,12 @@ class _RegisterPageState extends State<RegisterPage> {
                                 if (value == null || value.isEmpty) {
                                   return AppLocalizations.of(context)!
                                       .mandatoryField;
+                                } else if (!UserUtils.validatePass(value)) {
+                                  return AppLocalizations.of(context)!
+                                      .invalidPass;
+                                } else {
+                                  return null;
                                 }
-                                return null;
                               })),
                     ),
                   ],
@@ -242,10 +256,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: TextFormField(
                             controller: _controllerPassVal,
                             style: TextStyle(
-                                color:
-                                    Theme.of(context).textTheme.headline1?.color,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .headline1
+                                    ?.color,
                                 fontSize: 15),
-                            obscureText: isConfirmPasswordVisible ? false : true,
+                            obscureText:
+                                isConfirmPasswordVisible ? false : true,
                             decoration: InputDecoration(
                                 suffixIconConstraints: const BoxConstraints(
                                     minWidth: 45, maxWidth: 46),
@@ -268,7 +285,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                 ),
                                 border: const OutlineInputBorder(),
-                                hintText: AppLocalizations.of(context)!.passConf,
+                                hintText:
+                                    AppLocalizations.of(context)!.passConf,
                                 hintStyle: TextStyle(
                                     color: Theme.of(context)
                                         .textTheme
@@ -280,11 +298,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                 return AppLocalizations.of(context)!
                                     .mandatoryField;
                               } else if (_controllerPass.text != value) {
-
-                                  setState(() {
-                                    errorPassword = AppLocalizations.of(context)!.noMatchingPass;
-                                  });
-
+                                setState(() {
+                                  errorPassword = AppLocalizations.of(context)!
+                                      .noMatchingPass;
+                                });
                                 return errorPassword;
                               } else {
                                 setState(() {
@@ -301,30 +318,32 @@ class _RegisterPageState extends State<RegisterPage> {
                   onTap: () async {
                     if (_formKey.currentState!.validate()) {
                       String newToken = generateToken();
-                        bool reg = await signUpUser(
-                            _controllerName.text,
-                            _controllerSurname.text,
-                            _controllerEmail.text,
-                            _controllerPass.text,
-                            newToken);
-                        if (reg) {
-                          const storage = FlutterSecureStorage();
-                          await storage.write(key: tokenKey, value: newToken);
-                          if (!mounted) return;
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomePage()));
-                        } else {
-                          //TODO: error clause
-                        }
+                      bool reg = await signUpUser(
+                          _controllerName.text,
+                          _controllerSurname.text,
+                          _controllerEmail.text,
+                          _controllerPass.text,
+                          newToken);
+                      if (reg) {
+                        const storage = FlutterSecureStorage();
+                        await storage.write(key: UserUtils.tokenKey, value: newToken);
+                        if (!mounted) return;
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomePage()));
+                      } else {
+                        setState(() {
+                          _showRegError = true;
+                        });
+                      }
                     }
                   },
                   child: Container(
                     height: 50,
                     width: double.infinity,
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                         boxShadow: [
@@ -343,6 +362,17 @@ class _RegisterPageState extends State<RegisterPage> {
                             fontWeight: FontWeight.bold)),
                   ),
                 ),
+                _showRegError
+                    ? Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.all(10),
+                  color: Colors.red,
+                  child: Text(AppLocalizations.of(context)!.regFailed,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 20)),
+                )
+                    : Container(),
                 Container(
                   margin: const EdgeInsets.only(top: 10),
                   child: RichText(
@@ -354,7 +384,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             fontSize: 20)),
                     TextSpan(
                         text: " ${AppLocalizations.of(context)!.clickH}\n",
-                        style: const TextStyle(color: Colors.blue, fontSize: 20),
+                        style:
+                            const TextStyle(color: Colors.blue, fontSize: 20),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             Navigator.pushReplacement(

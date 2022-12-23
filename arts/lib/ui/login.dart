@@ -4,10 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:email_validator/email_validator.dart';
 import '../api/user_api.dart';
-import '../main.dart';
 import 'homepage.dart';
+import '../utils/user_utils.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -35,8 +34,10 @@ class LoginScreen extends StatelessWidget {
                     ),
                     TextSpan(
                       text: AppLocalizations.of(context)!.appName,
-                      style:
-                          const TextStyle(fontFamily: "DaVinci", fontSize: 35, color: lightOrange),
+                      style: const TextStyle(
+                          fontFamily: "DaVinci",
+                          fontSize: 35,
+                          color: lightOrange),
                     ),
                     TextSpan(
                       text:
@@ -100,6 +101,7 @@ class _LoginFormState extends State<LoginForm> {
   bool isPasswordVisible = false;
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPass = TextEditingController();
+  bool _showLoginError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -118,12 +120,20 @@ class _LoginFormState extends State<LoginForm> {
                     child: Text("${AppLocalizations.of(context)!.email}: ",
                         style: const TextStyle(fontSize: 20))),
                 TextFormField(
-                    controller: _controllerEmail,
-                    decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        hintText: AppLocalizations.of(context)!.emailExm,
-                        hintStyle: const TextStyle(fontSize: 15)),
-                    validator: validateEmail,
+                  controller: _controllerEmail,
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      hintText: AppLocalizations.of(context)!.emailExm,
+                      hintStyle: const TextStyle(fontSize: 15)),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return AppLocalizations.of(context)!.mandatoryField;
+                    } else if (!UserUtils.validateEmail(value)) {
+                      return AppLocalizations.of(context)!.invalidEmail;
+                    } else {
+                      return null;
+                    }
+                  },
                 ),
                 Container(
                     alignment: Alignment.centerLeft,
@@ -155,7 +165,13 @@ class _LoginFormState extends State<LoginForm> {
                       hintStyle: TextStyle(
                           color: Theme.of(context).textTheme.headline1?.color,
                           fontSize: 15)),
-                  validator: validatePass,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return AppLocalizations.of(context)!.mandatoryField;
+                    } else {
+                      return null;
+                    }
+                  },
                 )
               ],
             ),
@@ -169,13 +185,18 @@ class _LoginFormState extends State<LoginForm> {
                 bool isLogged = await loginUser(
                     _controllerEmail.text, _controllerPass.text, newToken);
                 if (isLogged) {
-                  await storage.write(key: tokenKey, value: newToken);
-                  await storage.write(key: emailKey, value: _controllerEmail.text);
+                  await storage.write(key: UserUtils.tokenKey, value: newToken);
+                  await storage.write(
+                      key: UserUtils.emailKey, value: _controllerEmail.text);
                   if (!mounted) return;
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const HomePage()));
+                } else {
+                  setState(() {
+                    _showLoginError = true;
+                  });
                 }
               }
             },
@@ -201,30 +222,19 @@ class _LoginFormState extends State<LoginForm> {
                       fontWeight: FontWeight.bold)),
             ),
           ),
+          _showLoginError
+              ? Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.all(10),
+                  color: Colors.red,
+                  child: Text(AppLocalizations.of(context)!.loginFailed,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 20)),
+                )
+              : Container()
         ],
       ),
     );
   }
-
-  String? validateEmail(String? val) {
-    if (val!.isEmpty){
-      return AppLocalizations.of(context)!.mandatoryField;
-    } else if (!EmailValidator.validate(val, true)){
-      return AppLocalizations.of(context)!.invalidEmail;
-    }else{
-      return null;
-    }
-  }
-
-  String? validatePass(String? val) {
-    if (val!.isEmpty){
-      return AppLocalizations.of(context)!.mandatoryField;
-    } else if (val.length<8){
-      return AppLocalizations.of(context)!.invalidPass;
-    }else{
-      return null;
-    }
-
-  }
-
 }

@@ -1,3 +1,5 @@
+import 'package:arts/ui/settings.dart';
+import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -17,14 +19,19 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   late AnimationController animationController;
-  late Animation degOneTranslationAnimation, degTwoTranslationAnimation, degThreeTranslationAnimation;
+  late Animation degOneTranslationAnimation,
+      degTwoTranslationAnimation,
+      degThreeTranslationAnimation;
   late Animation rotationAnimation;
   var menuOpenedIcon = const Icon(Icons.add, color: Colors.white);
   var menuClosedIcon = const Icon(Icons.remove, color: Colors.white);
   bool isMenuOpened = false;
   late Future<Position> _currentPositionFuture;
+
+  late Future<bool?> _isLoggedFuture;
 
   /// Determine the current position of the device.
   ///
@@ -75,7 +82,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+
+    _isLoggedFuture = UserUtils.isLogged();
+
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(
           tween: Tween<double>(begin: 0.0, end: 1.2), weight: 75.0),
@@ -125,15 +136,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
-                  child: ElevatedButton(
-                      style: topButtonStyle,
-                      child: const Icon(Icons.person,
-                          color: Colors.white),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Profile()),
-                        );
+                  child: FutureBuilder(
+                      future: _isLoggedFuture,
+                      builder: (context, snapshot) {
+                        return ElevatedButton(
+                            style: topButtonStyle,
+                            child:
+                            const Icon(Icons.person, color: Colors.white),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Profile()),
+                              );
+                            });
                       }),
                 ),
                 ElevatedButton(
@@ -143,7 +159,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SideQuest()),
+                        MaterialPageRoute(
+                            builder: (context) => const SideQuest()),
                       );
                     }),
               ],
@@ -176,7 +193,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const CollectionScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const CollectionScreen()),
                             );
                           })),
                 ),
@@ -190,12 +209,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       alignment: Alignment.center,
                       child: ElevatedButton(
                           style: smallButtonStyle,
-                          child: const Icon(Icons.camera_alt,
-                              color: Colors.white),
+                          child:
+                              const Icon(Icons.camera_alt, color: Colors.white),
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera)),
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      TakePictureScreen(camera: camera)),
                             );
                           })),
                 ),
@@ -214,7 +235,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           onPressed: () {
                             Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const TourListScreen()));
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TourListScreen()));
                           })),
                 ),
                 Transform(
@@ -241,34 +264,33 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             future: _currentPositionFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                if(snapshot.hasData) {
+                if (snapshot.hasData) {
                   return Positioned(
                     top: 0,
                     child: Container(
                         color: Colors.green,
                         width: MediaQuery.of(context).size.width,
                         height: 60,
-                        child: Center(child: Text(textAlign: TextAlign.center, "${AppLocalizations.of(context)!.deviceLocationAvailable}."))
-                    ),
+                        child: Center(
+                            child: Text(
+                                textAlign: TextAlign.center,
+                                "${AppLocalizations.of(context)!.deviceLocationAvailable}."))),
                   );
-                }
-                else {
+                } else {
                   return Positioned(
-                    top: 0,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: 60,
-                      color: Colors.red,
-                      child: Center(child: Text(textAlign: TextAlign.center, "${AppLocalizations.of(context)!.deviceLocationNotAvailable}."))
-                    )
-                  );
+                      top: 0,
+                      child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 60,
+                          color: Colors.red,
+                          child: Center(
+                              child: Text(
+                                  textAlign: TextAlign.center,
+                                  "${AppLocalizations.of(context)!.deviceLocationNotAvailable}."))));
                 }
-              }
-              else {
+              } else {
                 return const Positioned(
-                  top: 0,
-                  child: CircularProgressIndicator()
-                );
+                    top: 0, child: CircularProgressIndicator());
               }
             },
           )

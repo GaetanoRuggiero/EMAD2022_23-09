@@ -204,7 +204,7 @@ class SeasonCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("${AppLocalizations.of(context)!.seasonMex}$day/$month/$year"),
+            Text("${AppLocalizations.of(context)!.seasonMex} $day/$month/$year"),
             IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),

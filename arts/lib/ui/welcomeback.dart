@@ -15,7 +15,7 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
   @override
   Widget build(BuildContext context) {
     final Future<String> greetings = Future<String>.delayed(
-      const Duration(seconds: 3),
+      const Duration(seconds: 2),
           () => AppLocalizations.of(context)!.loggedSuccessfully,
     );
     return Scaffold(
@@ -39,10 +39,11 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
                     child: Text('${snapshot.data}'),
                   ),
                 ];
-                Future.microtask(() => Navigator.pushReplacement(
+                Future.microtask(() {
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const HomePage())));
+                        builder: (context) => const HomePage()));} );
               } else if (snapshot.hasError) {
                 children = <Widget>[
                   const Icon(

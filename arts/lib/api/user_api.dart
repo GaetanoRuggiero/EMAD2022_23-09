@@ -158,6 +158,41 @@ Future<bool?> checkIfLogged(String email, String token) async {
   return false;
 }
 
+Future<bool> deleteToken(String email, String token) async {
+  Uri uri = Uri(
+      scheme: 'http', host: Env.serverIP, port: Env.serverPort, path: '/users/deleteToken');
+  debugPrint("Calling $uri");
+
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    /*If the server did return a 200 OK response, parse the Json and decode
+      its content with UTF-8 to allow accented characters to be shown correctly */
+    if (jsonDecode(response.body) == true){
+      return true;
+    }
+  } else if (response.statusCode == 500) {
+    debugPrint("Server did not respond at: $uri");
+    return false;
+  } else {
+    throw Exception('Could not delete token validity');
+  }
+  return false;
+}
+
 String generateToken() {
   final randomNumber = Random.secure().nextDouble();
   final randomBytes = utf8.encode(randomNumber.toString());
