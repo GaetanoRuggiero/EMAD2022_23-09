@@ -14,7 +14,12 @@ Future<GoogleVisionResponse?> getVisionResults(String imageBase64) async {
         "image": {"content": imageBase64},
         "features": [
           {"maxResults": maxResults, "type": apiType},
-        ]
+        ],
+        "imageContext": {
+          "webDetectionParams": {
+            "includeGeoResults": true
+          }
+        }
       }
     ]
   };

@@ -6,11 +6,14 @@ class POI {
   double? latitude;
   double? longitude;
   String? name;
+  String? nameEn;
   List<String>? nameKeywords;
   String? province;
   String? region;
   String? trivia;
+  String? triviaEn;
   String? history;
+  String? historyEn;
 
   POI(
       {this.city,
@@ -20,11 +23,14 @@ class POI {
         this.latitude,
         this.longitude,
         this.name,
+        this.nameEn,
         this.nameKeywords,
         this.province,
         this.region,
         this.trivia,
-        this.history});
+        this.triviaEn,
+        this.history,
+        this.historyEn});
 
   POI.fromJson(Map<String, dynamic> json) {
     city = json['city'];
@@ -34,11 +40,14 @@ class POI {
     latitude = json['latitude'];
     longitude = json['longitude'];
     name = json['name'];
+    nameEn = json['name_en'];
     nameKeywords = json['name_keywords'].cast<String>();
     province = json['province'];
     region = json['region'];
     trivia = json['trivia'];
+    triviaEn = json['trivia_en'];
     history = json['history'];
+    historyEn = json['history_en'];
   }
 
   Map<String, dynamic> toJson() {
@@ -50,16 +59,19 @@ class POI {
     data['latitude'] = latitude;
     data['longitude'] = longitude;
     data['name'] = name;
+    data['name_en'] = nameEn;
     data['name_keywords'] = nameKeywords;
     data['province'] = province;
     data['region'] = region;
     data['trivia'] = trivia;
+    data['trivia_en'] = triviaEn;
     data['history'] = history;
+    data['history_en'] = historyEn;
     return data;
   }
 
   @override
   String toString() {
-    return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameKeywords: $nameKeywords, province: $province, region: $region}';
+    return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region}';
   }
 }

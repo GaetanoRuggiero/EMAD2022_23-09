@@ -23,7 +23,7 @@ Future<void> main() async {
   camera = cameras.first;
   isLogged = await UserUtils.isLogged();
 
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const MyApp());
 }
 

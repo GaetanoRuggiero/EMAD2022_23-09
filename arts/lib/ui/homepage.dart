@@ -1,16 +1,17 @@
-import 'package:arts/ui/settings.dart';
 import 'package:arts/utils/user_utils.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'maps.dart';
 import './styles.dart';
 import './profile.dart';
 import './sidequest.dart';
 import './collection.dart';
 import './takepicture.dart';
 import './tourlistscreen.dart';
-import '../utils/maps.dart';
 import '../main.dart';
+import '../utils/blinking_text.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,64 +20,150 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late AnimationController animationController;
-  late Animation degOneTranslationAnimation,
-      degTwoTranslationAnimation,
-      degThreeTranslationAnimation;
+  late Animation degOneTranslationAnimation, degTwoTranslationAnimation, degThreeTranslationAnimation;
   late Animation rotationAnimation;
   var menuOpenedIcon = const Icon(Icons.add, color: Colors.white);
   var menuClosedIcon = const Icon(Icons.remove, color: Colors.white);
   bool isMenuOpened = false;
-  late Future<Position> _currentPositionFuture;
 
   late Future<bool?> _isLoggedFuture;
 
-  /// Determine the current position of the device.
-  ///
-  /// When the location services are not enabled or permissions
-  /// are denied the `Future` will return an error.
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+  late Position? _currentPosition;
+  late Future<Position?>? _currentPositionFuture;
+  final LocationSettings locationSettings = const LocationSettings(
+    accuracy: LocationAccuracy.bestForNavigation,
+    distanceFilter: 5,
+  );
+  StreamSubscription<Position>? _positionStreamSubscription;
+  StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
+  bool locationServiceToggle = false;
 
+  Future<bool> _handlePermission() async {
+    LocationPermission permission;
+    bool locationService;
+
+    locationService = await _geolocatorPlatform.isLocationServiceEnabled();
     // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
+    if (!locationService) {
       // Location services are not enabled don't continue
       // accessing the position and request users of the
       // App to enable the location services.
-      return Future.error('Location services are disabled.');
+      if (locationServiceToggle) {
+        showLocationDisabledDialog();
+      }
+      locationServiceToggle = true;
+      debugPrint("Location services are disabled.");
+      return false;
     }
 
-    permission = await Geolocator.checkPermission();
+    permission = await _geolocatorPlatform.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      permission = await _geolocatorPlatform.requestPermission();
       if (permission == LocationPermission.denied) {
         // Permissions are denied, next time you could try
         // requesting permissions again (this is also where
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
+        showPermissionDeniedDialog();
+        debugPrint("Location permission were denied.");
+        return false;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
+      showPermissionDeniedDialog();
+      debugPrint("Location services denied forever.");
+      return false;
     }
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
+    debugPrint("Location permissions are granted.");
+    return true;
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    final hasPermission = await _handlePermission();
+
+    if (!hasPermission) {
+      return null;
+    }
+
+    return await _geolocatorPlatform.getCurrentPosition();
   }
 
   double getRadiansFromDegree(double degree) {
     double unitRadian = 57.295779513;
     return degree / unitRadian;
+  }
+
+  void _openLocationSettings() async {
+    final opened = await _geolocatorPlatform.openLocationSettings();
+
+    if (opened) {
+      debugPrint("Opened Location Settings");
+    } else {
+      debugPrint("Error opening Location Settings");
+    }
+  }
+
+  void _openAppSettings() async {
+    final opened = await _geolocatorPlatform.openAppSettings();
+
+    if (opened) {
+      debugPrint("Opened Application Settings");
+    } else {
+      debugPrint("Error opening Location Settings");
+    }
+  }
+
+  void showLocationDisabledDialog() {
+    showDialog(barrierDismissible: false, context: context, builder: (context) {
+      return AlertDialog(
+        title: Text(AppLocalizations.of(context)!.locationOffDialogTitle),
+        content: Text(AppLocalizations.of(context)!.locationOffDialogContent),
+        actions: [
+          TextButton(
+              child: Text(AppLocalizations.of(context)!.noThanks),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }),
+          TextButton(
+              child: Text(AppLocalizations.of(context)!.turnOnLocation),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _openLocationSettings();
+              })
+        ],
+      );
+    });
+  }
+
+  void showPermissionDeniedDialog() {
+    showDialog(barrierDismissible: false, context: context, builder: (context) {
+      return AlertDialog(
+        title: Text(AppLocalizations.of(context)!.locationPermissionDialogTitle),
+        content: Text(AppLocalizations.of(context)!.locationPermissionDialogContent),
+        actions: [
+          TextButton(
+              child: Text(AppLocalizations.of(context)!.noThanks),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }),
+          TextButton(
+              child: Text(AppLocalizations.of(context)!.allowPermission),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _openAppSettings();
+              })
+        ],
+      );
+    });
   }
 
   @override
@@ -85,8 +172,7 @@ class _HomePageState extends State<HomePage>
 
     _isLoggedFuture = UserUtils.isLogged();
 
-    animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 250));
+    animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(
           tween: Tween<double>(begin: 0.0, end: 1.2), weight: 75.0),
@@ -112,13 +198,61 @@ class _HomePageState extends State<HomePage>
       setState(() {});
     });
 
-    _currentPositionFuture = _determinePosition();
+    // Initializing device's location
+    _currentPosition = null;
+    _currentPositionFuture = _getCurrentPosition();
+
+    _serviceStatusStreamSubscription = _geolocatorPlatform.getServiceStatusStream()
+      .handleError((error) {
+        _serviceStatusStreamSubscription?.cancel();
+        _serviceStatusStreamSubscription = null;
+      }).listen((serviceStatus) {
+        if (serviceStatus == ServiceStatus.enabled) {
+          debugPrint("Location service enabled");
+        } else {
+          if (_positionStreamSubscription != null) {
+            _positionStreamSubscription?.cancel();
+            _positionStreamSubscription = null;
+          }
+          debugPrint("Location service disabled");
+        }
+        /* Location state changed (either enabled or disabled). We reset current
+        * device location to ensure both location and service are enabled.*/
+        setState(() {
+          locationServiceToggle = true;
+          _currentPosition = null;
+          _currentPositionFuture = _getCurrentPosition();
+        });
+      });
+
+    _positionStreamSubscription = _geolocatorPlatform.getPositionStream(locationSettings: locationSettings)
+      .handleError((error) {
+        _positionStreamSubscription?.cancel();
+        _positionStreamSubscription = null;
+      })
+      .timeout(const Duration(seconds: 10), onTimeout: (controller) {
+        controller.close();
+      })
+      .listen((Position? position) {
+        if (position != null) {
+          _currentPosition = position;
+        }
+        debugPrint(position == null ? 'Unknown' : '${position.latitude.toString()}, ${position.longitude.toString()}');
+      });
   }
 
   @override
   void dispose() {
-    animationController.dispose();
     super.dispose();
+    animationController.dispose();
+    if (_positionStreamSubscription != null) {
+      _positionStreamSubscription!.cancel();
+      _positionStreamSubscription = null;
+    }
+    if (_serviceStatusStreamSubscription != null) {
+      _serviceStatusStreamSubscription?.cancel();
+      _serviceStatusStreamSubscription = null;
+    }
   }
 
   @override
@@ -128,7 +262,22 @@ class _HomePageState extends State<HomePage>
         fit: StackFit.expand,
         alignment: Alignment.center,
         children: [
-          const Maps(),
+          FutureBuilder(
+            future: _currentPositionFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasData) {
+                  _currentPosition = snapshot.data!;
+                  return Maps(latitude: snapshot.data!.latitude, longitude: snapshot.data!.longitude);
+                }
+                else {
+                  return Center(child: Text(AppLocalizations.of(context)!.deviceLocationNotAvailable));
+                }
+              }
+              else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            }),
           Positioned(
             top: 80.0,
             left: -25.0,
@@ -203,22 +352,27 @@ class _HomePageState extends State<HomePage>
                   offset: Offset.fromDirection(getRadiansFromDegree(270),
                       degTwoTranslationAnimation.value * 80),
                   child: Transform(
-                      transform: Matrix4.rotationZ(
-                          getRadiansFromDegree(rotationAnimation.value))
-                        ..scale(degTwoTranslationAnimation.value),
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
-                          style: smallButtonStyle,
-                          child:
-                              const Icon(Icons.camera_alt, color: Colors.white),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      TakePictureScreen(camera: camera)),
-                            );
-                          })),
+                    transform: Matrix4.rotationZ(
+                        getRadiansFromDegree(rotationAnimation.value))
+                      ..scale(degTwoTranslationAnimation.value),
+                    alignment: Alignment.center,
+                    child: ElevatedButton(
+                      style: smallButtonStyle,
+                      child: const Icon(Icons.camera_alt,
+                          color: Colors.white),
+                      onPressed: () {
+                        if (_currentPosition == null) {
+                          setState(() {
+                            _currentPositionFuture = _getCurrentPosition();
+                          });
+                        }
+                        else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera, latitude: _currentPosition!.latitude, longitude: _currentPosition!.longitude)),
+                          );
+                        }
+                      })),
                 ),
                 Transform.translate(
                   offset: Offset.fromDirection(getRadiansFromDegree(200),
@@ -245,54 +399,57 @@ class _HomePageState extends State<HomePage>
                       getRadiansFromDegree(rotationAnimation.value)),
                   alignment: Alignment.center,
                   child: ElevatedButton(
-                      style: largeButtonStyle,
-                      child: isMenuOpened ? menuClosedIcon : menuOpenedIcon,
-                      onPressed: () {
-                        if (animationController.isCompleted) {
-                          isMenuOpened = !isMenuOpened;
-                          animationController.reverse();
-                        } else if (animationController.isDismissed) {
-                          isMenuOpened = !isMenuOpened;
-                          animationController.forward();
-                        }
-                      }),
+                    style: largeButtonStyle,
+                    child: isMenuOpened ? menuClosedIcon : menuOpenedIcon,
+                    onPressed: () {
+                      if (animationController.isCompleted) {
+                        isMenuOpened = !isMenuOpened;
+                        animationController.reverse();
+                      } else if (animationController.isDismissed) {
+                        isMenuOpened = !isMenuOpened;
+                        animationController.forward();
+                      }
+                    }),
                 ),
               ],
             ),
           ),
-          FutureBuilder(
-            future: _currentPositionFuture,
-            builder: (context, snapshot) {
+          Positioned(
+            top: 0,
+            child: FutureBuilder(future: _currentPositionFuture, builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.hasData) {
-                  return Positioned(
-                    top: 0,
-                    child: Container(
-                        color: Colors.green,
-                        width: MediaQuery.of(context).size.width,
-                        height: 60,
-                        child: Center(
-                            child: Text(
-                                textAlign: TextAlign.center,
-                                "${AppLocalizations.of(context)!.deviceLocationAvailable}."))),
-                  );
-                } else {
-                  return Positioned(
-                      top: 0,
-                      child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 60,
-                          color: Colors.red,
-                          child: Center(
-                              child: Text(
-                                  textAlign: TextAlign.center,
-                                  "${AppLocalizations.of(context)!.deviceLocationNotAvailable}."))));
+                  return Container(
+                    color: Colors.green,
+                    width: MediaQuery.of(context).size.width,
+                    height: 50,
+                    child: Center(
+                      child: Text(textAlign: TextAlign.center, AppLocalizations.of(context)!.deviceLocationAvailable)
+                    )
+                );
                 }
-              } else {
-                return const Positioned(
-                    top: 0, child: CircularProgressIndicator());
+                else {
+                  return Container(
+                    color: Colors.red,
+                    width: MediaQuery.of(context).size.width,
+                    height: 50,
+                    child: Center(
+                      child: Text(textAlign: TextAlign.center, "${AppLocalizations.of(context)!.deviceLocationNotAvailable}.")
+                    )
+                  );
+                }
               }
-            },
+              else {
+                return Container(
+                  color: Colors.green,
+                  width: MediaQuery.of(context).size.width,
+                  height: 50,
+                  child: Center(
+                      child: BlinkText("${AppLocalizations.of(context)!.fetchingGPSCoordinates}...")
+                  )
+                );
+              }
+            }),
           )
         ],
       ),
