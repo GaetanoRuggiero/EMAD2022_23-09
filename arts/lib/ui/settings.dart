@@ -219,6 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 bool deleted = await deleteToken(email!, token!);
                                                 if (deleted) {
                                                   await storage.delete(key: UserUtils.tokenKey);
+                                                  await storage.delete(key: UserUtils.emailKey);
                                                   if (!mounted) return;
                                                   debugPrint("Logout");
                                                   Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(

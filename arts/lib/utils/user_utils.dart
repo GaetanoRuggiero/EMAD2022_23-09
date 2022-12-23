@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../api/user_api.dart';
 import 'package:email_validator/email_validator.dart';
@@ -11,8 +12,11 @@ class UserUtils {
     String? token = await storage.read(key: tokenKey);
     String? email = await storage.read(key: emailKey);
     if (token != null && email != null) {
-      return await checkIfLogged(email, token);
+      bool? logSucc = await checkIfLogged(email, token);
+      debugPrint("$logSucc");
+      return logSucc;
     }
+    debugPrint("return null");
     return null;
   }
 

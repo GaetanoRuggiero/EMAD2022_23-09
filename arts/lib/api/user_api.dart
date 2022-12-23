@@ -135,7 +135,7 @@ Future<bool?> checkIfLogged(String email, String token) async {
     "Content-Type": "application/json; charset=utf-8"
   };
   final response =
-      await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+      await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 10), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);
@@ -144,10 +144,14 @@ Future<bool?> checkIfLogged(String email, String token) async {
     return http.Response('Server unreachable', 500);
   });
 
+  debugPrint("Sto checkToken demmerda: ${response.body}");
   if (response.statusCode == 200) {
     /*If the server did return a 200 OK response, parse the Json and decode
       its content with UTF-8 to allow accented characters to be shown correctly */
-    if (jsonDecode(response.body) == true){
+
+    bool alreadyLogged = jsonDecode(response.body);
+    debugPrint("user_api function: $alreadyLogged");
+    if (alreadyLogged) {
       return true;
     }
   } else if (response.statusCode == 500) {

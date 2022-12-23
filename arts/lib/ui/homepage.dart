@@ -1,3 +1,4 @@
+import 'package:arts/ui/settings.dart';
 import 'package:arts/utils/user_utils.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   bool isMenuOpened = false;
 
   late Future<bool?> _isLoggedFuture;
+  late bool? _isLogged;
 
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   late Position? _currentPosition;
@@ -288,17 +290,37 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   child: FutureBuilder(
                       future: _isLoggedFuture,
                       builder: (context, snapshot) {
-                        return ElevatedButton(
-                            style: topButtonStyle,
-                            child:
-                            const Icon(Icons.person, color: Colors.white),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Profile()),
-                              );
-                            });
+                        if (snapshot.connectionState==ConnectionState.done) {
+                          debugPrint("connection done ${snapshot.data}");
+                          if (snapshot.data != null && snapshot.data!) {
+                              return ElevatedButton(
+                                  style: topButtonStyle,
+                                  child:
+                                  const Icon(Icons.person, color: Colors.white),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const Profile()),
+                                    );
+                                  });
+                            } else {
+                              return ElevatedButton(
+                                  style: topButtonStyle,
+                                  child:
+                                  const Icon(Icons.settings, color: Colors.white),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const SettingsScreen()),
+                                    );
+                                  });
+                            }
+                        } else {
+                          debugPrint("connection not done");
+                        }
+                        return Container();
                       }),
                 ),
                 ElevatedButton(
