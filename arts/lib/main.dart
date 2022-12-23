@@ -1,3 +1,5 @@
+import 'package:arts/ui/welcomeback.dart';
+import 'package:arts/utils/user_utils.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -9,6 +11,7 @@ import 'package:arts/ui/login.dart';
 import 'package:arts/utils/settings_model.dart';
 
 late final CameraDescription camera;
+bool? isLogged = false;
 
 Future<void> main() async {
   /* Ensure that plugin services are initialized so that 'availableCameras()'
@@ -18,6 +21,7 @@ Future<void> main() async {
   final cameras = await availableCameras();
   // Get a specific camera from the list of available cameras.
   camera = cameras.first;
+  isLogged = await UserUtils.isLogged();
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const MyApp());
@@ -55,7 +59,7 @@ class _MyAppState extends State<MyApp> {
               theme: lightTheme,
               darkTheme: darkTheme,
               themeMode: setAppThemeMode(settingsNotifier),
-              home: const LoginScreen(),
+              home: setStartingPoint(isLogged) ,
             );
           }
       ),
@@ -94,4 +98,19 @@ class _MyAppState extends State<MyApp> {
       return Locale(languageCode, countryCode);
     }
   }
+
+  Widget setStartingPoint(bool? isLogged) {
+    if (isLogged == null) {
+      debugPrint("islogged==null");
+      //TODO: we should pass parameter to show "token expired message"
+      return const LoginScreen();
+    } else if (isLogged) {
+      debugPrint("islogged==true");
+      return const WelcomeBackScreen();
+    } else {
+      debugPrint("islogged==false");
+      return const LoginScreen();
+    }
+  }
+
 }

@@ -87,7 +87,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                               onChanged: (String? value) {
                                 debugPrint("Inglesee "+ value!);
                                 settingsNotifier.languageMode = SettingsModel.english;
-                               _languagemode = value;
+                              _languagemode = value;
                               }
                           ),
                         ),

@@ -1,4 +1,5 @@
 import 'package:arts/ui/login.dart';
+import 'package:arts/ui/seasonrewards.dart';
 import 'package:arts/ui/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -203,11 +204,17 @@ class SeasonCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("${AppLocalizations.of(context)!.seasonMex}$day/$month/$year"),
+            Text("${AppLocalizations.of(context)!.seasonMex} $day/$month/$year"),
             IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SeasonRewardsPage()),
+                  );
+                },
                 icon: const Icon(Icons.navigate_next)),
           ],
         ),

@@ -1,3 +1,5 @@
+import 'package:arts/api/user_api.dart';
+import 'package:arts/ui/login.dart';
 import 'package:arts/utils/theme_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -5,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../utils/settings_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'languagescreen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../utils/user_utils.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -14,7 +18,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-
   ThemeMode? _filter = ThemeMode.light;
 
   getThemePreferences () async {
@@ -169,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       Container(
                         padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         //color: Theme.of(context)!.shadowColor,
                         ),
@@ -208,16 +211,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           title: Text(AppLocalizations.of(context)!.logout),
                                           actions: [
                                             TextButton(
-                                              child: Text(AppLocalizations.of(context)!.ok),
-                                              onPressed: () => Navigator.pop(context),
+                                              child: Text(AppLocalizations.of(context)!.yes),
+                                              onPressed: () async {
+                                                const storage = FlutterSecureStorage();
+                                                String? token = await storage.read(key: UserUtils.tokenKey);
+                                                String? email = await storage.read(key: UserUtils.emailKey);
+                                                bool deleted = await deleteToken(email!, token!);
+                                                if (deleted) {
+                                                  await storage.delete(key: UserUtils.tokenKey);
+                                                  await storage.delete(key: UserUtils.emailKey);
+                                                  if (!mounted) return;
+                                                  debugPrint("Logout");
+                                                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                                      builder: (context) => const LoginScreen()), (Route route) => false);
+                                                } else {
+                                                  //TODO: if logout failed what should we do?
+                                                }
+                                              },
                                             ),
+                                            TextButton(onPressed: () {Navigator.of(context).pop();}, child: const Text("No"))
                                           ],
                                           content: StatefulBuilder(
                                               builder: (context, setState) {
                                                 return Column(
                                                     mainAxisSize: MainAxisSize.min,
                                                     children: [
-                                                      Text(AppLocalizations.of(context)!.logoutCompleted, textAlign: TextAlign.center,)
+                                                      Text(AppLocalizations.of(context)!.askForLogout, textAlign: TextAlign.left,)
                                                     ]
                                                 );
                                               }

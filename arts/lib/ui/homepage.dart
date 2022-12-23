@@ -1,3 +1,5 @@
+import 'package:arts/ui/settings.dart';
+import 'package:arts/utils/user_utils.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -26,6 +28,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   var menuOpenedIcon = const Icon(Icons.add, color: Colors.white);
   var menuClosedIcon = const Icon(Icons.remove, color: Colors.white);
   bool isMenuOpened = false;
+
+  late Future<bool?> _isLoggedFuture;
+  late bool? _isLogged;
 
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   late Position? _currentPosition;
@@ -166,6 +171,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+
+    _isLoggedFuture = UserUtils.isLogged();
+
     animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(
@@ -279,27 +287,53 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
-                  child: ElevatedButton(
-                      style: topButtonStyle,
-                      child: const Icon(Icons.person,
-                          color: Colors.white),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Profile()),
-                        );
+                  child: FutureBuilder(
+                      future: _isLoggedFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState==ConnectionState.done) {
+                          debugPrint("connection done ${snapshot.data}");
+                          if (snapshot.data != null && snapshot.data!) {
+                              return ElevatedButton(
+                                  style: topButtonStyle,
+                                  child:
+                                  const Icon(Icons.person, color: Colors.white),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const Profile()),
+                                    );
+                                  });
+                            } else {
+                              return ElevatedButton(
+                                  style: topButtonStyle,
+                                  child:
+                                  const Icon(Icons.settings, color: Colors.white),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const SettingsScreen()),
+                                    );
+                                  });
+                            }
+                        } else {
+                          debugPrint("connection not done");
+                        }
+                        return Container();
                       }),
                 ),
                 ElevatedButton(
-                  style: topButtonStyle,
-                  child:
-                      const Icon(Icons.mark_chat_unread, color: Colors.white),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SideQuest()),
-                    );
-                  }),
+                    style: topButtonStyle,
+                    child:
+                        const Icon(Icons.mark_chat_unread, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SideQuest()),
+                      );
+                    }),
               ],
             ),
           ),
@@ -319,20 +353,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   offset: Offset.fromDirection(getRadiansFromDegree(340),
                       degOneTranslationAnimation.value * 90),
                   child: Transform(
-                    transform: Matrix4.rotationZ(
-                        getRadiansFromDegree(rotationAnimation.value))
-                      ..scale(degOneTranslationAnimation.value),
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      style: smallButtonStyle,
-                      child: const Icon(Icons.auto_stories,
-                        color: Colors.white),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const CollectionScreen()),
-                        );
-                      })),
+                      transform: Matrix4.rotationZ(
+                          getRadiansFromDegree(rotationAnimation.value))
+                        ..scale(degOneTranslationAnimation.value),
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                          style: smallButtonStyle,
+                          child: const Icon(Icons.auto_stories,
+                              color: Colors.white),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const CollectionScreen()),
+                            );
+                          })),
                 ),
                 Transform.translate(
                   offset: Offset.fromDirection(getRadiansFromDegree(270),
@@ -364,19 +400,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   offset: Offset.fromDirection(getRadiansFromDegree(200),
                       degThreeTranslationAnimation.value * 90),
                   child: Transform(
-                    transform: Matrix4.rotationZ(
-                        getRadiansFromDegree(rotationAnimation.value))
-                      ..scale(degThreeTranslationAnimation.value),
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      style: smallButtonStyle,
-                      child: const Icon(Icons.location_on,
-                          color: Colors.white),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const TourListScreen()));
-                      })),
+                      transform: Matrix4.rotationZ(
+                          getRadiansFromDegree(rotationAnimation.value))
+                        ..scale(degThreeTranslationAnimation.value),
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                          style: smallButtonStyle,
+                          child: const Icon(Icons.location_on,
+                              color: Colors.white),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TourListScreen()));
+                          })),
                 ),
                 Transform(
                   transform: Matrix4.rotationZ(
