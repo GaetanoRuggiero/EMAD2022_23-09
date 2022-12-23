@@ -19,7 +19,7 @@ Future<void> main() async {
   // Get a specific camera from the list of available cameras.
   camera = cameras.first;
 
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const MyApp());
 }
 

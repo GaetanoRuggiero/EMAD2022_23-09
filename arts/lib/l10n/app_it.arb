@@ -66,11 +66,23 @@
   "seasonMex": "La stagione termina il",
 
   "poiRecognitionTitleBar": "Scatta la foto",
+  "poiRecognitionLoading": "Provo a riconoscere il luogo",
+  "poiNotRecognized": "Non sono stato in grado di riconoscere l'opera",
+  "tooDistantWarning": "Ci dispiace, non sembri essere nei pressi del luogo situato nella foto da te scattata. Per tale motivo, non è stato possibile riconoscere con successo il punto di interesse.",
+  "backToHomepage": "Torna alla Homepage",
+  "tryAgain": "Prova di nuovo",
   "deviceLocationNotAvailable": "Impossibile ottenere la posizione del dispositivo",
-  "deviceLocationAvailable": "Posizione del dispositivo stabilita",
+  "deviceLocationAvailable": "La tua posizione è stata stabilita",
+  "fetchingGPSCoordinates": "Sto cercando di stabilire la tua posizione",
+  "turnOnLocation": "Attiva Posizione",
+  "noThanks": "No, grazie",
+  "locationOffDialogTitle": "Abilita il servizio di geolocalizazione",
+  "locationOffDialogContent": "Per poter utilizzare la nostra applicazione, è necessario abilitare i servizi di gelocalizzazione.",
+  "locationPermissionDialogTitle": "Consentire l'accesso alla geolocalizzazione",
+  "locationPermissionDialogContent": "Per proseguire, è necessario consentire all'applicazione il permesso di accedere alla posizione del dispositivo.",
+  "allowPermission": "Concedi permessi",
 
   "itineraryList": "Lista itinerari",
   "recommendedItinerary": "Itinerario consigliato",
   "thematicItineraries": "Itinerari tematici"
-
 }
