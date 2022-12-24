@@ -29,8 +29,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   var menuClosedIcon = const Icon(Icons.remove, color: Colors.white);
   bool isMenuOpened = false;
 
-  late Future<bool?> _isLoggedFuture;
-  late bool? _isLogged;
+  bool _isLogged = false;
 
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   late Position? _currentPosition;
@@ -172,7 +171,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
 
-    _isLoggedFuture = UserUtils.isLogged();
+    UserUtils.isLogged().then((value) {
+      if (value != null) {
+        setState(() {
+          _isLogged = value;
+        });
+      }
+      return;
+    });
 
     animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
@@ -287,53 +293,42 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
-                  child: FutureBuilder(
-                      future: _isLoggedFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState==ConnectionState.done) {
-                          debugPrint("connection done ${snapshot.data}");
-                          if (snapshot.data != null && snapshot.data!) {
-                              return ElevatedButton(
-                                  style: topButtonStyle,
-                                  child:
-                                  const Icon(Icons.person, color: Colors.white),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => const Profile()),
-                                    );
-                                  });
-                            } else {
-                              return ElevatedButton(
-                                  style: topButtonStyle,
-                                  child:
-                                  const Icon(Icons.settings, color: Colors.white),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => const SettingsScreen()),
-                                    );
-                                  });
-                            }
-                        } else {
-                          debugPrint("connection not done");
+                  child: _isLogged
+                    ? ElevatedButton(
+                        style: topButtonStyle,
+                        child:
+                        const Icon(Icons.person, color: Colors.white),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Profile()),
+                          );
                         }
-                        return Container();
-                      }),
+                      )
+                    : ElevatedButton(
+                        style: topButtonStyle,
+                        child:
+                        const Icon(Icons.settings, color: Colors.white),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SettingsScreen()),
+                          );
+                        }
+                      )
                 ),
                 ElevatedButton(
-                    style: topButtonStyle,
-                    child:
-                        const Icon(Icons.mark_chat_unread, color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SideQuest()),
-                      );
-                    }),
+                  style: topButtonStyle,
+                  child: const Icon(Icons.mark_chat_unread, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SideQuest()),
+                    );
+                  }),
               ],
             ),
           ),

@@ -19,6 +19,12 @@ class _MapsState extends State<Maps> {
   }
 
   @override
+  void dispose() {
+    mapController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GoogleMap(
       zoomControlsEnabled: false,

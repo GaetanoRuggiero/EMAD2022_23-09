@@ -5,40 +5,6 @@ import '../env/env.dart';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 
-
-
-
-/*Future<Type?> getUser() async {
-  Uri uri = Uri(
-      scheme: 'http', host: Env.serverIP, port: Env.serverPort, path: 'users');
-  debugPrint("Calling $uri");
-
-  User user;
-  final response =
-      await http.get(uri).timeout(const Duration(seconds: 4), onTimeout: () {
-    /* We force a 500 http response after timeout to simulate a
-         connection error with the server. */
-    return http.Response('Timeout', 500);
-  }).onError((error, stackTrace) {
-    debugPrint(error.toString());
-    return http.Response('Server unreachable', 500);
-  });
-
-  if (response.statusCode == 200) {
-    /*If the server did return a 200 OK response, parse the Json and decode
-      its content with UTF-8 to allow accented characters to be shown correctly */
-    List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
-    for (var x in jsonArray) {
-      User user = User.fromJson(x);
-    }
-  } else if (response.statusCode == 500) {
-    return null;
-  } else {
-    throw Exception('Failed to load POI');
-  }
-  return User;
-}*/
-
 Future<bool> loginUser(String email, String password, String token) async {
   Uri uri = Uri(
       scheme: 'http',
@@ -135,7 +101,7 @@ Future<bool?> checkIfLogged(String email, String token) async {
     "Content-Type": "application/json; charset=utf-8"
   };
   final response =
-      await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 10), onTimeout: () {
+      await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);
@@ -144,13 +110,11 @@ Future<bool?> checkIfLogged(String email, String token) async {
     return http.Response('Server unreachable', 500);
   });
 
-  debugPrint("Sto checkToken demmerda: ${response.body}");
   if (response.statusCode == 200) {
     /*If the server did return a 200 OK response, parse the Json and decode
       its content with UTF-8 to allow accented characters to be shown correctly */
 
     bool alreadyLogged = jsonDecode(response.body);
-    debugPrint("user_api function: $alreadyLogged");
     if (alreadyLogged) {
       return true;
     }
