@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../api/itinerary_api.dart';
+import '../model/itinerary.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
-
-class TourListScreen extends StatelessWidget {
+class TourListScreen extends StatefulWidget {
   const TourListScreen({Key? key}) : super(key: key);
+
+  @override
+  State<TourListScreen> createState() => _TourListScreenState();
+}
+
+class _TourListScreenState extends State<TourListScreen> {
+
+  List<Itinerary> _itineraryList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +28,8 @@ class TourListScreen extends StatelessWidget {
               icon: const Icon(Icons.home_rounded,))
         ],
       ),
-      body: ListView(
+
+      body: Column(
         children: [
           Container(
             color: Colors.green.shade300,
@@ -39,16 +50,6 @@ class TourListScreen extends StatelessWidget {
             ],
           ),
 
-          Container(
-            margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child:  const PathCard(
-              endPOI: "endPOI",
-              lengthPath: "15km",
-              startPOI: "startPOI",
-              image: "https://images.unsplash.com/photo-1581416271248-213a4f928597?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80",
-            ),
-          ),
-
           const PathCardDivider(),
 
           Row(
@@ -58,26 +59,59 @@ class TourListScreen extends StatelessWidget {
             ],
           ),
 
-          Container(
-            margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child:  const PathCard(
-              endPOI: "ENDpoi",
-              lengthPath: "16km",
-              startPOI: "STARTpoi",
-              image: "https://images.unsplash.com/photo-1655303717503-c6ab284d7b69?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
-            ),
-          ),
+          FutureBuilder(
+            future: getAllItinerary(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                var itineraryList = snapshot.data;
+                if (itineraryList == null){
 
-          const SizedBox(height: 10.0),
+                  return Container(padding: const EdgeInsets.all(20.0), child: Column(
+                    children: [
+                      const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+                      Text(
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                          AppLocalizations.of(context)!.connectionError
+                      )
+                    ],
+                  )
+                  );
+                }
 
-          Container(
-            margin: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
-            child:  const PathCard(
-              endPOI: "ENDpoi",
-              lengthPath: "19km",
-              startPOI: "STARTpoi",
-              image: "https://images.unsplash.com/photo-1571075051578-c8cd15385f46?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80",
-            ),
+                _itineraryList = itineraryList;
+                if (itineraryList.isNotEmpty) {
+                  return Expanded(
+                    child: ListView.separated(
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (context, index) {
+                        return PathCard(itinerary: _itineraryList[index], itemCount: _itineraryList.length);
+                      },
+                      separatorBuilder: (BuildContext context, int index) {return const PathCardDivider();},
+                      itemCount: _itineraryList.length,
+                    ),
+                  );
+                }
+
+                else {
+                  return Container(padding: const EdgeInsets.all(20.0), child: Column(
+                    children: [
+                      const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+                      Text(
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                          AppLocalizations.of(context)!.emptyItinerary
+                      )
+                    ],
+                  ));
+                }
+              }
+
+              else {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+            },
           ),
         ],
       ),
@@ -87,21 +121,19 @@ class TourListScreen extends StatelessWidget {
 
 class PathCard extends StatelessWidget {
 
-  final String image;
-  final String startPOI, endPOI, lengthPath;
+  final Itinerary itinerary;
+  final int itemCount;
 
   const PathCard({
     Key? key,
-    required this.image,
-    required this.startPOI,
-    required this.endPOI,
-    required this.lengthPath,
+    required this.itinerary,
+    required this.itemCount
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
-
+      color: Theme.of(context).unselectedWidgetColor,
       elevation: 2.0,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       shape: RoundedRectangleBorder(
@@ -110,27 +142,74 @@ class PathCard extends StatelessWidget {
       child: Column(
         children: [
 
-          Container(
-            height: 200,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadiusDirectional.only(topStart: Radius.circular(20), topEnd: Radius.circular(20)),
-              image: DecorationImage(
-                image: NetworkImage(image),
-                fit: BoxFit.fitWidth,
-              ),
-            ),
-            width: double.infinity,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CarouselSlider.builder(
+                  itemCount: 5,
+                  itemBuilder: (context, index, realIndex) {
+                    List<String?> images = [];
+                    images.add(itinerary.startPoi!.imageURL!);
+                    images.add(itinerary.poi_0!.imageURL!);
+                    images.add(itinerary.poi_1!.imageURL!);
+                    images.add(itinerary.poi_2!.imageURL!);
+                    images.add(itinerary.endPoi!.imageURL!);
+                    return buildImage(images, index);
+                  },
+                  options: CarouselOptions(height: 400)),
+              //const SizedBox(height: 10),
+            ],
           ),
 
           Container(
-            padding: const EdgeInsets.only(top:10.0,bottom:10.0),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text("Inizio: $startPOI"),
-                  Text("Fine: $endPOI"),
-                  Text("Lunghezza: $lengthPath"),
-                ]
+            color: Theme.of(context).toggleableActiveColor,
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: [
+
+                Row(
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                          children: <TextSpan> [
+                            TextSpan(text: (("${AppLocalizations.of(context)!.itineraryStart} ")), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                            TextSpan(text: (itinerary.startPoi!.name!), style: const TextStyle(color: Colors.black)),
+                          ]
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                Row(
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                          children: <TextSpan> [
+                            TextSpan(text: (("${AppLocalizations.of(context)!.itineraryEnd} ")), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                            TextSpan(text: (itinerary.endPoi!.name!), style: const TextStyle(color: Colors.black)),
+                          ]
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                Row(
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                          children: <TextSpan> [
+                            TextSpan(text: (("${AppLocalizations.of(context)!.length} ")), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                            TextSpan(text: ("${itinerary.length}${AppLocalizations.of(context)!.km}"), style: const TextStyle(color: Colors.black)),
+                          ]
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -144,11 +223,26 @@ class PathCardDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(
-      height: 20,
-      thickness: 1.5,
-      indent:20,
-      endIndent: 20,
+    return Divider(
+      color: Theme.of(context).dividerColor,
+      height: 30,
+      thickness: 2,
+      indent:45,
+      endIndent: 45,
     );
   }
+}
+
+Widget buildImage (List<String?> urlImage, int index) {
+  return Container(
+    height: 200,
+    width: double.infinity,
+    decoration: BoxDecoration(
+      borderRadius: const BorderRadiusDirectional.only(
+          topStart: Radius.circular(20), topEnd: Radius.circular(20)),
+      image: DecorationImage(
+          image: AssetImage(urlImage[index]!),
+          fit: BoxFit.cover),
+    ),
+  );
 }

@@ -2,22 +2,22 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../env/env.dart';
-import '../model/sidequest.dart';
+import '../model/itinerary.dart';
 
 // TODO: not implemented yet
-Future<List<Sidequest>?> getAllSidequest() async {
+Future<List<Itinerary>?> getAllItinerary() async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
       port: Env.serverPort,
-      path: 'sidequests'
+      path: 'itinerary'
   );
   debugPrint("Calling $uri");
 
-  List<Sidequest> allSidequestList = [];
+  List<Itinerary> allSidequestList = [];
   final response = await http
       .get(uri)
-      .timeout(const Duration(seconds: 7), onTimeout: () {
+      .timeout(const Duration(seconds: 10), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);
@@ -31,8 +31,8 @@ Future<List<Sidequest>?> getAllSidequest() async {
       its content with UTF-8 to allow accented characters to be shown correctly */
     List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
     for (var x in jsonArray) {
-      Sidequest sidequest = Sidequest.fromJson(x);
-      allSidequestList.add(sidequest);
+      Itinerary itinerary = Itinerary.fromJson(x);
+      allSidequestList.add(itinerary);
     }
   } else if (response.statusCode == 500) {
     return null;

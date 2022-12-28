@@ -19,6 +19,7 @@
   "sideQuestEventProgess": "Evento in corso: dal",
   "articleToThe": "al",
   "sideQuestEventCompleted": "Evento completato!",
+  "emptyMission": "Non sono disponibili missioni da completare.",
 
   "settings": "Impostazioni",
   "languageAndTheme": "Lingua e tema",
@@ -94,5 +95,10 @@
 
   "itineraryList": "Lista itinerari",
   "recommendedItinerary": "Itinerario consigliato",
-  "thematicItineraries": "Itinerari tematici"
+  "thematicItineraries": "Itinerari tematici",
+  "itineraryStart": "Punto di inizio:",
+  "itineraryEnd": "Punto di fine:",
+  "km": "km",
+  "length": "Lunghezza",
+  "emptyItinerary": "Non sono disponibili itinerari da seguire."
 }

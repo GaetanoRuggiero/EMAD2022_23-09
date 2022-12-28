@@ -1,8 +1,7 @@
-import 'package:arts/model/sidequest.dart';
+import '../model/sidequest.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-
 import '../api/sidequest_api.dart';
 
 class SideQuest extends StatefulWidget {
@@ -18,7 +17,6 @@ class _SideQuestState extends State<SideQuest> {
 
   @override
   Widget build(BuildContext context) {
-
 
     return Scaffold(
 
@@ -51,7 +49,18 @@ class _SideQuestState extends State<SideQuest> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   var sideQuestList = snapshot.data;
                   if (sideQuestList == null){
-                    return Center(child: Text(style: const TextStyle(fontSize: 20), "Errore di connessione"));
+
+                    return Container(padding: const EdgeInsets.all(20.0), child: Column(
+                      children: [
+                        const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+                        Text(
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                            AppLocalizations.of(context)!.connectionError
+                        )
+                      ],
+                    )
+                    );
                   }
                   _sideQuestList = sideQuestList;
                   if (sideQuestList.isNotEmpty) {
@@ -66,8 +75,17 @@ class _SideQuestState extends State<SideQuest> {
                     );
                   }
                   else {
-                    //quando è vuoto
-                    return Center(child: Text(style: const TextStyle(fontSize: 20), "Nessuna missione disponibile!"));
+
+                    return Container(padding: const EdgeInsets.all(20.0), child: Column(
+                      children: [
+                        const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+                        Text(
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                            AppLocalizations.of(context)!.emptyMission
+                        )
+                      ],
+                    ));
                   }
                 }
                 else {
@@ -75,7 +93,6 @@ class _SideQuestState extends State<SideQuest> {
                 }
               }
           ),
-
         ],
       ),
     );
@@ -90,7 +107,6 @@ class SideQuestCard extends StatelessWidget {
   }) : super(key: key);
 
   final Sidequest sidequest;
-
 
   @override
   Widget build(BuildContext context) {
@@ -147,11 +163,11 @@ class SideQuestCard extends StatelessWidget {
                 style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white,),
                 children: <TextSpan> [
                   TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestGoToUpper} ")),
-                  TextSpan(text: "${sidequest.poi!.name!} ", style: const TextStyle(color: Color(0xffE68532))),
+                  TextSpan(text: "${sidequest.poi!.name!} ", style: TextStyle(color: Theme.of(context).iconTheme.color)),
                   TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestScan} ")),
                   TextSpan(text: sidequest.reward!.type!),
                   TextSpan(text: (" ${AppLocalizations.of(context)!.articleToThe} ")),
-                  TextSpan(text: sidequest.reward!.placeEvent!, style: const TextStyle(color: Color(0xffE68532)),),
+                  TextSpan(text: sidequest.reward!.placeEvent!, style: TextStyle(color: Theme.of(context).iconTheme.color)),
                 ],
               ),
             ),

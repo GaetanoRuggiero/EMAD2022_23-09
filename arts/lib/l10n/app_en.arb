@@ -19,6 +19,7 @@
   "sideQuestEventProgess": "Current event: from",
   "articleToThe": "to the",
   "sideQuestEventCompleted": "Event completed!",
+  "emptyMission": "There are no sidequest to complete.",
 
   "settings": "Settings",
   "languageAndTheme": "Language and theme",
@@ -94,5 +95,10 @@
 
   "itineraryList": "Itinerary list",
   "recommendedItinerary": "Recommended itinerary",
-  "thematicItineraries": "Thematic itineraries"
+  "thematicItineraries": "Thematic itineraries",
+  "itineraryStart": "Start at:",
+  "itineraryEnd": "End at:",
+  "km": "km",
+  "length": "Length",
+  "emptyItinerary": "There are no routes to follow."
 }

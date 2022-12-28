@@ -84,7 +84,6 @@ class _MyAppState extends State<MyApp> {
 
     debugPrint("Called setAppLanguage");
     String languageCode, countryCode;
-    debugPrint("Print LanguageMode${settingsNotifier.languageMode!}");
 
     if (settingsNotifier.languageMode == SettingsModel.italian) {
       languageCode = SettingsModel.italian.substring(0,2);
