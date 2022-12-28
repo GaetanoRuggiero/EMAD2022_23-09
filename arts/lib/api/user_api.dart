@@ -5,7 +5,7 @@ import '../env/env.dart';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 
-Future<bool> loginUser(String email, String password, String token) async {
+Future<bool?> loginUser(String email, String password, String token) async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -41,7 +41,7 @@ Future<bool> loginUser(String email, String password, String token) async {
     }
   } else if (response.statusCode == 500) {
     debugPrint("Server did not respond at: $uri");
-    return false;
+    return null;
   } else {
     throw Exception('Failed');
   }
@@ -49,7 +49,7 @@ Future<bool> loginUser(String email, String password, String token) async {
   return false;
 }
 
-Future<bool> signUpUser(String name, String surname, String email, String password, String token) async {
+Future<bool?> signUpUser(String name, String surname, String email, String password, String token) async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -83,7 +83,7 @@ Future<bool> signUpUser(String name, String surname, String email, String passwo
     }
   } else if (response.statusCode == 500) {
     debugPrint("Server did not respond at: $uri");
-    return false;
+    return null;
   } else {
     throw Exception('Failed');
   }
@@ -167,12 +167,6 @@ String generateToken() {
   final randomString = sha256.convert(randomBytes).toString();
   return randomString;
 }
-
-
-
-//TODO:Future<bool> checkTokenValidity() async {}
-
-
 
 
 

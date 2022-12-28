@@ -25,7 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _controllerPass = TextEditingController(),
       _controllerPassVal = TextEditingController();
   String errorPassword = "";
-  bool _showRegError = false;
+  bool? _showRegError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   fontSize: 15),
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(),
-                                hintText: AppLocalizations.of(context)!.name,
+                                labelText: AppLocalizations.of(context)!.name,
+                                hintText: AppLocalizations.of(context)!.hintName,
                                 hintStyle: TextStyle(
                                     color: Theme.of(context)
                                         .textTheme
@@ -109,7 +110,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   fontSize: 15),
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(),
-                                hintText: AppLocalizations.of(context)!.surname,
+                                hintText: AppLocalizations.of(context)!.hintSurname,
+                                labelText: AppLocalizations.of(context)!.surname,
                                 hintStyle: TextStyle(
                                     color: Theme.of(context)
                                         .textTheme
@@ -152,7 +154,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 fontSize: 15),
                             decoration: InputDecoration(
                               border: const OutlineInputBorder(),
-                              hintText: AppLocalizations.of(context)!.email,
+                              hintText: AppLocalizations.of(context)!.hintMail,
+                              labelText: AppLocalizations.of(context)!.email,
                               hintStyle: TextStyle(
                                   color: Theme.of(context)
                                       .textTheme
@@ -219,20 +222,21 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                   border: const OutlineInputBorder(),
                                   hintText:
-                                      AppLocalizations.of(context)!.password,
+                                      AppLocalizations.of(context)!.hintPass,
                                   hintStyle: TextStyle(
                                       color: Theme.of(context)
                                           .textTheme
                                           .headline1
                                           ?.color,
-                                      fontSize: 15)),
+                                      fontSize: 15),
+                                  labelText: AppLocalizations.of(context)!.password,),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return AppLocalizations.of(context)!
                                       .mandatoryField;
                                 } else if (!UserUtils.validatePass(value)) {
                                   return AppLocalizations.of(context)!
-                                      .invalidPass;
+                                      .formatPass;
                                 } else {
                                   return null;
                                 }
@@ -285,14 +289,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                 ),
                                 border: const OutlineInputBorder(),
-                                hintText:
-                                    AppLocalizations.of(context)!.passConf,
+                                hintText: AppLocalizations.of(context)!.mexPassConf,
                                 hintStyle: TextStyle(
                                     color: Theme.of(context)
                                         .textTheme
                                         .headline1
                                         ?.color,
-                                    fontSize: 15)),
+                                    fontSize: 15),
+                              labelText: AppLocalizations.of(context)!.passConf,),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return AppLocalizations.of(context)!
@@ -318,13 +322,19 @@ class _RegisterPageState extends State<RegisterPage> {
                   onTap: () async {
                     if (_formKey.currentState!.validate()) {
                       String newToken = generateToken();
-                      bool reg = await signUpUser(
+                      bool? reg = await signUpUser(
                           _controllerName.text,
                           _controllerSurname.text,
                           _controllerEmail.text,
                           _controllerPass.text,
                           newToken);
-                      if (reg) {
+                      if (reg == null) {
+                        //in this case the server is unreachable
+                        setState(() {
+                          _showRegError = null;
+                        });
+                      }
+                      if (reg!) {
                         const storage = FlutterSecureStorage();
                         await storage.write(key: UserUtils.tokenKey, value: newToken);
                         if (!mounted) return;
@@ -362,17 +372,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             fontWeight: FontWeight.bold)),
                   ),
                 ),
-                _showRegError
-                    ? Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.all(10),
-                  margin: const EdgeInsets.all(10),
-                  color: Colors.red,
-                  child: Text(AppLocalizations.of(context)!.regFailed,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 20)),
-                )
-                    : Container(),
+                setRegistrationOutput(_showRegError),
                 Container(
                   margin: const EdgeInsets.only(top: 10),
                   child: RichText(
@@ -401,5 +401,27 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+
+  Widget setRegistrationOutput(bool? showRegError) {
+    if (showRegError == null || showRegError == true) {
+      String text;
+      if (showRegError == null) {
+        text = AppLocalizations.of(context)!.connectionError;
+      } else {
+        text = AppLocalizations.of(context)!.regFailed4Email;
+      }
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.all(10),
+        color: Colors.red,
+        child: Text(text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20)),
+      );
+    } else {
+      return Container();
+    }
   }
 }

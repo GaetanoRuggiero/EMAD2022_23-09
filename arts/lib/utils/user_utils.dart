@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../api/user_api.dart';
 import 'package:email_validator/email_validator.dart';
@@ -12,11 +11,13 @@ class UserUtils {
     String? token = await storage.read(key: tokenKey);
     String? email = await storage.read(key: emailKey);
     if (token != null && email != null) {
-      bool? logSucc = await checkIfLogged(email, token);
-      debugPrint("$logSucc");
-      return logSucc;
+      bool? logged = await checkIfLogged(email, token);
+      if (logged == false) {
+        await storage.delete(key: UserUtils.tokenKey);
+        await storage.delete(key: UserUtils.emailKey);
+      }
+      return logged;
     }
-    debugPrint("return null");
     return null;
   }
 
@@ -25,11 +26,10 @@ class UserUtils {
   }
 
   static bool validatePass(String val) {
-    //TODO: add regex
-    if (val.length < 8) {
+    RegExp regex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$&*~]).{8,}$');
+    if (!regex.hasMatch(val)) {
       return false;
     }
     return true;
   }
-
 }

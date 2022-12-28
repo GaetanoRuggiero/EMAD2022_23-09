@@ -1,4 +1,3 @@
-import 'package:arts/ui/login.dart';
 import 'package:arts/ui/seasonrewards.dart';
 import 'package:arts/ui/settings.dart';
 import 'package:flutter/material.dart';
@@ -67,19 +66,6 @@ class Profile extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          Container(
-            margin: const EdgeInsets.only(top: 10),
-            child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                  );
-                },
-                child: Text(AppLocalizations.of(context)!.redirectLog,
-                    style: const TextStyle(fontSize: 20))),
           ),
           Container(
               padding: const EdgeInsets.all(20),

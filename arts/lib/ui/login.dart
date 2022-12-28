@@ -101,7 +101,7 @@ class _LoginFormState extends State<LoginForm> {
   bool isPasswordVisible = false;
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPass = TextEditingController();
-  bool _showLoginError = false;
+  bool? _showLoginError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -182,9 +182,15 @@ class _LoginFormState extends State<LoginForm> {
               if (_formKey.currentState!.validate()) {
                 String newToken = generateToken();
                 const storage = FlutterSecureStorage();
-                bool isLogged = await loginUser(
+                bool? isLogged = await loginUser(
                     _controllerEmail.text, _controllerPass.text, newToken);
-                if (isLogged) {
+                if (isLogged == null) {
+                  //in this case the server is unreachable
+                  setState(() {
+                    _showLoginError = null;
+                  });
+                }
+                if (isLogged!) {
                   await storage.write(key: UserUtils.tokenKey, value: newToken);
                   await storage.write(
                       key: UserUtils.emailKey, value: _controllerEmail.text);
@@ -222,19 +228,32 @@ class _LoginFormState extends State<LoginForm> {
                       fontWeight: FontWeight.bold)),
             ),
           ),
-          _showLoginError
-              ? Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.all(10),
-                  margin: const EdgeInsets.all(10),
-                  color: Colors.red,
-                  child: Text(AppLocalizations.of(context)!.loginFailed,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 20)),
-                )
-              : Container()
+          setLoginOutput(_showLoginError),
         ],
       ),
     );
   }
+
+  Widget setLoginOutput(bool? showLoginError) {
+    if (showLoginError == null || showLoginError == true) {
+      String text;
+      if (showLoginError == null) {
+        text = AppLocalizations.of(context)!.connectionError;
+      } else {
+        text = AppLocalizations.of(context)!.loginFailed;
+      }
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.all(10),
+        color: Colors.red,
+        child: Text(text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20)),
+      );
+    } else {
+      return Container();
+    }
+  }
+
 }

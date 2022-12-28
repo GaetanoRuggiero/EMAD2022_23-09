@@ -2,7 +2,6 @@ import 'package:arts/api/user_api.dart';
 import 'package:arts/ui/login.dart';
 import 'package:arts/utils/theme_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import '../utils/settings_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,6 +19,10 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   ThemeMode? _filter = ThemeMode.light;
 
+  late String value;
+
+  bool _isLogged = false;
+
   getThemePreferences () async {
     int? themeMode = await ThemePreferences().getTheme();
 
@@ -34,10 +37,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  //snackBar of Success/Error logout
+  void showSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(value),
+        action: SnackBarAction(
+          label: 'X',
+          onPressed: () {
+            // Click to close
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     getThemePreferences();
     super.initState();
+
+    UserUtils.isLogged().then((value) {
+      if (value != null) {
+        setState(() {
+          _isLogged = value;
+        });
+      }
+      return;
+    });
   }
 
   @override
@@ -88,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               },
                               child: SettingsTile(
                                   rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                                  leftIcon: Ionicons.language,
+                                  leftIcon: Icons.translate_outlined,
                                   title: AppLocalizations.of(context)!.language),
                             ),
 
@@ -107,7 +134,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             return Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-
                                                 ListTile(
                                                   title: Text(AppLocalizations.of(context)!.light),
                                                   leading: Radio<ThemeMode>(
@@ -159,7 +185,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                               },
                               child: SettingsTile(
-                                leftIcon: Ionicons.color_palette_outline,
+                                leftIcon: Icons.palette_outlined,
                                 title: AppLocalizations.of(context)!.theme,
                                 rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
                               ),
@@ -194,63 +220,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               onTap: () {},
                               child: SettingsTile(
                                   rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                                  leftIcon: Icons.account_circle,
+                                  leftIcon: Icons.account_circle_outlined,
                                   title: AppLocalizations.of(context)!.infoAccount
                               ),
                             ),
 
                             const SizedBox(height: 10),
 
-                            InkWell(
-                              onTap: () {
-                                showDialog<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                          title: Text(AppLocalizations.of(context)!.logout),
-                                          actions: [
-                                            TextButton(
-                                              child: Text(AppLocalizations.of(context)!.yes),
-                                              onPressed: () async {
-                                                const storage = FlutterSecureStorage();
-                                                String? token = await storage.read(key: UserUtils.tokenKey);
-                                                String? email = await storage.read(key: UserUtils.emailKey);
-                                                bool deleted = await deleteToken(email!, token!);
-                                                if (deleted) {
-                                                  await storage.delete(key: UserUtils.tokenKey);
-                                                  await storage.delete(key: UserUtils.emailKey);
-                                                  if (!mounted) return;
-                                                  debugPrint("Logout");
-                                                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-                                                      builder: (context) => const LoginScreen()), (Route route) => false);
-                                                } else {
-                                                  //TODO: if logout failed what should we do?
-                                                }
-                                              },
-                                            ),
-                                            TextButton(onPressed: () {Navigator.of(context).pop();}, child: const Text("No"))
-                                          ],
-                                          content: StatefulBuilder(
-                                              builder: (context, setState) {
-                                                return Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      Text(AppLocalizations.of(context)!.askForLogout, textAlign: TextAlign.left,)
-                                                    ]
-                                                );
-                                              }
-                                          )
+                            Container(
+                              child: _isLogged
+                                  ? InkWell(
+                                      onTap: () {
+                                      showDialog<void>(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                                title: Text(AppLocalizations.of(context)!.logout),
+                                                actions: [
+                                                  TextButton(
+                                                    child: Text(AppLocalizations.of(context)!.yes),
+                                                    onPressed: () async {
+                                                      const storage = FlutterSecureStorage();
+                                                      String? token = await storage.read(key: UserUtils.tokenKey);
+                                                      String? email = await storage.read(key: UserUtils.emailKey);
+                                                      bool deleted = await deleteToken(email!, token!);
+                                                      if (deleted) {
+                                                        setState(() {
+                                                          value = AppLocalizations.of(context)!.logoutCompleted;
+                                                        });
+                                                        await storage.delete(key: UserUtils.tokenKey);
+                                                        await storage.delete(key: UserUtils.emailKey);
+                                                        if (!mounted) return;
+                                                        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                                            builder: (context) => const LoginScreen()), (Route route) => false);
+                                                      } else {
+                                                        setState(() {
+                                                          value = AppLocalizations.of(context)!.logoutFailed;
+                                                        });
+                                                      }
+                                                      showSnackBar();
+                                                    },
+                                                  ),
+                                                  TextButton(onPressed: () {Navigator.of(context).pop();}, child: const Text("No"))
+                                                ],
+                                                content: StatefulBuilder(
+                                                    builder: (context, setState) {
+                                                      return Column(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Text(AppLocalizations.of(context)!.askForLogout, textAlign: TextAlign.left,)
+                                                          ]
+                                                      );
+                                                    }
+                                                )
+                                            );
+                                          }
                                       );
-                                    }
-                                );
-                              },
-                              child: SettingsTile(
-                                  rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                                  leftIcon: Ionicons.log_out_outline,
-                                  title: AppLocalizations.of(context)!.logout
-                              ),
+                                    },
+                                    child: SettingsTile(
+                                        rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                        leftIcon: Icons.logout_outlined,
+                                        title: AppLocalizations.of(context)!.logout
+                                    ),
+                                  )
+                                  : InkWell(
+                                      onTap: () {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => const LoginScreen()),
+                                        );
+                                      },
+                                      child: SettingsTile(
+                                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                          leftIcon: Icons.login_outlined,
+                                          title: AppLocalizations.of(context)!.redirectLog
+                                      ),
+                                    )
                             ),
+
                           ],
                         ),
                       ),
@@ -277,7 +326,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               onTap: () {},
                               child: SettingsTile(
                                   rightIcon:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                                  leftIcon: Ionicons.information_circle_sharp,
+                                  leftIcon: Icons.info_outlined,
                                   title: AppLocalizations.of(context)!.infoAndRecognitions
                               ),
                             ),
