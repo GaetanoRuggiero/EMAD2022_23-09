@@ -87,6 +87,7 @@
   "poiNotRecognized": "Unable to recognize what's in the picture",
   "tooDistantWarning": "You seem to not be near the place where you took the photo. Therefore, the point of interest could not be recognized succesfully.",
   "backToHomepage": "Back to the Homepage",
+  "continueAnyway": "I understand, ignore rewards and continue",
   "tryAgain": "Retry",
   "deviceLocationNotAvailable": "Could not retrieve the device's location",
   "deviceLocationAvailable": "Location established",

@@ -94,7 +94,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
               bottom: 40.0,
               child: ElevatedButton(
                 style: largeButtonStyle,
-                child: const Icon(Icons.camera_alt),
+                child: const Icon(Icons.camera),
                 onPressed: () async {
                   try {
                     // Ensure camera is initialized
@@ -115,7 +115,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                       ),
                     );
                   } catch (e) {
-                    debugPrint(e.toString());
+                    debugPrint("Could not take the picture! Exception message:\n ${e.toString()}");
                   }
                 }),
             ),
@@ -219,40 +219,40 @@ class ImageRecognitionScreen extends StatelessWidget {
               }
               else {
                 // POI is too distant. Showing an information message
-                return const TooDistantDialog();
+                return TooDistantDialog(poi: snapshot.data!);
               }
             }
-
-            // POI not recognized
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(child: Text(AppLocalizations.of(context)!.poiNotRecognized)),
-                ElevatedButton(
-                    child: Text(AppLocalizations.of(context)!.tryAgain),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    })
-              ],
-            );
+            else {
+              // POI not recognized
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(child: Text(AppLocalizations.of(context)!.poiNotRecognized)),
+                  ElevatedButton(
+                      child: Text(AppLocalizations.of(context)!.tryAgain),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      })
+                ],
+              );
+            }
           }
-          else {
-            // Show a loading indicator during POI recognition
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(child: Text(AppLocalizations.of(context)!.poiRecognitionLoading)),
-                const Center(child: CircularProgressIndicator()),
-              ],
-            );
-          }
+          // Show a loading indicator during POI recognition
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(child: Text(AppLocalizations.of(context)!.poiRecognitionLoading)),
+              const Center(child: CircularProgressIndicator()),
+            ],
+          );
         }),
     );
   }
 }
 
 class TooDistantDialog extends StatelessWidget {
-  const TooDistantDialog({Key? key}) : super(key: key);
+  final POI poi;
+  const TooDistantDialog({Key? key, required this.poi}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +267,17 @@ class TooDistantDialog extends StatelessWidget {
             child: Text(AppLocalizations.of(context)!.backToHomepage),
             onPressed: () {
               Navigator.of(context).popUntil((route) => route.isFirst);
-            })
+            }),
+          ElevatedButton(
+              child: Text(AppLocalizations.of(context)!.continueAnyway),
+              onPressed: () {
+                Future.microtask(() {
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi)));
+                });
+              }),
         ],
       ),
     );

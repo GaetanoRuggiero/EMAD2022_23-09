@@ -87,6 +87,7 @@
   "poiNotRecognized": "Non sono stato in grado di riconoscere l'opera",
   "tooDistantWarning": "Ci dispiace, non sembri essere nei pressi del luogo situato nella foto da te scattata. Per tale motivo, non è stato possibile riconoscere con successo il punto di interesse.",
   "backToHomepage": "Torna alla Homepage",
+  "continueAnyway": "Ho capito, ignora le ricompense e continua",
   "tryAgain": "Prova di nuovo",
   "deviceLocationNotAvailable": "Impossibile ottenere la posizione del dispositivo",
   "deviceLocationAvailable": "La tua posizione è stata stabilita",
