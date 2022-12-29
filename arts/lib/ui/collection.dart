@@ -307,7 +307,7 @@ class _SearchTabViewState extends State<SearchTabView> {
                   newFilteredList = await getPOIListByCity(text);
                 }
                 else {
-                  newFilteredList = await getPOIListByName(text);
+                  newFilteredList = await getPOIListByNameKeywords(text);
                 }
 
 
