@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/POI.dart';
 
 class SinglePOIView extends StatelessWidget {
@@ -23,6 +24,13 @@ class SinglePOIView extends StatelessWidget {
                 child: Image.asset(poi.imageURL!, fit: BoxFit.fitHeight),
               ),
             ),
+            poi.modelName != null ?
+              ElevatedButton.icon(
+                icon: const Icon(Icons.view_in_ar_outlined),
+                label: Text(AppLocalizations.of(context)!.view3dModel),
+                onPressed: () {}
+              )
+            : const Text("Modellino non disponibile"),
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(20),
@@ -65,7 +73,7 @@ class StepsState extends State<Steps> {
 
   Widget _renderSteps() {
     debugPrint(widget.poiHistory);
-    final List<_Step> steps = [_Step('Cenni storici', widget.poiHistory) ,_Step('Curiosità', widget.poiTrivia)];
+    final List<_Step> steps = [_Step(AppLocalizations.of(context)!.history, widget.poiHistory) ,_Step(AppLocalizations.of(context)!.trivia, widget.poiTrivia)];
 
     return ExpansionPanelList.radio(
       children: steps.map<ExpansionPanelRadio>((_Step step) {

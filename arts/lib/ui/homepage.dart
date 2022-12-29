@@ -266,209 +266,211 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        alignment: Alignment.center,
-        children: [
-          FutureBuilder(
-            future: _currentPositionFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasData) {
-                  _currentPosition = snapshot.data!;
-                  return Maps(latitude: snapshot.data!.latitude, longitude: snapshot.data!.longitude);
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          alignment: Alignment.center,
+          children: [
+            FutureBuilder(
+              future: _currentPositionFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    _currentPosition = snapshot.data!;
+                    return Maps(latitude: snapshot.data!.latitude, longitude: snapshot.data!.longitude);
+                  }
+                  else {
+                    return Center(child: Text(AppLocalizations.of(context)!.deviceLocationNotAvailable));
+                  }
                 }
                 else {
-                  return Center(child: Text(AppLocalizations.of(context)!.deviceLocationNotAvailable));
+                  return const Center(child: CircularProgressIndicator());
                 }
-              }
-              else {
-                return const Center(child: CircularProgressIndicator());
-              }
-            }),
-          Positioned(
-            top: 80.0,
-            left: -25.0,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: _isLogged
-                    ? ElevatedButton(
-                        style: topButtonStyle,
-                        child:
-                        const Icon(Icons.person, color: Colors.white),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Profile()),
-                          );
-                        }
-                      )
-                    : ElevatedButton(
-                        style: topButtonStyle,
-                        child:
-                        const Icon(Icons.settings, color: Colors.white),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsScreen()),
-                          );
-                        }
-                      )
-                ),
-                ElevatedButton(
-                  style: topButtonStyle,
-                  child: const Icon(Icons.mark_chat_unread, color: Colors.white),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SideQuest()),
-                    );
-                  }),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 30.0,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                IgnorePointer(
-                  child: Container(
-                    color: Colors.transparent,
-                    height: 150.0,
-                    width: 250.0,
-                  ),
-                ),
-                Transform.translate(
-                  offset: Offset.fromDirection(getRadiansFromDegree(340),
-                      degOneTranslationAnimation.value * 90),
-                  child: Transform(
-                      transform: Matrix4.rotationZ(
-                          getRadiansFromDegree(rotationAnimation.value))
-                        ..scale(degOneTranslationAnimation.value),
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
-                          style: smallButtonStyle,
-                          child: const Icon(Icons.auto_stories,
-                              color: Colors.white),
+              }),
+            Positioned(
+              top: 80.0,
+              left: -25.0,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: _isLogged
+                      ? ElevatedButton(
+                          style: topButtonStyle,
+                          child:
+                          const Icon(Icons.person, color: Colors.white),
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      const CollectionScreen()),
+                                builder: (context) => const Profile()),
                             );
-                          })),
-                ),
-                Transform.translate(
-                  offset: Offset.fromDirection(getRadiansFromDegree(270),
-                      degTwoTranslationAnimation.value * 80),
-                  child: Transform(
-                    transform: Matrix4.rotationZ(
-                        getRadiansFromDegree(rotationAnimation.value))
-                      ..scale(degTwoTranslationAnimation.value),
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      style: smallButtonStyle,
-                      child: const Icon(Icons.camera_alt,
-                          color: Colors.white),
-                      onPressed: () {
-                        if (_currentPosition == null) {
-                          setState(() {
-                            _currentPositionFuture = _getCurrentPosition();
-                          });
-                        }
-                        else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera, latitude: _currentPosition!.latitude, longitude: _currentPosition!.longitude)),
-                          );
-                        }
-                      })),
-                ),
-                Transform.translate(
-                  offset: Offset.fromDirection(getRadiansFromDegree(200),
-                      degThreeTranslationAnimation.value * 90),
-                  child: Transform(
-                      transform: Matrix4.rotationZ(
-                          getRadiansFromDegree(rotationAnimation.value))
-                        ..scale(degThreeTranslationAnimation.value),
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
-                          style: smallButtonStyle,
-                          child: const Icon(Icons.location_on,
-                              color: Colors.white),
+                          }
+                        )
+                      : ElevatedButton(
+                          style: topButtonStyle,
+                          child:
+                          const Icon(Icons.settings, color: Colors.white),
                           onPressed: () {
                             Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsScreen()),
+                            );
+                          }
+                        )
+                  ),
+                  ElevatedButton(
+                    style: topButtonStyle,
+                    child: const Icon(Icons.mark_chat_unread, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SideQuest()),
+                      );
+                    }),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 30.0,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  IgnorePointer(
+                    child: Container(
+                      color: Colors.transparent,
+                      height: 150.0,
+                      width: 250.0,
+                    ),
+                  ),
+                  Transform.translate(
+                    offset: Offset.fromDirection(getRadiansFromDegree(340),
+                        degOneTranslationAnimation.value * 90),
+                    child: Transform(
+                        transform: Matrix4.rotationZ(
+                            getRadiansFromDegree(rotationAnimation.value))
+                          ..scale(degOneTranslationAnimation.value),
+                        alignment: Alignment.center,
+                        child: ElevatedButton(
+                            style: smallButtonStyle,
+                            child: const Icon(Icons.auto_stories,
+                                color: Colors.white),
+                            onPressed: () {
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const TourListScreen()));
-                          })),
-                ),
-                Transform(
-                  transform: Matrix4.rotationZ(
-                      getRadiansFromDegree(rotationAnimation.value)),
-                  alignment: Alignment.center,
-                  child: ElevatedButton(
-                    style: largeButtonStyle,
-                    child: isMenuOpened ? menuClosedIcon : menuOpenedIcon,
-                    onPressed: () {
-                      if (animationController.isCompleted) {
-                        isMenuOpened = !isMenuOpened;
-                        animationController.reverse();
-                      } else if (animationController.isDismissed) {
-                        isMenuOpened = !isMenuOpened;
-                        animationController.forward();
-                      }
-                    }),
-                ),
-              ],
+                                        const CollectionScreen()),
+                              );
+                            })),
+                  ),
+                  Transform.translate(
+                    offset: Offset.fromDirection(getRadiansFromDegree(270),
+                        degTwoTranslationAnimation.value * 80),
+                    child: Transform(
+                      transform: Matrix4.rotationZ(
+                          getRadiansFromDegree(rotationAnimation.value))
+                        ..scale(degTwoTranslationAnimation.value),
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        style: smallButtonStyle,
+                        child: const Icon(Icons.camera_alt,
+                            color: Colors.white),
+                        onPressed: () {
+                          if (_currentPosition == null) {
+                            setState(() {
+                              _currentPositionFuture = _getCurrentPosition();
+                            });
+                          }
+                          else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera, latitude: _currentPosition!.latitude, longitude: _currentPosition!.longitude)),
+                            );
+                          }
+                        })),
+                  ),
+                  Transform.translate(
+                    offset: Offset.fromDirection(getRadiansFromDegree(200),
+                        degThreeTranslationAnimation.value * 90),
+                    child: Transform(
+                        transform: Matrix4.rotationZ(
+                            getRadiansFromDegree(rotationAnimation.value))
+                          ..scale(degThreeTranslationAnimation.value),
+                        alignment: Alignment.center,
+                        child: ElevatedButton(
+                            style: smallButtonStyle,
+                            child: const Icon(Icons.location_on,
+                                color: Colors.white),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const TourListScreen()));
+                            })),
+                  ),
+                  Transform(
+                    transform: Matrix4.rotationZ(
+                        getRadiansFromDegree(rotationAnimation.value)),
+                    alignment: Alignment.center,
+                    child: ElevatedButton(
+                      style: largeButtonStyle,
+                      child: isMenuOpened ? menuClosedIcon : menuOpenedIcon,
+                      onPressed: () {
+                        if (animationController.isCompleted) {
+                          isMenuOpened = !isMenuOpened;
+                          animationController.reverse();
+                        } else if (animationController.isDismissed) {
+                          isMenuOpened = !isMenuOpened;
+                          animationController.forward();
+                        }
+                      }),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Positioned(
-            top: 0,
-            child: FutureBuilder(future: _currentPositionFuture, builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasData) {
+            Positioned(
+              top: 0,
+              child: FutureBuilder(future: _currentPositionFuture, builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    return Container(
+                      color: Colors.green,
+                      width: MediaQuery.of(context).size.width,
+                      height: 50,
+                      child: Center(
+                        child: Text(textAlign: TextAlign.center, AppLocalizations.of(context)!.deviceLocationAvailable)
+                      )
+                  );
+                  }
+                  else {
+                    return Container(
+                      color: Colors.red,
+                      width: MediaQuery.of(context).size.width,
+                      height: 50,
+                      child: Center(
+                        child: Text(textAlign: TextAlign.center, "${AppLocalizations.of(context)!.deviceLocationNotAvailable}.")
+                      )
+                    );
+                  }
+                }
+                else {
                   return Container(
                     color: Colors.green,
                     width: MediaQuery.of(context).size.width,
                     height: 50,
                     child: Center(
-                      child: Text(textAlign: TextAlign.center, AppLocalizations.of(context)!.deviceLocationAvailable)
-                    )
-                );
-                }
-                else {
-                  return Container(
-                    color: Colors.red,
-                    width: MediaQuery.of(context).size.width,
-                    height: 50,
-                    child: Center(
-                      child: Text(textAlign: TextAlign.center, "${AppLocalizations.of(context)!.deviceLocationNotAvailable}.")
+                        child: BlinkText("${AppLocalizations.of(context)!.fetchingGPSCoordinates}...")
                     )
                   );
                 }
-              }
-              else {
-                return Container(
-                  color: Colors.green,
-                  width: MediaQuery.of(context).size.width,
-                  height: 50,
-                  child: Center(
-                      child: BlinkText("${AppLocalizations.of(context)!.fetchingGPSCoordinates}...")
-                  )
-                );
-              }
-            }),
-          )
-        ],
+              }),
+            )
+          ],
+        ),
       ),
     );
   }

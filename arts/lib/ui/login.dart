@@ -18,71 +18,72 @@ class LoginScreen extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-          body: SingleChildScrollView(
+          body: SafeArea(
+            child: SingleChildScrollView(
         child: Column(children: [
-          Container(
-              margin: const EdgeInsets.fromLTRB(5, 20, 5, 20),
+            Container(
+                margin: const EdgeInsets.fromLTRB(5, 20, 5, 20),
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).textTheme.bodyText1?.color),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: AppLocalizations.of(context)!.welcomeLog,
+                      ),
+                      TextSpan(
+                        text: AppLocalizations.of(context)!.appName,
+                        style: const TextStyle(
+                            fontFamily: "DaVinci",
+                            fontSize: 35,
+                            color: lightOrange),
+                      ),
+                      TextSpan(
+                        text:
+                            ", \n${AppLocalizations.of(context)!.welcomeLog1}\n",
+                      )
+                    ],
+                  ),
+                )),
+            const LoginForm(),
+            Container(
+              padding: const EdgeInsets.all(10),
               child: RichText(
+                  text: TextSpan(children: [
+                TextSpan(
+                    text: AppLocalizations.of(context)!.notHaveAnAcc,
+                    style: const TextStyle(color: Colors.blue, fontSize: 20),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const RegisterPage()));
+                      })
+              ])),
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: Text("${AppLocalizations.of(context)!.or}\n",
+                  textAlign: TextAlign.center,
+                  style:
+                      const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            RichText(
                 text: TextSpan(
-                  style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.bodyText1?.color),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: AppLocalizations.of(context)!.welcomeLog,
-                    ),
-                    TextSpan(
-                      text: AppLocalizations.of(context)!.appName,
-                      style: const TextStyle(
-                          fontFamily: "DaVinci",
-                          fontSize: 35,
-                          color: lightOrange),
-                    ),
-                    TextSpan(
-                      text:
-                          ", \n${AppLocalizations.of(context)!.welcomeLog1}\n",
-                    )
-                  ],
-                ),
-              )),
-          const LoginForm(),
-          Container(
-            padding: const EdgeInsets.all(10),
-            child: RichText(
-                text: TextSpan(children: [
-              TextSpan(
-                  text: AppLocalizations.of(context)!.notHaveAnAcc,
-                  style: const TextStyle(color: Colors.blue, fontSize: 20),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const RegisterPage()));
-                    })
-            ])),
-          ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            child: Text("${AppLocalizations.of(context)!.or}\n",
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          ),
-          RichText(
-              text: TextSpan(
-                  text: AppLocalizations.of(context)!.logLater,
-                  style: const TextStyle(fontSize: 20, color: Colors.blue),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomePage()));
-                    }))
+                    text: AppLocalizations.of(context)!.logLater,
+                    style: const TextStyle(fontSize: 20, color: Colors.blue),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomePage()));
+                      }))
         ]),
-      )),
+      ))),
     );
   }
 }

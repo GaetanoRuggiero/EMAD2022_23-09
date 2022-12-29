@@ -14,23 +14,26 @@ class POI {
   String? triviaEn;
   String? history;
   String? historyEn;
+  String? modelName;
 
-  POI(
-      {this.city,
-        this.cityKeywords,
-        this.country,
-        this.imageURL,
-        this.latitude,
-        this.longitude,
-        this.name,
-        this.nameEn,
-        this.nameKeywords,
-        this.province,
-        this.region,
-        this.trivia,
-        this.triviaEn,
-        this.history,
-        this.historyEn});
+  POI({
+    this.city,
+    this.cityKeywords,
+    this.country,
+    this.imageURL,
+    this.latitude,
+    this.longitude,
+    this.name,
+    this.nameEn,
+    this.nameKeywords,
+    this.province,
+    this.region,
+    this.trivia,
+    this.triviaEn,
+    this.history,
+    this.historyEn,
+    this.modelName
+  });
 
   POI.fromJson(Map<String, dynamic> json) {
     city = json['city'];
@@ -48,6 +51,7 @@ class POI {
     triviaEn = json['trivia_en'];
     history = json['history'];
     historyEn = json['history_en'];
+    modelName = json['model_name'];
   }
 
   Map<String, dynamic> toJson() {
@@ -67,11 +71,12 @@ class POI {
     data['trivia_en'] = triviaEn;
     data['history'] = history;
     data['history_en'] = historyEn;
+    data['model_name'] = modelName;
     return data;
   }
 
   @override
   String toString() {
-    return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region}';
+    return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region, modelName: $modelName}';
   }
 }

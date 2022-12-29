@@ -106,5 +106,9 @@
   "itineraryEnd": "Punto di fine:",
   "km": "km",
   "length": "Lunghezza",
-  "emptyItinerary": "Non sono disponibili itinerari da seguire."
+  "emptyItinerary": "Non sono disponibili itinerari da seguire.",
+
+  "trivia": "Curiosità",
+  "history": "Cenni storici",
+  "view3dModel": "Guarda modello"
 }

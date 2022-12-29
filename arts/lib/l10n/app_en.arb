@@ -106,5 +106,9 @@
   "itineraryEnd": "End at:",
   "km": "km",
   "length": "Length",
-  "emptyItinerary": "There are no routes to follow."
+  "emptyItinerary": "There are no routes to follow.",
+
+  "trivia": "Trivia",
+  "history": "History",
+  "view3dModel": "View model"
 }
