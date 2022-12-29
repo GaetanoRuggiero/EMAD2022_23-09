@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="it.unisa.di.arts">
    <application
-        android:label="arts"
+        android:label="artS"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
 

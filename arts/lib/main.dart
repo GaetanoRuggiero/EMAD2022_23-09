@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/services.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/login.dart';
 import 'package:arts/utils/settings_model.dart';
@@ -23,7 +22,6 @@ Future<void> main() async {
   camera = cameras.first;
   isLogged = await UserUtils.isLogged();
 
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const MyApp());
 }
 
