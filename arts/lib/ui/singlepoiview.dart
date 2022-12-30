@@ -1,3 +1,4 @@
+import 'package:arts/ui/unityscenescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/POI.dart';
@@ -28,7 +29,9 @@ class SinglePOIView extends StatelessWidget {
               ElevatedButton.icon(
                 icon: const Icon(Icons.view_in_ar_outlined),
                 label: Text(AppLocalizations.of(context)!.view3dModel),
-                onPressed: () {}
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => UnitySceneScreen(poiName: poi.name!, modelName: poi.modelName!)));
+                }
               )
             : Text(AppLocalizations.of(context)!.modelNotAvailable),
             Expanded(
