@@ -30,7 +30,7 @@ class SinglePOIView extends StatelessWidget {
                 label: Text(AppLocalizations.of(context)!.view3dModel),
                 onPressed: () {}
               )
-            : const Text("Modellino non disponibile"),
+            : Text(AppLocalizations.of(context)!.modelNotAvailable),
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(20),

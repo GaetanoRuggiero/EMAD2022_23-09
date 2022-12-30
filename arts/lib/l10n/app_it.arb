@@ -111,5 +111,6 @@
 
   "trivia": "Curiosità",
   "history": "Cenni storici",
-  "view3dModel": "Guarda modello"
+  "view3dModel": "Guarda modello 3D",
+  "modelNotAvailable": "Modello 3D non disponibile"
 }

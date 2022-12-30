@@ -32,7 +32,7 @@
   "account": "Account",
   "infoAccount": "Info account",
   "logout": "Logout",
-  "askForLogout": "Sei sicuro di voler uscire?",
+  "askForLogout": "Are you sure to logout?",
   "logoutCompleted": "Successful logout!",
   "logoutFailed": "Something went wrong!",
   "info": "Info",
@@ -111,5 +111,6 @@
 
   "trivia": "Trivia",
   "history": "History",
-  "view3dModel": "View model"
+  "view3dModel": "View 3D model",
+  "modelNotAvailable": "3D Model not available"
 }
