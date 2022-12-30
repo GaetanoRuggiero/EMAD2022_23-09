@@ -14,7 +14,7 @@ Future<List<Itinerary>?> getAllItinerary() async {
   );
   debugPrint("Calling $uri");
 
-  List<Itinerary> allSidequestList = [];
+  List<Itinerary> allItineraryList = [];
   final response = await http
       .get(uri)
       .timeout(const Duration(seconds: 10), onTimeout: () {
@@ -32,12 +32,12 @@ Future<List<Itinerary>?> getAllItinerary() async {
     List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
     for (var x in jsonArray) {
       Itinerary itinerary = Itinerary.fromJson(x);
-      allSidequestList.add(itinerary);
+      allItineraryList.add(itinerary);
     }
   } else if (response.statusCode == 500) {
     return null;
   } else {
     throw Exception('Failed to load POI');
   }
-  return allSidequestList;
+  return allItineraryList;
 }

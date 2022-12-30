@@ -85,7 +85,7 @@ class _TourListScreenState extends State<TourListScreen> {
                     child: ListView.separated(
                       scrollDirection: Axis.vertical,
                       itemBuilder: (context, index) {
-                        return PathCard(itinerary: _itineraryList[index], itemCount: _itineraryList.length);
+                        return PathCard(itinerary: _itineraryList[index]);
                       },
                       separatorBuilder: (BuildContext context, int index) {return const PathCardDivider();},
                       itemCount: _itineraryList.length,
@@ -122,12 +122,10 @@ class _TourListScreenState extends State<TourListScreen> {
 class PathCard extends StatelessWidget {
 
   final Itinerary itinerary;
-  final int itemCount;
 
   const PathCard({
     Key? key,
     required this.itinerary,
-    required this.itemCount
   }) : super(key: key);
 
   @override
@@ -146,14 +144,12 @@ class PathCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CarouselSlider.builder(
-                  itemCount: 5,
+                  itemCount: itinerary.path!.length,
                   itemBuilder: (context, index, realIndex) {
                     List<String?> images = [];
-                    images.add(itinerary.startPoi!.imageURL!);
-                    images.add(itinerary.poi_0!.imageURL!);
-                    images.add(itinerary.poi_1!.imageURL!);
-                    images.add(itinerary.poi_2!.imageURL!);
-                    images.add(itinerary.endPoi!.imageURL!);
+                    for (int i = 0 ; i<itinerary.path!.length; i++) {
+                      images.add(itinerary.path![i].imageURL);
+                    }
                     return buildImage(images, index);
                   },
                   options: CarouselOptions(height: 400)),
@@ -173,7 +169,7 @@ class PathCard extends StatelessWidget {
                       text: TextSpan(
                           children: <TextSpan> [
                             TextSpan(text: (("${AppLocalizations.of(context)!.itineraryStart} ")), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                            TextSpan(text: (itinerary.startPoi!.name!), style: const TextStyle(color: Colors.black)),
+                            TextSpan(text: (itinerary.path![0].name!), style: const TextStyle(color: Colors.black)),
                           ]
                       ),
                     ),
@@ -188,7 +184,7 @@ class PathCard extends StatelessWidget {
                       text: TextSpan(
                           children: <TextSpan> [
                             TextSpan(text: (("${AppLocalizations.of(context)!.itineraryEnd} ")), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                            TextSpan(text: (itinerary.endPoi!.name!), style: const TextStyle(color: Colors.black)),
+                            TextSpan(text: (itinerary.path![itinerary.path!.length-1].name!), style: const TextStyle(color: Colors.black)),
                           ]
                       ),
                     ),
