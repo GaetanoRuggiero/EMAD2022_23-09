@@ -94,6 +94,7 @@ flutter:
     - assets/icon/
     - assets/poi_images/
     - assets/poi_images/9_0.jpg
+    - assets/sidequest_images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
