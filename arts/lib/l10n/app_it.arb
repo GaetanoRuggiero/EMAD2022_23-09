@@ -1,6 +1,8 @@
 {
   "appName": "ARTS",
 
+  "notLoggedDialogTitle":  "Accesso richiesto",
+  "notLoggedDialogContent": "Per favore, accedi per poter sbloccare questa funzionalità.",
   "collectionTitle": "Collezione",
   "visitedTabTitle": "Visitati",
   "toVisitTabTitle": "Da visitare",

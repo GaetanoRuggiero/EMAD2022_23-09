@@ -1,6 +1,8 @@
 {
   "appName": "ARTS",
 
+  "notLoggedDialogTitle":  "Login required",
+  "notLoggedDialogContent": "Please, login to unlock this feature.",
   "collectionTitle": "Collection",
   "visitedTabTitle": "Visited",
   "toVisitTabTitle": "To Visit",
