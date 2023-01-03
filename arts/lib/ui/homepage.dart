@@ -239,9 +239,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _positionStreamSubscription?.cancel();
         _positionStreamSubscription = null;
       })
-      .timeout(const Duration(seconds: 10), onTimeout: (controller) {
-        controller.close();
-      })
       .listen((Position? position) {
         if (position != null) {
           _currentPosition = position;

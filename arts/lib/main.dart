@@ -4,6 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 import 'package:provider/provider.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/login.dart';
@@ -13,13 +15,19 @@ late final CameraDescription camera;
 bool? isLogged = false;
 
 Future<void> main() async {
-  /* Ensure that plugin services are initialized so that 'availableCameras()'
-    can be called before 'runApp()'*/
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Requesting latest Google Maps renderer (on Android)
+  final GoogleMapsFlutterPlatform mapsImplementation = GoogleMapsFlutterPlatform.instance;
+  if (mapsImplementation is GoogleMapsFlutterAndroid) {
+    await mapsImplementation.initializeWithRenderer(AndroidMapRenderer.latest);
+  }
+
   // Obtain a list of the available cameras on the device.
   final cameras = await availableCameras();
   // Get a specific camera from the list of available cameras.
   camera = cameras.first;
+
   isLogged = await UserUtils.isLogged();
 
   runApp(const MyApp());
