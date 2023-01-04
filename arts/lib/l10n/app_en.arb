@@ -1,6 +1,8 @@
 {
   "appName": "ARTS",
 
+  "notLoggedDialogTitle":  "Login required",
+  "notLoggedDialogContent": "Please, login to unlock this feature.",
   "collectionTitle": "Collection",
   "visitedTabTitle": "Visited",
   "toVisitTabTitle": "To Visit",
@@ -14,8 +16,8 @@
   "mission": "Missions",
   "sideQuestAvailableEvents": "The following events are available:",
   "sideQuestGoToUpper": "Go to",
-  "sideQuestScan": "and scan it to receive",
-  "sideQuestGoToLower": "go to",
+  "sideQuestScan": "and scan it to receive 1",
+  "sideQuestGoToLower": "to be used at",
   "sideQuestEventProgess": "Current event: from",
   "articleToThe": "to the",
   "sideQuestEventCompleted": "Event completed!",

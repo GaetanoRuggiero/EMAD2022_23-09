@@ -1,18 +1,19 @@
-import 'package:arts/ui/settings.dart';
-import 'package:arts/utils/user_utils.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'maps.dart';
-import './styles.dart';
-import './profile.dart';
-import './sidequest.dart';
 import './collection.dart';
+import './login.dart';
+import './maps.dart';
+import './profile.dart';
+import './settings.dart';
+import './sidequest.dart';
+import './styles.dart';
 import './takepicture.dart';
 import './tourlistscreen.dart';
 import '../main.dart';
 import '../utils/blinking_text.dart';
+import '../utils/user_utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -238,9 +239,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _positionStreamSubscription?.cancel();
         _positionStreamSubscription = null;
       })
-      .timeout(const Duration(seconds: 10), onTimeout: (controller) {
-        controller.close();
-      })
       .listen((Position? position) {
         if (position != null) {
           _currentPosition = position;
@@ -261,6 +259,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       _serviceStatusStreamSubscription?.cancel();
       _serviceStatusStreamSubscription = null;
     }
+  }
+
+  void showLoginDialog() {
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: Text(AppLocalizations.of(context)!.notLoggedDialogTitle),
+        content: Text(AppLocalizations.of(context)!.notLoggedDialogContent),
+        actions: [
+          TextButton(
+              child: Text(AppLocalizations.of(context)!.noThanks),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }),
+          TextButton(
+              child: Text(AppLocalizations.of(context)!.redirectLog),
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (route) => false);
+              })
+        ],
+      );
+    });
   }
 
   @override
@@ -300,6 +319,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           child:
                           const Icon(Icons.person, color: Colors.white),
                           onPressed: () {
+                            if (!_isLogged) {
+                              showLoginDialog();
+                              return;
+                            }
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -324,6 +347,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     style: topButtonStyle,
                     child: const Icon(Icons.mark_chat_unread, color: Colors.white),
                     onPressed: () {
+                      if (!_isLogged) {
+                        showLoginDialog();
+                        return;
+                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -358,6 +385,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             child: const Icon(Icons.auto_stories,
                                 color: Colors.white),
                             onPressed: () {
+                              if (!_isLogged) {
+                                showLoginDialog();
+                                return;
+                              }
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -405,6 +436,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             child: const Icon(Icons.location_on,
                                 color: Colors.white),
                             onPressed: () {
+                              if (!_isLogged) {
+                                showLoginDialog();
+                                return;
+                              }
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(

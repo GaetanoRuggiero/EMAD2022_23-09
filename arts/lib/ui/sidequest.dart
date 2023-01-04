@@ -63,11 +63,20 @@ class _SideQuestState extends State<SideQuest> {
                     );
                   }
                   _sideQuestList = sideQuestList;
+                  var nowDate = DateTime.now();
                   if (sideQuestList.isNotEmpty) {
                     return Expanded(
                       child: ListView.separated(
                           itemBuilder: (context, index) {
-                            return SideQuestCard(sidequest: _sideQuestList[index]);
+
+                            final endDate = DateTime.fromMillisecondsSinceEpoch(sideQuestList[index].endDate!.seconds! * 1000);
+
+                            if (nowDate.compareTo(endDate) > 0) {
+                              return SideQuestCardExpired(sidequest: _sideQuestList[index]);
+                            }
+                            else {
+                              return SideQuestCard(sidequest: _sideQuestList[index]);
+                            }
                           },
                           separatorBuilder: (BuildContext context, int index) {return const Divider();},
                           itemCount: _sideQuestList.length
@@ -183,24 +192,102 @@ class SideQuestCard extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
 
-          //Se l'evento è stato completato e quindi si trova nelle opere scansionate
-          /* Positioned(
-            bottom: 12,
-            left: 125,
-            child: Text("Evento completato!",
-          style: TextStyle(
-            color: Colors.green,
-            fontWeight: FontWeight.w600
+class SideQuestCardExpired extends StatelessWidget {
+
+  const SideQuestCardExpired({
+    Key? key,
+    required this.sidequest,
+  }) : super(key: key);
+
+  final Sidequest sidequest;
+
+  @override
+  Widget build(BuildContext context) {
+
+    final deviceOrientation = MediaQuery.of(context).orientation;
+    final endDate = DateTime.fromMillisecondsSinceEpoch(sidequest.endDate!.seconds! * 1000);
+    final formattedEndDate = DateFormat("dd/MM/yyyy").format(endDate);
+
+    return Card(
+      color: Colors.grey,
+      margin: const EdgeInsets.all(10),
+      elevation: 2.0,
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+      ),
+
+      child: Stack(
+        children: [
+
+          Container(
+              margin: const EdgeInsets.only(left: 70.0),
+              height: 250.0,
+              width: double.infinity,
+              child: Image.network(sidequest.reward!.poster!,
+                  fit: ( deviceOrientation == Orientation.portrait ? BoxFit.fitHeight : BoxFit.fitWidth))
           ),
+
+          Container(
+            height: 250,
+            width: double.infinity,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: const AlignmentDirectional(3.5, 0),
+                    end: const FractionalOffset(0.25, 0.25),
+                    colors: [
+                      Colors.black.withOpacity(0.0),
+                      Colors.grey,
+                    ],
+                    stops: const [
+                      0.0,
+                      1.0
+                    ])),
           ),
+
+          Container(
+              margin: const EdgeInsets.only(left: 70.0),
+              height: 250.0,
+              width: double.infinity,
+              child: Image.asset("assets/sidequest_images/expired_sidequest.png",
+                  fit: ( deviceOrientation == Orientation.portrait ? BoxFit.fitHeight : BoxFit.fitWidth))
+          ),
+
+          Container(
+            width: 250,
+            margin: const EdgeInsets.all(20),
+            child:
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white,),
+                children: <TextSpan> [
+                  TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestGoToUpper} ")),
+                  TextSpan(text: "${sidequest.poi!.name!} ", style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                  TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestScan} ")),
+                  TextSpan(text: sidequest.reward!.type!),
+                  TextSpan(text: (" ${AppLocalizations.of(context)!.articleToThe} ")),
+                  TextSpan(text: sidequest.reward!.placeEvent!, style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                ],
+              ),
+            ),
           ),
 
           Positioned(
-              bottom: 8,
-              left: 250,
-              child: Icon(Icons.check_circle_sharp, color: Colors.green)
-          ),*/
+            bottom: 12,
+            left: 30,
+            child: Text("Evento scaduto il $formattedEndDate",
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -1,6 +1,8 @@
 {
   "appName": "ARTS",
 
+  "notLoggedDialogTitle":  "Accesso richiesto",
+  "notLoggedDialogContent": "Per favore, accedi per poter sbloccare questa funzionalità.",
   "collectionTitle": "Collezione",
   "visitedTabTitle": "Visitati",
   "toVisitTabTitle": "Da visitare",
@@ -14,8 +16,8 @@
   "mission": "Missioni",
   "sideQuestAvailableEvents": "Sono disponibili i seguenti eventi:",
   "sideQuestGoToUpper": "Recati presso",
-  "sideQuestScan": "e scansionalo per ricevere",
-  "sideQuestGoToLower": "presso il",
+  "sideQuestScan": "e scansionalo per ricevere 1",
+  "sideQuestGoToLower": "da utilizzare presso",
   "sideQuestEventProgess": "Evento in corso: dal",
   "articleToThe": "al",
   "sideQuestEventCompleted": "Evento completato!",
