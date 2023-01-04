@@ -1,56 +1,87 @@
 import 'package:flutter/material.dart';
+import './language_preferences.dart';
 import './theme_preferences.dart';
-import 'language_preferences.dart';
 
 class SettingsModel extends ChangeNotifier {
 
-  static const light = 0;
-  static const dark = 1;
-  static const system = 2;
+  static const int light = 0;
+  static const int dark = 1;
+  static const int system = 2;
 
-  static const italian = "it_IT";
-  static const english = "en_US";
+  static const Locale italian = Locale("it", "IT");
+  static const Locale english = Locale("en", "US");
 
-  int? _themeMode;
-  String? _languageMode;
+  late ThemeMode _themeMode;
+  late Locale _languageMode;
 
   late ThemePreferences _themePreferences;
   late LanguagePreferences _languagePreferences;
 
-  int? get themeMode => _themeMode;
-  String? get languageMode => _languageMode;
+  ThemeMode get themeMode => _themeMode;
 
-  set themeMode(int? value) {
+  set themeMode(ThemeMode value) {
     _themeMode = value;
-    _themePreferences.setTheme(value);
+    if (_themeMode == ThemeMode.dark) {
+      _themePreferences.setTheme(dark);
+    } else if (_themeMode == ThemeMode.system) {
+      _themePreferences.setTheme(system);
+    } else {
+      _themePreferences.setTheme(light);
+    }
+    debugPrint("[App Settings] Setting theme to: ${_themeMode.name}");
     notifyListeners();
   }
 
-  Future<int?> getThemePreferences() async {
-    _themeMode = (await _themePreferences.getTheme())!;
-    debugPrint("Called getThemePreferences");
+  Locale get languageMode => _languageMode;
+
+  set languageMode(Locale value) {
+    _languageMode = value;
+    if (_languageMode == italian) {
+      debugPrint("[App Settings] Setting locale to: ${italian.toLanguageTag()}");
+      _languagePreferences.setLanguage(italian.toLanguageTag());
+    } else if (_languageMode == english) {
+      debugPrint("[App Settings] Setting locale to: ${english.toLanguageTag()}");
+      _languagePreferences.setLanguage(english.toLanguageTag());
+    } else {
+      debugPrint("[App Settings] Setting locale to: ${italian.toLanguageTag()}");
+      _languagePreferences.setLanguage(italian.toLanguageTag());
+    }
+    notifyListeners();
+  }
+
+  Future<ThemeMode> getThemePreferences() async {
+    int? value = await _themePreferences.getTheme();
+    if (value == null) {
+      _themeMode = ThemeMode.light;
+    }
+    else if (value == dark) {
+      _themeMode = ThemeMode.dark;
+    } else if (value == system) {
+      _themeMode = ThemeMode.system;
+    } else {
+      _themeMode = ThemeMode.light;
+    }
+    debugPrint("[App Settings] Current theme: ${_themeMode.name}");
     notifyListeners();
     return _themeMode;
   }
 
-  set languageMode(String? value) {
-    _languageMode = value;
-    _languagePreferences.setLanguage(value);
-    notifyListeners();
-  }
-
-  Future<String?> getLanguagePreferences() async {
-    _languageMode = (await _languagePreferences.getLanguage())!;
-    debugPrint("Called getLanguagePreferences");
+  Future<Locale> getLanguagePreferences() async {
+    String? value = await _languagePreferences.getLanguage();
+    if (value == null) {
+      _languageMode = italian;
+    } else if (value == english.toLanguageTag()) {
+      _languageMode = english;
+    } else {
+      _languageMode = italian;
+    }
+    debugPrint("[App Settings] Current locale: ${_languageMode.toLanguageTag()}");
     notifyListeners();
     return _languageMode;
   }
 
   SettingsModel() {
     _themePreferences = ThemePreferences();
-    getThemePreferences();
     _languagePreferences = LanguagePreferences();
-    getLanguagePreferences();
   }
-
 }

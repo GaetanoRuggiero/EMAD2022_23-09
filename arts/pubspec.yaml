@@ -43,7 +43,9 @@ dependencies:
   path_provider: ^2.0.11
   path: ^1.8.2
   font_awesome_flutter: ^10.3.0
-  google_maps_flutter: ^2.2.2
+  google_maps_flutter: ^2.2.3
+  google_maps_flutter_android: ^2.4.0
+  google_maps_flutter_platform_interface: ^2.2.4
   http: ^0.13.5
   flutter_launcher_icons: ^0.11.0
   envied: ^0.3.0

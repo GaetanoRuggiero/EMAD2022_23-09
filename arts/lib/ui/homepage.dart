@@ -262,11 +262,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void showLoginDialog() {
-    showDialog(barrierDismissible: false, context: context, builder: (context) {
+    showDialog(context: context, builder: (context) {
       return AlertDialog(
         title: Text(AppLocalizations.of(context)!.notLoggedDialogTitle),
         content: Text(AppLocalizations.of(context)!.notLoggedDialogContent),
         actions: [
+          TextButton(
+              child: Text(AppLocalizations.of(context)!.noThanks),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }),
           TextButton(
               child: Text(AppLocalizations.of(context)!.redirectLog),
               onPressed: () {
