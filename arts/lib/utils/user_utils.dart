@@ -32,4 +32,14 @@ class UserUtils {
     }
     return true;
   }
+
+  static Future<String?> readEmail() async {
+    const storage = FlutterSecureStorage();
+    return await storage.read(key: emailKey);
+  }
+
+  static Future<String?> readToken() async {
+    const storage = FlutterSecureStorage();
+    return await storage.read(key: tokenKey);
+  }
 }

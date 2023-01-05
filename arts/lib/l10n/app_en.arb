@@ -12,6 +12,7 @@
   "resultsNotFound": "No results found for: ",
   "city": "City",
   "poiName": "Name",
+  "zeroPOIVisited": "Collection is empty for now.",
 
   "mission": "Missions",
   "sideQuestAvailableEvents": "The following events are available:",

@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
+import 'package:arts/api/poi_api.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../env/env.dart';
-import 'dart:math';
-import 'package:crypto/crypto.dart';
+import '../model/POI.dart';
+import '../model/user.dart';
 
 Future<bool?> loginUser(String email, String password, String token) async {
   Uri uri = Uri(
@@ -168,6 +171,47 @@ String generateToken() {
   return randomString;
 }
 
+Future<List<POI>?> getVisitedPOI(String email, String token) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: '/users/getVisited'
+  );
+  debugPrint("Calling $uri");
+
+  List<POI> visitedPOIList = [];
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    List jsonArray = jsonDecode(response.body);
+    for (var x in jsonArray) {
+      Visited visited = Visited.fromJson(x);
+      POI? poi = await getPOIbyId(visited.poiId!);
+      if (poi != null) {
+        visitedPOIList.add(poi);
+      }
+    }
+  } else if (response.statusCode == 500) {
+    return null;
+  } else {
+    throw Exception('Failed to load POI');
+  }
+  return visitedPOIList;
+}
 
 
 

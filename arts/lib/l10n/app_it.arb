@@ -12,6 +12,7 @@
   "resultsNotFound": "Nessun risultato per: ",
   "city": "Città",
   "poiName": "Nome opera",
+  "zeroPOIVisited": "La tua collezione per ora è vuota.",
 
   "mission": "Missioni",
   "sideQuestAvailableEvents": "Sono disponibili i seguenti eventi:",

@@ -1,11 +1,13 @@
 import 'package:arts/ui/styles.dart';
+import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import './singlepoiview.dart';
 import '../utils/debouncer.dart';
-import '../model/POI.dart';
 import '../api/poi_api.dart';
+import '../api/user_api.dart';
+import '../model/POI.dart';
 
 enum SearchFilter { city, name }
 
@@ -91,59 +93,137 @@ class _CollectionScreenState extends State<CollectionScreen> {
 }
 
 class VisitedTabView extends StatefulWidget {
-  const VisitedTabView({Key? key})
-      : super(key: key);
+  const VisitedTabView({Key? key}) : super(key: key);
 
   @override
   State<VisitedTabView> createState() => _VisitedTabViewState();
 }
 
-class _VisitedTabViewState extends State<VisitedTabView> {
+class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAliveClientMixin<VisitedTabView> {
   List<POI> _visitedPOIList = [];
+  late Future _visitedPOIFuture;
+  late String? _userEmail;
+  late String? _userToken;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _visitedPOIFuture = Future.delayed(Duration.zero, () async {
+      _userEmail = await UserUtils.readEmail();
+      _userToken = await UserUtils.readToken();
+      if (_userEmail != null && _userToken != null) {
+        return getVisitedPOI(_userEmail!, _userToken!);
+      } else {
+        return [];
+      }
+    });
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+  Future<void> refreshTab() {
+    if (_userEmail != null && _userToken != null) {
+      setState(() {
+        _visitedPOIFuture = getVisitedPOI(_userEmail!, _userToken!);
+      });
+    }
+    return _visitedPOIFuture;
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
-      future: getVisitedPOI(),
+      future: _visitedPOIFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data != null) {
             _visitedPOIList = snapshot.data!;
-            return GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                padding: const EdgeInsets.all(10),
-                childAspectRatio: 1,
-                children: _visitedPOIList.map((poi) {
-                  return GestureDetector(
-                    child: _GridPOIItem(poi: poi),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SinglePOIView(poi: poi)),
+            if (_visitedPOIList.isNotEmpty) {
+              // Showing visited POI in a grid
+              return RefreshIndicator(
+                onRefresh: refreshTab,
+                child: GridView.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    padding: const EdgeInsets.all(10),
+                    childAspectRatio: 1,
+                    children: _visitedPOIList.map((poi) {
+                      return GestureDetector(
+                        child: _GridPOIItem(poi: poi),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi)),
+                          );
+                        },
                       );
-                    },
-                  );
-                }).toList());
+                    }).toList()),
+              );
+            }
+            else {
+              // No POI visited yet
+              return RefreshIndicator(
+                onRefresh: refreshTab,
+                child: Stack(
+                    children: [
+                      Center(
+                        child: Text(AppLocalizations.of(context)!.zeroPOIVisited),
+                      ),
+                      ListView(), //Pull to refresh needs at least a scrollable list to work
+                    ]
+                ),
+              );
+            }
           }
           else {
-            return Container(padding: const EdgeInsets.all(20.0), child: Column(
-              children: [
-                const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
-                Text(textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
-                  AppLocalizations.of(context)!.connectionError
-                )
-              ],
-            ));
+            // Connection with server has failed (or timed out)
+            return RefreshIndicator(
+              onRefresh: refreshTab,
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+                        Text(textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                          AppLocalizations.of(context)!.connectionError
+                        ),
+                      ],
+                    ),
+                  ),
+                  ListView(), //Pull to refresh needs at least a scrollable list to work
+                ]
+              ),
+            );
           }
         }
         else {
-          return const Center(child: CircularProgressIndicator());
+          // Showing a loading screen until future is complete
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(AppLocalizations.of(context)!.loading),
+                ),
+              ]
+            )
+          );
         }
-      }
+      },
     );
   }
 }
@@ -175,7 +255,7 @@ class SearchTabView extends StatefulWidget {
   State<SearchTabView> createState() => _SearchTabViewState();
 }
 
-class _SearchTabViewState extends State<SearchTabView> {
+class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveClientMixin<SearchTabView> {
   final _searchTextController = TextEditingController();
   String _searchText = '';
   SearchFilter? _searchFilter = SearchFilter.city;
@@ -276,7 +356,11 @@ class _SearchTabViewState extends State<SearchTabView> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(children: [
       Center(child: radioButtonFilter()),
       Container(
