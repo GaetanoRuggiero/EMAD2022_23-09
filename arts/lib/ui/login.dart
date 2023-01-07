@@ -1,9 +1,11 @@
 import 'package:arts/ui/registration.dart';
 import 'package:arts/ui/styles.dart';
+import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import '../api/user_api.dart';
 import 'homepage.dart';
 import '../utils/user_utils.dart';
@@ -19,69 +21,69 @@ class LoginScreen extends StatelessWidget {
       },
       child: Scaffold(
           body: SafeArea(
-            child: SingleChildScrollView(
+              child: SingleChildScrollView(
         child: Column(children: [
-            Container(
-                margin: const EdgeInsets.fromLTRB(5, 20, 5, 20),
-                child: RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).textTheme.bodyText1?.color),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: AppLocalizations.of(context)!.welcomeLog,
-                      ),
-                      TextSpan(
-                        text: AppLocalizations.of(context)!.appName,
-                        style: const TextStyle(
-                            fontFamily: "DaVinci",
-                            fontSize: 35,
-                            color: lightOrange),
-                      ),
-                      TextSpan(
-                        text:
-                            ", \n${AppLocalizations.of(context)!.welcomeLog1}\n",
-                      )
-                    ],
-                  ),
-                )),
-            const LoginForm(),
-            Container(
-              padding: const EdgeInsets.all(10),
+          Container(
+              margin: const EdgeInsets.fromLTRB(5, 20, 5, 20),
               child: RichText(
-                  text: TextSpan(children: [
-                TextSpan(
-                    text: AppLocalizations.of(context)!.notHaveAnAcc,
-                    style: const TextStyle(color: Colors.blue, fontSize: 20),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const RegisterPage()));
-                      })
-              ])),
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: Text("${AppLocalizations.of(context)!.or}\n",
-                  textAlign: TextAlign.center,
-                  style:
-                      const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ),
-            RichText(
                 text: TextSpan(
-                    text: AppLocalizations.of(context)!.logLater,
-                    style: const TextStyle(fontSize: 20, color: Colors.blue),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomePage()));
-                      }))
+                  style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.bodyText1?.color),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: AppLocalizations.of(context)!.welcomeLog,
+                    ),
+                    TextSpan(
+                      text: AppLocalizations.of(context)!.appName,
+                      style: const TextStyle(
+                          fontFamily: "DaVinci",
+                          fontSize: 35,
+                          color: lightOrange),
+                    ),
+                    TextSpan(
+                      text:
+                          ", \n${AppLocalizations.of(context)!.welcomeLog1}\n",
+                    )
+                  ],
+                ),
+              )),
+          const LoginForm(),
+          Container(
+            padding: const EdgeInsets.all(10),
+            child: RichText(
+                text: TextSpan(children: [
+              TextSpan(
+                  text: AppLocalizations.of(context)!.notHaveAnAcc,
+                  style: const TextStyle(color: Colors.blue, fontSize: 20),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterPage()));
+                    })
+            ])),
+          ),
+          Container(
+            padding: const EdgeInsets.all(10),
+            child: Text("${AppLocalizations.of(context)!.or}\n",
+                textAlign: TextAlign.center,
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          ),
+          RichText(
+              text: TextSpan(
+                  text: AppLocalizations.of(context)!.logLater,
+                  style: const TextStyle(fontSize: 20, color: Colors.blue),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomePage()));
+                    }))
         ]),
       ))),
     );
@@ -177,57 +179,65 @@ class _LoginFormState extends State<LoginForm> {
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () async {
-              // Validate returns true if the form is valid, or false otherwise.
-              if (_formKey.currentState!.validate()) {
-                String newToken = generateToken();
-                const storage = FlutterSecureStorage();
-                bool? isLogged = await loginUser(
-                    _controllerEmail.text, _controllerPass.text, newToken);
-                if (isLogged == null) {
-                  //in this case the server is unreachable
-                  setState(() {
-                    _showLoginError = null;
-                  });
-                }
-                if (isLogged!) {
-                  await storage.write(key: UserUtils.tokenKey, value: newToken);
-                  await storage.write(
-                      key: UserUtils.emailKey, value: _controllerEmail.text);
-                  if (!mounted) return;
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const HomePage()));
-                } else {
-                  setState(() {
-                    _showLoginError = true;
-                  });
-                }
-              }
+          Consumer<UserProvider>(
+            builder: (context, userProvider, child) {
+              return GestureDetector(
+                onTap: () async {
+                  // Validate returns true if the form is valid, or false otherwise.
+                  if (_formKey.currentState!.validate()) {
+                    String newToken = generateToken();
+                    const storage = FlutterSecureStorage();
+                    bool? isLogged = await loginUser(
+                        _controllerEmail.text, _controllerPass.text, newToken);
+                    if (isLogged == null) {
+                      //in this case the server is unreachable
+                      setState(() {
+                        _showLoginError = null;
+                      });
+                    }
+                    if (isLogged!) {
+                      await storage.write(
+                          key: UserUtils.tokenKey, value: newToken);
+                      await storage.write(
+                          key: UserUtils.emailKey,
+                          value: _controllerEmail.text);
+                      userProvider.isLogged = true;
+                      if (!mounted) return;
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomePage()));
+                    } else {
+                      setState(() {
+                        _showLoginError = true;
+                      });
+                    }
+                  }
+                },
+                child: Container(
+                  height: 50,
+                  width: double.infinity,
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                            blurRadius: 4,
+                            color: Colors.black12.withOpacity(.2),
+                            offset: const Offset(2, 2))
+                      ],
+                      borderRadius: BorderRadius.circular(100),
+                      gradient: const LinearGradient(
+                          colors: [lightOrange, darkOrange])),
+                  child: Text(AppLocalizations.of(context)!.login,
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(.8),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold)),
+                ),
+              );
             },
-            child: Container(
-              height: 50,
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                        blurRadius: 4,
-                        color: Colors.black12.withOpacity(.2),
-                        offset: const Offset(2, 2))
-                  ],
-                  borderRadius: BorderRadius.circular(100),
-                  gradient:
-                      const LinearGradient(colors: [lightOrange, darkOrange])),
-              child: Text(AppLocalizations.of(context)!.login,
-                  style: TextStyle(
-                      color: Colors.white.withOpacity(.8),
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold)),
-            ),
           ),
           setLoginOutput(_showLoginError),
         ],
@@ -249,12 +259,10 @@ class _LoginFormState extends State<LoginForm> {
         margin: const EdgeInsets.all(10),
         color: Colors.red,
         child: Text(text,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20)),
+            textAlign: TextAlign.center, style: const TextStyle(fontSize: 20)),
       );
     } else {
       return Container();
     }
   }
-
 }
