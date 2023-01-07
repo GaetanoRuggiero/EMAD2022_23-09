@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: settingsModel),
-        ChangeNotifierProvider(create: (context) => UserProvider(false))
+        ChangeNotifierProvider(create: (context) => UserProvider())
       ],
       child: Consumer<SettingsModel>(
         builder: (context, settingsNotifier, child) {

@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import './homepage.dart';
 import './login.dart';
 import '../utils/user_utils.dart';
-import 'homepage.dart';
+import '../utils/user_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -48,34 +48,33 @@ class _SplashScreenState extends State<SplashScreen> {
                           MaterialPageRoute(builder: (context) => const LoginScreen()));
                     });
                   } else if (isLogged) {
+                    userProvider.isLogged = true;
                     Future.delayed(const Duration(seconds: 2), () {
                       Future.microtask(() {
-                        userProvider.isLogged= isLogged;
                         Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const HomePage())
+                          context,
+                          MaterialPageRoute(builder: (context) => const HomePage())
                         );
                       });
                     });
                     return Center(
                       child: Column(
-                          mainAxisAlignment:  MainAxisAlignment.center,
-                          children: [
-                            Text(AppLocalizations.of(context)!.welcomeLog2, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyText1?.color)),
-                            const Icon(
-                              Icons.check_circle_outline,
-                              color: Colors.green,
-                              size: 40,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: Text(AppLocalizations.of(context)!.loggedSuccessfully),
-                            )
-                          ]
+                        mainAxisAlignment:  MainAxisAlignment.center,
+                        children: [
+                          Text(AppLocalizations.of(context)!.welcomeLog2, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyText1?.color)),
+                          const Icon(
+                            Icons.check_circle_outline,
+                            color: Colors.green,
+                            size: 40,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: Text(AppLocalizations.of(context)!.loggedSuccessfully),
+                          )
+                        ]
                       ),
                     );
                   } else {
-                    userProvider.isLogged= isLogged;
                     Future.microtask(() {
                       Navigator.pushReplacement(
                           context,
