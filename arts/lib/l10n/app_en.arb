@@ -23,6 +23,7 @@
   "articleToThe": "to the",
   "sideQuestEventCompleted": "Event completed!",
   "emptyMission": "There are no sidequest to complete.",
+  "expiredMission": "Event expired on:",
 
   "settings": "Settings",
   "languageAndTheme": "Language and theme",

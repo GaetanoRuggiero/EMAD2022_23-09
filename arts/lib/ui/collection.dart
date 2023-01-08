@@ -100,7 +100,7 @@ class VisitedTabView extends StatefulWidget {
 }
 
 class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAliveClientMixin<VisitedTabView> {
-  List<POI> _visitedPOIList = [];
+  Map<POI, String> _visitedPOIMap = {};
   late Future _visitedPOIFuture;
   late String? _userEmail;
   late String? _userToken;
@@ -140,8 +140,8 @@ class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAlive
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data != null) {
-            _visitedPOIList = snapshot.data!;
-            if (_visitedPOIList.isNotEmpty) {
+            _visitedPOIMap = snapshot.data!;
+            if (_visitedPOIMap.isNotEmpty) {
               // Showing visited POI in a grid
               return RefreshIndicator(
                 onRefresh: refreshTab,
@@ -151,7 +151,7 @@ class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAlive
                     crossAxisSpacing: 10,
                     padding: const EdgeInsets.all(10),
                     childAspectRatio: 1,
-                    children: _visitedPOIList.map((poi) {
+                    children: _visitedPOIMap.keys.map((poi) {
                       return GestureDetector(
                         child: _GridPOIItem(poi: poi),
                         onTap: () {

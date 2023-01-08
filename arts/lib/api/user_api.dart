@@ -171,7 +171,7 @@ String generateToken() {
   return randomString;
 }
 
-Future<List<POI>?> getVisitedPOI(String email, String token) async {
+Future<Map<POI, String>?> getVisitedPOI(String email, String token) async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -180,7 +180,7 @@ Future<List<POI>?> getVisitedPOI(String email, String token) async {
   );
   debugPrint("Calling $uri");
 
-  List<POI> visitedPOIList = [];
+  Map<POI, String> visitedPOIMap = {};
   final body = {'email': email, 'token': token};
 
   final headers = <String, String> {
@@ -202,7 +202,7 @@ Future<List<POI>?> getVisitedPOI(String email, String token) async {
       Visited visited = Visited.fromJson(x);
       POI? poi = await getPOIbyId(visited.poiId!);
       if (poi != null) {
-        visitedPOIList.add(poi);
+        visitedPOIMap.putIfAbsent(poi, () => visited.lastVisited!);
       }
     }
   } else if (response.statusCode == 500) {
@@ -210,7 +210,7 @@ Future<List<POI>?> getVisitedPOI(String email, String token) async {
   } else {
     throw Exception('Failed to load POI');
   }
-  return visitedPOIList;
+  return visitedPOIMap;
 }
 
 
