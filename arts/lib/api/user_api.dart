@@ -5,10 +5,11 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../env/env.dart';
+import '../exception/exceptions.dart';
 import '../model/POI.dart';
 import '../model/user.dart';
 
-Future<bool?> loginUser(String email, String password, String token) async {
+Future<User?> loginUser(String email, String password, String token) async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -37,19 +38,18 @@ Future<bool?> loginUser(String email, String password, String token) async {
     /*If the server did return a 200 OK response, parse the Json and decode
       its content with UTF-8 to allow accented characters to be shown correctly */
 
-    bool isLogged =  jsonDecode(response.body);
-    if (isLogged) {
+    if (response.body.isNotEmpty) {
+      User user = User.fromJson(jsonDecode(response.body));
       debugPrint("Logged successfully");
-      return true;
+      return user;
     }
   } else if (response.statusCode == 500) {
-    debugPrint("Server did not respond at: $uri");
-    return null;
+    throw ConnectionErrorException('Server did not respond at: $uri');
   } else {
     throw Exception('Failed');
   }
   debugPrint("Wrong credentials for: email: $email and password: $password");
-  return false;
+  return null;
 }
 
 Future<bool?> signUpUser(String name, String surname, String email, String password, String token) async {
@@ -88,12 +88,12 @@ Future<bool?> signUpUser(String name, String surname, String email, String passw
     debugPrint("Server did not respond at: $uri");
     return null;
   } else {
-    throw Exception('Failed');
+    throw Exception('Fatal Error');
   }
   return false;
 }
 
-Future<bool?> checkIfLogged(String email, String token) async {
+Future<User?> checkIfLogged(String email, String token) async {
   Uri uri = Uri(
       scheme: 'http', host: Env.serverIP, port: Env.serverPort, path: 'users/checkTokenValidity');
   debugPrint("Calling $uri");
@@ -117,16 +117,16 @@ Future<bool?> checkIfLogged(String email, String token) async {
     /*If the server did return a 200 OK response, parse the Json and decode
       its content with UTF-8 to allow accented characters to be shown correctly */
 
-    bool alreadyLogged = jsonDecode(response.body);
-    if (alreadyLogged) {
-      return true;
+    if (response.body.isNotEmpty) {
+      User user = User.fromJson(jsonDecode(response.body));
+      return user;
     }
   } else if (response.statusCode == 500) {
-    return null;
+    throw ConnectionErrorException('Server did not respond at: $uri');
   } else {
-    throw Exception('Could not check token validity');
+    throw Exception('Fatal Error');
   }
-  return false;
+  return null;
 }
 
 Future<bool> deleteToken(String email, String token) async {

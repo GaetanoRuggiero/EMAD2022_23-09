@@ -82,13 +82,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                   border: const OutlineInputBorder(),
                                   labelText: AppLocalizations.of(context)!.name,
-                                  hintText: AppLocalizations.of(context)!.hintName,
-                                  hintStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .headline1
-                                          ?.color,
-                                      fontSize: 15),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -112,14 +105,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     fontSize: 15),
                                 decoration: InputDecoration(
                                   border: const OutlineInputBorder(),
-                                  hintText: AppLocalizations.of(context)!.hintSurname,
                                   labelText: AppLocalizations.of(context)!.surname,
-                                  hintStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .headline1
-                                          ?.color,
-                                      fontSize: 15),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -156,14 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   fontSize: 15),
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(),
-                                hintText: AppLocalizations.of(context)!.hintMail,
                                 labelText: AppLocalizations.of(context)!.email,
-                                hintStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .headline1
-                                        ?.color,
-                                    fontSize: 15),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -223,14 +202,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                       ),
                                     ),
                                     border: const OutlineInputBorder(),
-                                    hintText:
-                                        AppLocalizations.of(context)!.hintPass,
-                                    hintStyle: TextStyle(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .headline1
-                                            ?.color,
-                                        fontSize: 15),
                                     labelText: AppLocalizations.of(context)!.password,),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -291,13 +262,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                     ),
                                   ),
                                   border: const OutlineInputBorder(),
-                                  hintText: AppLocalizations.of(context)!.mexPassConf,
-                                  hintStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .headline1
-                                          ?.color,
-                                      fontSize: 15),
                                 labelText: AppLocalizations.of(context)!.passConf,),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -346,6 +310,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   key: UserUtils.emailKey,
                                   value: _controllerEmail.text);
                               userProvider.isLogged = true;
+                              userProvider.name = _controllerName.text;
+                              userProvider.surname = _controllerSurname.text;
                               if (!mounted) return;
                               Navigator.pushReplacement(
                                   context,

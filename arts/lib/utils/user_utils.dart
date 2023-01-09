@@ -2,21 +2,23 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../api/user_api.dart';
 import 'package:email_validator/email_validator.dart';
 
+import '../model/user.dart';
+
 class UserUtils {
   static const String tokenKey = "authToken";
   static const String emailKey = "email";
 
-  static Future<bool?> isLogged () async {
+  static Future<User?> isLogged () async {
     const storage = FlutterSecureStorage();
     String? token = await storage.read(key: tokenKey);
     String? email = await storage.read(key: emailKey);
     if (token != null && email != null) {
-      bool? logged = await checkIfLogged(email, token);
-      if (logged == false) {
+      User? user = await checkIfLogged(email, token);
+      if (user == null) {
         await storage.delete(key: UserUtils.tokenKey);
         await storage.delete(key: UserUtils.emailKey);
       }
-      return logged;
+      return user;
     }
     return null;
   }

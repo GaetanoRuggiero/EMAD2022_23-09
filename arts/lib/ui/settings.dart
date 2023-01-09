@@ -20,11 +20,13 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   ThemeMode _themeMode = settingsModel.themeMode;
   late String _snackBarMessage;
+  late Color _colorSnackbar;
 
   //snackBar of Success/Error logout
   void showSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        backgroundColor: _colorSnackbar,
         content: Text(_snackBarMessage),
         action: SnackBarAction(
           label: 'X',
@@ -222,18 +224,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   if (deleted) {
                                                     setState(() {
                                                       _snackBarMessage = AppLocalizations.of(context)!.logoutCompleted;
+                                                      _colorSnackbar = Colors.green;
                                                     });
                                                     await storage.delete(key: UserUtils.tokenKey);
                                                     await storage.delete(key: UserUtils.emailKey);
                                                     userProvider.isLogged = false;
+                                                    userProvider.name = "";
+                                                    userProvider.surname = "";
                                                     if (!mounted) return;
                                                     Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
                                                         builder: (context) => const LoginScreen()), (Route route) => false);
                                                   } else {
                                                     setState(() {
                                                       _snackBarMessage = AppLocalizations.of(context)!.logoutFailed;
+                                                      _colorSnackbar = Colors.red;
                                                     });
                                                   }
+                                                  if (!mounted) return;
+                                                  Navigator.pop(context);
                                                   showSnackBar();
                                                 },
                                               ),

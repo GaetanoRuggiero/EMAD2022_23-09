@@ -7,6 +7,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import '../api/user_api.dart';
+import '../exception/exceptions.dart';
+import '../model/user.dart';
 import 'homepage.dart';
 import '../utils/user_utils.dart';
 
@@ -187,29 +189,33 @@ class _LoginFormState extends State<LoginForm> {
                   if (_formKey.currentState!.validate()) {
                     String newToken = generateToken();
                     const storage = FlutterSecureStorage();
-                    bool? isLogged = await loginUser(
-                        _controllerEmail.text, _controllerPass.text, newToken);
-                    if (isLogged == null) {
-                      //in this case the server is unreachable
+                    try {
+                      User? user = await loginUser(
+                          _controllerEmail.text, _controllerPass.text,
+                          newToken);
+                      if (user == null) {
+                        //in this case user entered wrong credentials
+                        setState(() {
+                          _showLoginError = true;
+                        });
+                      } else {
+                        await storage.write(
+                            key: UserUtils.tokenKey, value: newToken);
+                        await storage.write(
+                            key: UserUtils.emailKey,
+                            value: _controllerEmail.text);
+                        userProvider.isLogged = true;
+                        userProvider.name = user.name!;
+                        userProvider.surname = user.surname!;
+                        if (!mounted) return;
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomePage()));
+                      }
+                    } on ConnectionErrorException {
                       setState(() {
                         _showLoginError = null;
-                      });
-                    }
-                    if (isLogged!) {
-                      await storage.write(
-                          key: UserUtils.tokenKey, value: newToken);
-                      await storage.write(
-                          key: UserUtils.emailKey,
-                          value: _controllerEmail.text);
-                      userProvider.isLogged = true;
-                      if (!mounted) return;
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomePage()));
-                    } else {
-                      setState(() {
-                        _showLoginError = true;
                       });
                     }
                   }
