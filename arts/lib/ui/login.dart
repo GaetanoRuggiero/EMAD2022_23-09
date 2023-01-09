@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import '../api/user_api.dart';
 import '../exception/exceptions.dart';
+import '../model/POI.dart';
 import '../model/user.dart';
 import 'homepage.dart';
 import '../utils/user_utils.dart';
@@ -204,9 +205,11 @@ class _LoginFormState extends State<LoginForm> {
                         await storage.write(
                             key: UserUtils.emailKey,
                             value: _controllerEmail.text);
+                        Map<POI, String> visited = await getVisitedPOI(_controllerEmail.text, newToken);
                         userProvider.isLogged = true;
                         userProvider.name = user.name!;
                         userProvider.surname = user.surname!;
+                        userProvider.visited = visited;
                         if (!mounted) return;
                         Navigator.pushReplacement(
                             context,

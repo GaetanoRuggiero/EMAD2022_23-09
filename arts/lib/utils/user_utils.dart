@@ -1,26 +1,16 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../api/user_api.dart';
 import 'package:email_validator/email_validator.dart';
-
+import '../model/POI.dart';
 import '../model/user.dart';
 
 class UserUtils {
   static const String tokenKey = "authToken";
   static const String emailKey = "email";
 
-  static Future<User?> isLogged () async {
-    const storage = FlutterSecureStorage();
-    String? token = await storage.read(key: tokenKey);
-    String? email = await storage.read(key: emailKey);
-    if (token != null && email != null) {
-      User? user = await checkIfLogged(email, token);
-      if (user == null) {
-        await storage.delete(key: UserUtils.tokenKey);
-        await storage.delete(key: UserUtils.emailKey);
-      }
-      return user;
-    }
-    return null;
+  static Future<User?> isLogged (String email, String token) async {
+    User? user = await checkIfLogged(email, token);
+    return user;
   }
 
   static bool validateEmail(String val) {
@@ -35,6 +25,12 @@ class UserUtils {
     return true;
   }
 
+  static deleteEmailAndToken() async {
+    const storage = FlutterSecureStorage();
+    await storage.delete(key: UserUtils.tokenKey);
+    await storage.delete(key: UserUtils.emailKey);
+  }
+
   static Future<String?> readEmail() async {
     const storage = FlutterSecureStorage();
     return await storage.read(key: emailKey);
@@ -44,4 +40,13 @@ class UserUtils {
     const storage = FlutterSecureStorage();
     return await storage.read(key: tokenKey);
   }
+
+  static Future<Map<String, int>> getBadgePerRegion(Map<POI,String> visitedPoi) async {
+    Map<String, int> badgeMap = {};
+    visitedPoi.forEach((poi, timestamp) {
+      badgeMap.update(poi.region!, (value) => value + 1, ifAbsent: () => 0);
+    });
+    return badgeMap;
+  }
+
 }

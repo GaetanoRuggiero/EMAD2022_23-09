@@ -53,6 +53,7 @@ dependencies:
   provider:
   geolocator: ^9.0.2
   flutter_secure_storage: ^7.0.1
+  crypto: ^3.0.2
   email_validator: ^2.1.17
   native_exif: ^0.4.0
   carousel_slider: ^4.2.1

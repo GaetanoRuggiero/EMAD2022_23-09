@@ -2,7 +2,6 @@ import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './languagescreen.dart';
 import './login.dart';
 import '../api/user_api.dart';
@@ -217,17 +216,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               TextButton(
                                                 child: Text(AppLocalizations.of(context)!.yes),
                                                 onPressed: () async {
-                                                  const storage = FlutterSecureStorage();
-                                                  String? token = await storage.read(key: UserUtils.tokenKey);
-                                                  String? email = await storage.read(key: UserUtils.emailKey);
+                                                  String? token = await UserUtils.readToken();
+                                                  String? email = await UserUtils.readEmail();
                                                   bool deleted = await deleteToken(email!, token!);
                                                   if (deleted) {
                                                     setState(() {
                                                       _snackBarMessage = AppLocalizations.of(context)!.logoutCompleted;
                                                       _colorSnackbar = Colors.green;
                                                     });
-                                                    await storage.delete(key: UserUtils.tokenKey);
-                                                    await storage.delete(key: UserUtils.emailKey);
+                                                    UserUtils.deleteEmailAndToken();
                                                     userProvider.isLogged = false;
                                                     userProvider.name = "";
                                                     userProvider.surname = "";
@@ -239,9 +236,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       _snackBarMessage = AppLocalizations.of(context)!.logoutFailed;
                                                       _colorSnackbar = Colors.red;
                                                     });
+                                                    if (!mounted) return;
+                                                    Navigator.pop(context);
                                                   }
-                                                  if (!mounted) return;
-                                                  Navigator.pop(context);
                                                   showSnackBar();
                                                 },
                                               ),

@@ -44,7 +44,7 @@ Future<User?> loginUser(String email, String password, String token) async {
       return user;
     }
   } else if (response.statusCode == 500) {
-    throw ConnectionErrorException('Server did not respond at: $uri');
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   } else {
     throw Exception('Failed');
   }
@@ -122,7 +122,7 @@ Future<User?> checkIfLogged(String email, String token) async {
       return user;
     }
   } else if (response.statusCode == 500) {
-    throw ConnectionErrorException('Server did not respond at: $uri');
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   } else {
     throw Exception('Fatal Error');
   }
@@ -171,7 +171,7 @@ String generateToken() {
   return randomString;
 }
 
-Future<Map<POI, String>?> getVisitedPOI(String email, String token) async {
+Future<Map<POI, String>> getVisitedPOI(String email, String token) async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -206,7 +206,7 @@ Future<Map<POI, String>?> getVisitedPOI(String email, String token) async {
       }
     }
   } else if (response.statusCode == 500) {
-    return null;
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   } else {
     throw Exception('Failed to load POI');
   }

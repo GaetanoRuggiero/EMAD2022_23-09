@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:arts/api/user_api.dart';
 import 'package:arts/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../exception/exceptions.dart';
+import '../model/POI.dart';
 import './homepage.dart';
 import './login.dart';
 import '../utils/user_utils.dart';
@@ -18,20 +20,32 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   late Future<User?> _startingScreenFuture;
+  late Map<POI, String> _visitedPOI;
+
+  Future<User?> initializeUser() async {
+    try {
+      String? email = await UserUtils.readEmail();
+      String? token = await UserUtils.readToken();
+      if (email != null && token != null) {
+        User? user = await UserUtils.isLogged(email, token);
+        if (user != null) {
+          _visitedPOI = await getVisitedPOI(email, token);
+        }
+        return user;
+      } else {
+        UserUtils.deleteEmailAndToken();
+      }
+    } on ConnectionErrorException catch(e) {
+      return Future.error(e);
+    }
+    return null;
+  }
 
   @override
   void initState() {
     super.initState();
 
-    _startingScreenFuture = Future.delayed(const Duration(seconds: 1), () {
-      try {
-        return UserUtils.isLogged().then((value) {
-          return value;
-        });
-      } on ConnectionErrorException catch(e) {
-        return Future.error(e);
-      }
-    });
+    _startingScreenFuture = initializeUser();
   }
 
   @override
@@ -78,6 +92,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     userProvider.isLogged = true;
                     userProvider.name = user.name!;
                     userProvider.surname = user.surname!;
+                    userProvider.visited = _visitedPOI;
                     Future.delayed(const Duration(seconds: 2), () {
                       Future.microtask(() {
                         Navigator.pushReplacement(
