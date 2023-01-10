@@ -1,7 +1,7 @@
+import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './languagescreen.dart';
 import './login.dart';
 import '../api/user_api.dart';
@@ -19,12 +19,13 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   ThemeMode _themeMode = settingsModel.themeMode;
   late String _snackBarMessage;
-  bool _isLogged = false;
+  late Color _colorSnackbar;
 
   //snackBar of Success/Error logout
   void showSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        backgroundColor: _colorSnackbar,
         content: Text(_snackBarMessage),
         action: SnackBarAction(
           label: 'X',
@@ -34,19 +35,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         )
       )
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    UserUtils.isLogged().then((value) {
-      if (value != null) {
-        setState(() {
-          _isLogged = value;
-        });
-      }
-      return;
-    });
   }
 
   @override
@@ -113,8 +101,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 title: Text(AppLocalizations.of(context)!.chooseTheTheme),
                                 content: StatefulBuilder(
                                   builder: (context, setState) {
-                                    return Consumer(
-                                      builder: (context, SettingsModel settingsNotifier, child) {
+                                    return Consumer<SettingsModel>(
+                                      builder: (context, settingsNotifier, child) {
                                         return Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -212,78 +200,87 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       const SizedBox(height: 10),
 
-                      Container(
-                        child: _isLogged
-                          ? InkWell(
-                            onTap: () {
-                              showDialog<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                    title: Text(AppLocalizations.of(context)!.logout),
-                                    actions: [
-                                      TextButton(
-                                        child: Text(AppLocalizations.of(context)!.yes),
-                                        onPressed: () async {
-                                          const storage = FlutterSecureStorage();
-                                          String? token = await storage.read(key: UserUtils.tokenKey);
-                                          String? email = await storage.read(key: UserUtils.emailKey);
-                                          bool deleted = await deleteToken(email!, token!);
-                                          if (deleted) {
-                                            setState(() {
-                                              _snackBarMessage = AppLocalizations.of(context)!.logoutCompleted;
-                                            });
-                                            await storage.delete(key: UserUtils.tokenKey);
-                                            await storage.delete(key: UserUtils.emailKey);
-                                            if (!mounted) return;
-                                            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-                                                builder: (context) => const LoginScreen()), (Route route) => false);
-                                          } else {
-                                            setState(() {
-                                              _snackBarMessage = AppLocalizations.of(context)!.logoutFailed;
-                                            });
-                                          }
-                                          showSnackBar();
-                                        },
-                                      ),
-                                      TextButton(onPressed: () {Navigator.of(context).pop();}, child: const Text("No"))
-                                    ],
-                                    content: StatefulBuilder(
-                                      builder: (context, setState) {
-                                        return Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(AppLocalizations.of(context)!.askForLogout, textAlign: TextAlign.left,)
-                                          ]
+                      Consumer<UserProvider>(
+                              builder: (context, userProvider, child) {
+                            return Container(
+                              child: userProvider.isLogged
+                                  ? InkWell(
+                                onTap: () {
+                                  showDialog<void>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                            title: Text(AppLocalizations.of(context)!.logout),
+                                            actions: [
+                                              TextButton(
+                                                child: Text(AppLocalizations.of(context)!.yes),
+                                                onPressed: () async {
+                                                  String? token = await UserUtils.readToken();
+                                                  String? email = await UserUtils.readEmail();
+                                                  bool deleted = await deleteToken(email!, token!);
+                                                  if (deleted) {
+                                                    setState(() {
+                                                      _snackBarMessage = AppLocalizations.of(context)!.logoutCompleted;
+                                                      _colorSnackbar = Colors.green;
+                                                    });
+                                                    UserUtils.deleteEmailAndToken();
+                                                    userProvider.isLogged = false;
+                                                    userProvider.name = "";
+                                                    userProvider.surname = "";
+                                                    if (!mounted) return;
+                                                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                                        builder: (context) => const LoginScreen()), (Route route) => false);
+                                                  } else {
+                                                    setState(() {
+                                                      _snackBarMessage = AppLocalizations.of(context)!.logoutFailed;
+                                                      _colorSnackbar = Colors.red;
+                                                    });
+                                                    if (!mounted) return;
+                                                    Navigator.pop(context);
+                                                  }
+                                                  showSnackBar();
+                                                },
+                                              ),
+                                              TextButton(onPressed: () {Navigator.of(context).pop();}, child: const Text("No"))
+                                            ],
+                                            content: StatefulBuilder(
+                                                builder: (context, setState) {
+                                                  return Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Text(AppLocalizations.of(context)!.askForLogout, textAlign: TextAlign.left,)
+                                                      ]
+                                                  );
+                                                }
+                                            )
                                         );
                                       }
-                                    )
                                   );
-                                }
-                              );
-                            },
-                            child: SettingsTile(
-                              rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                              leftIcon: Icons.logout_outlined,
-                              title: AppLocalizations.of(context)!.logout
-                            ),
-                          )
-                          : InkWell(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginScreen()
-                                )
-                              );
-                            },
-                            child: SettingsTile(
-                              rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                              leftIcon: Icons.login_outlined,
-                              title: AppLocalizations.of(context)!.redirectLog
-                            )
-                          )
+                                },
+                                child: SettingsTile(
+                                    rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                    leftIcon: Icons.logout_outlined,
+                                    title: AppLocalizations.of(context)!.logout
+                                ),
+                              )
+                                  : InkWell(
+                                  onTap: () {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => const LoginScreen()
+                                        )
+                                    );
+                                  },
+                                  child: SettingsTile(
+                                      rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                      leftIcon: Icons.login_outlined,
+                                      title: AppLocalizations.of(context)!.redirectLog
+                                  )
+                              )
+                          );
+                        }
                       ),
 
                     ]

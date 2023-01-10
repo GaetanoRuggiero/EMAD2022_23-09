@@ -33,26 +33,21 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
   appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xff113197),
       actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
-      iconTheme: IconThemeData(color: Color(0xffE68532))
+      iconTheme: IconThemeData(color: Color(0xffE68532)),
+      titleTextStyle: TextStyle(color: Colors.white, fontSize: 20)
   ),
-  backgroundColor: Colors.white,
   iconTheme: const IconThemeData(color: Color(0xffE68532)),
-  colorScheme: const ColorScheme.dark().copyWith(secondary: const Color(0xff89E649)),
   dividerColor: Colors.black26,
-  unselectedWidgetColor: Colors.white, //used for background-pathcard-tourlistscreen ui
-  toggleableActiveColor: const Color(0xffa4afee), //used for background-card-tourlistscreen ui
 );
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
   appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xff113197),
-      actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
-      iconTheme: IconThemeData(color: Color(0xffE68532))
+    backgroundColor: Color(0xff113197),
+    actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
+    iconTheme: IconThemeData(color: Color(0xffE68532)),
+    titleTextStyle: TextStyle(color: Colors.white, fontSize: 20)
   ),
   backgroundColor: const Color(0xff242F72),
   iconTheme: const IconThemeData(color: Color(0xffE68532)),
-  colorScheme: const ColorScheme.light().copyWith(secondary: const Color(0xff89E649)),
   dividerColor: const Color(0xff414c9c),
-  unselectedWidgetColor: const Color(0xff303030), //used for background-pathcard-tourlistscreen ui
-  toggleableActiveColor: const Color(0xff242F72), //used for background-card-tourlistscreen ui
 );

@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import './collection.dart';
 import './login.dart';
 import './maps.dart';
@@ -13,7 +15,6 @@ import './takepicture.dart';
 import './tourlistscreen.dart';
 import '../main.dart';
 import '../utils/blinking_text.dart';
-import '../utils/user_utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -29,8 +30,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   var menuOpenedIcon = const Icon(Icons.add, color: Colors.white);
   var menuClosedIcon = const Icon(Icons.remove, color: Colors.white);
   bool isMenuOpened = false;
-
-  bool _isLogged = false;
 
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   late Position? _currentPosition;
@@ -57,7 +56,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         showLocationDisabledDialog();
       }
       locationServiceToggle = true;
-      debugPrint("Location services are disabled.");
       return false;
     }
 
@@ -125,7 +123,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void showLocationDisabledDialog() {
-    showDialog(barrierDismissible: false, context: context, builder: (context) {
+    showDialog(context: context, builder: (_) {
       return AlertDialog(
         title: Text(AppLocalizations.of(context)!.locationOffDialogTitle),
         content: Text(AppLocalizations.of(context)!.locationOffDialogContent),
@@ -147,7 +145,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void showPermissionDeniedDialog() {
-    showDialog(barrierDismissible: false, context: context, builder: (context) {
+    showDialog(context: context, builder: (_) {
       return AlertDialog(
         title: Text(AppLocalizations.of(context)!.locationPermissionDialogTitle),
         content: Text(AppLocalizations.of(context)!.locationPermissionDialogContent),
@@ -171,15 +169,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-
-    UserUtils.isLogged().then((value) {
-      if (value != null) {
-        setState(() {
-          _isLogged = value;
-        });
-      }
-      return;
-    });
 
     animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
@@ -216,20 +205,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _serviceStatusStreamSubscription?.cancel();
         _serviceStatusStreamSubscription = null;
       }).listen((serviceStatus) {
-        if (serviceStatus == ServiceStatus.enabled) {
-          debugPrint("Location service enabled");
-        } else {
+        if (serviceStatus == ServiceStatus.disabled) {
           if (_positionStreamSubscription != null) {
             _positionStreamSubscription?.cancel();
             _positionStreamSubscription = null;
           }
-          debugPrint("Location service disabled");
         }
-        /* Location state changed (either enabled or disabled). We reset current
-        * device location to ensure both location and service are enabled.*/
+        _currentPosition = null;
+        locationServiceToggle = true;
         setState(() {
-          locationServiceToggle = true;
-          _currentPosition = null;
           _currentPositionFuture = _getCurrentPosition();
         });
       });
@@ -286,225 +270,247 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          fit: StackFit.expand,
-          alignment: Alignment.center,
-          children: [
-            FutureBuilder(
-              future: _currentPositionFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
-                    _currentPosition = snapshot.data!;
-                    return Maps(latitude: snapshot.data!.latitude, longitude: snapshot.data!.longitude);
-                  }
-                  else {
-                    return Center(child: Text(AppLocalizations.of(context)!.deviceLocationNotAvailable));
-                  }
-                }
-                else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              }),
-            Positioned(
-              top: 80.0,
-              left: -25.0,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: _isLogged
-                      ? ElevatedButton(
+        child: Consumer<UserProvider>(
+          builder: (context, userProvider, child) {
+            return Stack(
+              fit: StackFit.expand,
+              alignment: Alignment.center,
+              children: [
+                FutureBuilder(
+                    future: _currentPositionFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasData) {
+                          _currentPosition = snapshot.data!;
+                          return Maps(latitude: snapshot.data!.latitude, longitude: snapshot.data!.longitude);
+                        }
+                        else {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.location_off, size: 80),
+                                Text(AppLocalizations.of(context)!.deviceLocationNotAvailable),
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      _handlePermission();
+                                    },
+                                    child: Text(AppLocalizations.of(context)!.turnOnLocation)
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      }
+                      else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    }),
+                Positioned(
+                  top: 80.0,
+                  left: -25.0,
+                  child: Column(
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: userProvider.isLogged
+                              ? ElevatedButton(
+                              style: topButtonStyle,
+                              child:
+                              const Icon(Icons.person, color: Colors.white),
+                              onPressed: () {
+                                if (!userProvider.isLogged) {
+                                  showLoginDialog();
+                                  return;
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const Profile()),
+                                );
+                              }
+                          )
+                              : ElevatedButton(
+                              style: topButtonStyle,
+                              child:
+                              const Icon(Icons.settings, color: Colors.white),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const SettingsScreen()),
+                                );
+                              }
+                          )
+                      ),
+                      ElevatedButton(
                           style: topButtonStyle,
-                          child:
-                          const Icon(Icons.person, color: Colors.white),
+                          child: const Icon(Icons.mark_chat_unread, color: Colors.white),
                           onPressed: () {
-                            if (!_isLogged) {
+                            if (!userProvider.isLogged) {
                               showLoginDialog();
                               return;
                             }
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const Profile()),
+                                  builder: (context) => const SideQuest()),
                             );
-                          }
-                        )
-                      : ElevatedButton(
-                          style: topButtonStyle,
-                          child:
-                          const Icon(Icons.settings, color: Colors.white),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SettingsScreen()),
-                            );
-                          }
-                        )
+                          }),
+                    ],
                   ),
-                  ElevatedButton(
-                    style: topButtonStyle,
-                    child: const Icon(Icons.mark_chat_unread, color: Colors.white),
-                    onPressed: () {
-                      if (!_isLogged) {
-                        showLoginDialog();
-                        return;
-                      }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SideQuest()),
-                      );
-                    }),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 30.0,
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  IgnorePointer(
-                    child: Container(
-                      color: Colors.transparent,
-                      height: 150.0,
-                      width: 250.0,
-                    ),
-                  ),
-                  Transform.translate(
-                    offset: Offset.fromDirection(getRadiansFromDegree(340),
-                        degOneTranslationAnimation.value * 90),
-                    child: Transform(
-                        transform: Matrix4.rotationZ(
-                            getRadiansFromDegree(rotationAnimation.value))
-                          ..scale(degOneTranslationAnimation.value),
-                        alignment: Alignment.center,
-                        child: ElevatedButton(
-                            style: smallButtonStyle,
-                            child: const Icon(Icons.auto_stories,
-                                color: Colors.white),
-                            onPressed: () {
-                              if (!_isLogged) {
-                                showLoginDialog();
-                                return;
-                              }
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
+                ),
+                Positioned(
+                  bottom: 30.0,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      IgnorePointer(
+                        child: Container(
+                          color: Colors.transparent,
+                          height: 150.0,
+                          width: 250.0,
+                        ),
+                      ),
+                      Transform.translate(
+                        offset: Offset.fromDirection(getRadiansFromDegree(340),
+                            degOneTranslationAnimation.value * 90),
+                        child: Transform(
+                            transform: Matrix4.rotationZ(
+                                getRadiansFromDegree(rotationAnimation.value))
+                              ..scale(degOneTranslationAnimation.value),
+                            alignment: Alignment.center,
+                            child: ElevatedButton(
+                                style: smallButtonStyle,
+                                child: const Icon(Icons.auto_stories,
+                                    color: Colors.white),
+                                onPressed: () {
+                                  if (!userProvider.isLogged) {
+                                    showLoginDialog();
+                                    return;
+                                  }
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
                                         const CollectionScreen()),
-                              );
-                            })),
-                  ),
-                  Transform.translate(
-                    offset: Offset.fromDirection(getRadiansFromDegree(270),
-                        degTwoTranslationAnimation.value * 80),
-                    child: Transform(
-                      transform: Matrix4.rotationZ(
-                          getRadiansFromDegree(rotationAnimation.value))
-                        ..scale(degTwoTranslationAnimation.value),
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
-                        style: smallButtonStyle,
-                        child: const Icon(Icons.camera_alt,
-                            color: Colors.white),
-                        onPressed: () {
-                          if (_currentPosition == null) {
-                            setState(() {
-                              _currentPositionFuture = _getCurrentPosition();
-                            });
-                          }
-                          else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera, latitude: _currentPosition!.latitude, longitude: _currentPosition!.longitude)),
-                            );
-                          }
-                        })),
-                  ),
-                  Transform.translate(
-                    offset: Offset.fromDirection(getRadiansFromDegree(200),
-                        degThreeTranslationAnimation.value * 90),
-                    child: Transform(
+                                  );
+                                })),
+                      ),
+                      Transform.translate(
+                        offset: Offset.fromDirection(getRadiansFromDegree(270),
+                            degTwoTranslationAnimation.value * 80),
+                        child: Transform(
+                            transform: Matrix4.rotationZ(
+                                getRadiansFromDegree(rotationAnimation.value))
+                              ..scale(degTwoTranslationAnimation.value),
+                            alignment: Alignment.center,
+                            child: ElevatedButton(
+                                style: smallButtonStyle,
+                                child: const Icon(Icons.camera_alt,
+                                    color: Colors.white),
+                                onPressed: () {
+                                  if (_currentPosition == null) {
+                                    setState(() {
+                                      _currentPositionFuture = _getCurrentPosition();
+                                    });
+                                  }
+                                  else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera, latitude: _currentPosition!.latitude, longitude: _currentPosition!.longitude)),
+                                    );
+                                  }
+                                })),
+                      ),
+                      Transform.translate(
+                        offset: Offset.fromDirection(getRadiansFromDegree(200),
+                            degThreeTranslationAnimation.value * 90),
+                        child: Transform(
+                            transform: Matrix4.rotationZ(
+                                getRadiansFromDegree(rotationAnimation.value))
+                              ..scale(degThreeTranslationAnimation.value),
+                            alignment: Alignment.center,
+                            child: ElevatedButton(
+                                style: smallButtonStyle,
+                                child: const Icon(Icons.location_on,
+                                    color: Colors.white),
+                                onPressed: () {
+                                  if (!userProvider.isLogged) {
+                                    showLoginDialog();
+                                    return;
+                                  }
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                          const TourListScreen()));
+                                })),
+                      ),
+                      Transform(
                         transform: Matrix4.rotationZ(
-                            getRadiansFromDegree(rotationAnimation.value))
-                          ..scale(degThreeTranslationAnimation.value),
+                            getRadiansFromDegree(rotationAnimation.value)),
                         alignment: Alignment.center,
                         child: ElevatedButton(
-                            style: smallButtonStyle,
-                            child: const Icon(Icons.location_on,
-                                color: Colors.white),
+                            style: largeButtonStyle,
+                            child: isMenuOpened ? menuClosedIcon : menuOpenedIcon,
                             onPressed: () {
-                              if (!_isLogged) {
-                                showLoginDialog();
-                                return;
+                              if (animationController.isCompleted) {
+                                isMenuOpened = !isMenuOpened;
+                                animationController.reverse();
+                              } else if (animationController.isDismissed) {
+                                isMenuOpened = !isMenuOpened;
+                                animationController.forward();
                               }
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const TourListScreen()));
-                            })),
+                            }),
+                      ),
+                    ],
                   ),
-                  Transform(
-                    transform: Matrix4.rotationZ(
-                        getRadiansFromDegree(rotationAnimation.value)),
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      style: largeButtonStyle,
-                      child: isMenuOpened ? menuClosedIcon : menuOpenedIcon,
-                      onPressed: () {
-                        if (animationController.isCompleted) {
-                          isMenuOpened = !isMenuOpened;
-                          animationController.reverse();
-                        } else if (animationController.isDismissed) {
-                          isMenuOpened = !isMenuOpened;
-                          animationController.forward();
-                        }
-                      }),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 0,
-              child: FutureBuilder(future: _currentPositionFuture, builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
-                    return Container(
-                      color: Colors.green,
-                      width: MediaQuery.of(context).size.width,
-                      height: 50,
-                      child: Center(
-                        child: Text(textAlign: TextAlign.center, AppLocalizations.of(context)!.deviceLocationAvailable)
-                      )
-                  );
-                  }
-                  else {
-                    return Container(
-                      color: Colors.red,
-                      width: MediaQuery.of(context).size.width,
-                      height: 50,
-                      child: Center(
-                        child: Text(textAlign: TextAlign.center, "${AppLocalizations.of(context)!.deviceLocationNotAvailable}.")
-                      )
-                    );
-                  }
-                }
-                else {
-                  return Container(
-                    color: Colors.green,
-                    width: MediaQuery.of(context).size.width,
-                    height: 50,
-                    child: Center(
-                        child: BlinkText("${AppLocalizations.of(context)!.fetchingGPSCoordinates}...")
-                    )
-                  );
-                }
-              }),
-            )
-          ],
+                ),
+                Positioned(
+                  top: 0,
+                  child: FutureBuilder(future: _currentPositionFuture, builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData) {
+                        return Container(
+                            color: Colors.green,
+                            width: MediaQuery.of(context).size.width,
+                            height: 50,
+                            child: Center(
+                                child: Text(textAlign: TextAlign.center, AppLocalizations.of(context)!.deviceLocationAvailable)
+                            )
+                        );
+                      }
+                      else {
+                        return Container(
+                            color: Colors.red,
+                            width: MediaQuery.of(context).size.width,
+                            height: 50,
+                            child: Center(
+                                child: Text(textAlign: TextAlign.center, "${AppLocalizations.of(context)!.deviceLocationNotAvailable}.")
+                            )
+                        );
+                      }
+                    }
+                    else {
+                      return Container(
+                          color: Colors.green,
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          child: Center(
+                              child: BlinkText("${AppLocalizations.of(context)!.fetchingGPSCoordinates}...")
+                          )
+                      );
+                    }
+                  }),
+                )
+              ],
+            );
+          }
+
         ),
       ),
     );

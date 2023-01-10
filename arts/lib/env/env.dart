@@ -10,4 +10,6 @@ abstract class Env {
   static int serverPort = _Env.serverPort;
   @EnviedField(varName: 'apiKey', obfuscate: true)
   static String apiKey = _Env.apiKey;
+  @EnviedField(varName: 'salt', obfuscate: true)
+  static String salt = _Env.salt;
 }

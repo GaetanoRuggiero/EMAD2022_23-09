@@ -79,4 +79,16 @@ class POI {
   String toString() {
     return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region, modelName: $modelName}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is POI &&
+          runtimeType == other.runtimeType &&
+          latitude == other.latitude &&
+          longitude == other.longitude &&
+          name == other.name;
+
+  @override
+  int get hashCode => latitude.hashCode ^ longitude.hashCode ^ name.hashCode;
 }

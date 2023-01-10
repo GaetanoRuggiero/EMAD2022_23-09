@@ -37,7 +37,7 @@ Future<List<Sidequest>?> getAllSidequest() async {
   } else if (response.statusCode == 500) {
     return null;
   } else {
-    throw Exception('Failed to load POI');
+    throw Exception('Failed to load Sidequest');
   }
   return allSidequestList;
 }

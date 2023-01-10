@@ -12,6 +12,7 @@
   "resultsNotFound": "Nessun risultato per: ",
   "city": "Città",
   "poiName": "Nome opera",
+  "zeroPOIVisited": "La tua collezione per ora è vuota.",
 
   "mission": "Missioni",
   "sideQuestAvailableEvents": "Sono disponibili i seguenti eventi:",
@@ -22,6 +23,7 @@
   "articleToThe": "al",
   "sideQuestEventCompleted": "Evento completato!",
   "emptyMission": "Non sono disponibili missioni da completare.",
+  "expiredMission": "Evento scaduto il:",
 
   "settings": "Impostazioni",
   "languageAndTheme": "Lingua e tema",
@@ -101,6 +103,7 @@
   "locationPermissionDialogTitle": "Consentire l'accesso alla geolocalizzazione",
   "locationPermissionDialogContent": "Per proseguire, è necessario consentire all'applicazione il permesso di accedere alla posizione del dispositivo.",
   "allowPermission": "Concedi permessi",
+  "myLocation": "La mia posizione",
 
   "itineraryList": "Lista itinerari",
   "recommendedItinerary": "Itinerario consigliato",

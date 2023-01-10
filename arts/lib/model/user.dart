@@ -39,17 +39,25 @@ class User {
 }
 
 class Visited {
-  String? id;
+  String? poiId;
+  String? lastVisited;
 
-  Visited({this.id});
+  Visited({this.poiId, this.lastVisited});
 
   Visited.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    poiId = json['poi_id'];
+    lastVisited = json['last_visited'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
+    data['poi_id'] = poiId;
+    data['last_visited'] = lastVisited;
     return data;
+  }
+
+  @override
+  String toString() {
+    return 'Visited{poiId: $poiId, lastVisited: $lastVisited}';
   }
 }

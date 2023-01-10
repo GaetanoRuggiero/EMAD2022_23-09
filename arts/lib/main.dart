@@ -1,3 +1,4 @@
+import 'package:arts/utils/user_provider.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -18,7 +19,11 @@ Future<void> main() async {
   // Requesting latest Google Maps renderer (on Android)
   final GoogleMapsFlutterPlatform mapsImplementation = GoogleMapsFlutterPlatform.instance;
   if (mapsImplementation is GoogleMapsFlutterAndroid) {
-    await mapsImplementation.initializeWithRenderer(AndroidMapRenderer.latest);
+    try {
+      await mapsImplementation.initializeWithRenderer(AndroidMapRenderer.latest);
+    } catch(e) {
+      debugPrint("The renderer can be requested only once!");
+    }
   }
 
   // Obtain a list of the available cameras on the device.
@@ -39,8 +44,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: settingsModel,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: settingsModel),
+        ChangeNotifierProvider(create: (context) => UserProvider())
+      ],
       child: Consumer<SettingsModel>(
         builder: (context, settingsNotifier, child) {
           return MaterialApp(

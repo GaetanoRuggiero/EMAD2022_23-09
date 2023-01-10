@@ -46,6 +46,7 @@ dependencies:
   google_maps_flutter: ^2.2.3
   google_maps_flutter_android: ^2.4.0
   google_maps_flutter_platform_interface: ^2.2.4
+  google_polyline_algorithm: ^3.1.0
   http: ^0.13.5
   flutter_launcher_icons: ^0.11.0
   envied: ^0.3.0
@@ -53,17 +54,21 @@ dependencies:
   provider:
   geolocator: ^9.0.2
   flutter_secure_storage: ^7.0.1
+  crypto: ^3.0.2
   email_validator: ^2.1.17
   native_exif: ^0.4.0
   carousel_slider: ^4.2.1
   smooth_page_indicator: ^1.0.0+2
   flutter_unity_widget: ^2022.2.0
+  url_launcher: ^6.1.7
 
 flutter_icons:
-  android: "launcher_icon"
+  android: true
+  min_sdk_android: 22
   adaptive_icon_foreground: "assets/icon/icon.png"
   adaptive_icon_background: "#ffffff"
   ios: true
+  remove_alpha_ios: true
   image_path: "assets/icon/icon.png"
 
 dev_dependencies:
@@ -94,7 +99,6 @@ flutter:
   assets:
     - assets/icon/
     - assets/poi_images/
-    - assets/sidequest_images/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

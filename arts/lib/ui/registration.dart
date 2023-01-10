@@ -1,13 +1,14 @@
 import 'package:arts/api/user_api.dart';
 import 'package:arts/ui/login.dart';
 import 'package:arts/ui/styles.dart';
+import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import '../utils/user_utils.dart';
 import 'homepage.dart';
-
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -81,13 +82,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                   border: const OutlineInputBorder(),
                                   labelText: AppLocalizations.of(context)!.name,
-                                  hintText: AppLocalizations.of(context)!.hintName,
-                                  hintStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .headline1
-                                          ?.color,
-                                      fontSize: 15),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -111,14 +105,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     fontSize: 15),
                                 decoration: InputDecoration(
                                   border: const OutlineInputBorder(),
-                                  hintText: AppLocalizations.of(context)!.hintSurname,
                                   labelText: AppLocalizations.of(context)!.surname,
-                                  hintStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .headline1
-                                          ?.color,
-                                      fontSize: 15),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -155,14 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   fontSize: 15),
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(),
-                                hintText: AppLocalizations.of(context)!.hintMail,
                                 labelText: AppLocalizations.of(context)!.email,
-                                hintStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .headline1
-                                        ?.color,
-                                    fontSize: 15),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -222,14 +202,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                       ),
                                     ),
                                     border: const OutlineInputBorder(),
-                                    hintText:
-                                        AppLocalizations.of(context)!.hintPass,
-                                    hintStyle: TextStyle(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .headline1
-                                            ?.color,
-                                        fontSize: 15),
                                     labelText: AppLocalizations.of(context)!.password,),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -290,13 +262,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                     ),
                                   ),
                                   border: const OutlineInputBorder(),
-                                  hintText: AppLocalizations.of(context)!.mexPassConf,
-                                  hintStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .headline1
-                                          ?.color,
-                                      fontSize: 15),
                                 labelText: AppLocalizations.of(context)!.passConf,),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -319,59 +284,70 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () async {
-                      if (_formKey.currentState!.validate()) {
-                        String newToken = generateToken();
-                        bool? reg = await signUpUser(
-                            _controllerName.text,
-                            _controllerSurname.text,
-                            _controllerEmail.text,
-                            _controllerPass.text,
-                            newToken);
-                        if (reg == null) {
-                          //in this case the server is unreachable
-                          setState(() {
-                            _showRegError = null;
-                          });
-                        }
-                        if (reg!) {
-                          const storage = FlutterSecureStorage();
-                          await storage.write(key: UserUtils.tokenKey, value: newToken);
-                          if (!mounted) return;
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomePage()));
-                        } else {
-                          setState(() {
-                            _showRegError = true;
-                          });
-                        }
-                      }
+                  Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                      return GestureDetector(
+                        onTap: () async {
+                          if (_formKey.currentState!.validate()) {
+                            String newToken = generateToken();
+                            bool? reg = await signUpUser(
+                                _controllerName.text,
+                                _controllerSurname.text,
+                                _controllerEmail.text,
+                                _controllerPass.text,
+                                newToken);
+                            if (reg == null) {
+                              //in this case the server is unreachable
+                              setState(() {
+                                _showRegError = null;
+                              });
+                            }
+                            if (reg!) {
+                              const storage = FlutterSecureStorage();
+                              await storage.write(
+                                  key: UserUtils.tokenKey, value: newToken);
+                              await storage.write(
+                                  key: UserUtils.emailKey,
+                                  value: _controllerEmail.text);
+                              userProvider.isLogged = true;
+                              userProvider.name = _controllerName.text;
+                              userProvider.surname = _controllerSurname.text;
+                              if (!mounted) return;
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const HomePage()));
+                            } else {
+                              setState(() {
+                                _showRegError = true;
+                              });
+                            }
+                          }
+                        },
+                        child: Container(
+                          height: 50,
+                          width: double.infinity,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                    blurRadius: 4,
+                                    color: Colors.black12.withOpacity(.2),
+                                    offset: const Offset(2, 2))
+                              ],
+                              borderRadius: BorderRadius.circular(100),
+                              gradient: const LinearGradient(
+                                  colors: [lightOrange, darkOrange])),
+                          child: Text(AppLocalizations.of(context)!.signUp,
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(.8),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                      );
                     },
-                    child: Container(
-                      height: 50,
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                blurRadius: 4,
-                                color: Colors.black12.withOpacity(.2),
-                                offset: const Offset(2, 2))
-                          ],
-                          borderRadius: BorderRadius.circular(100),
-                          gradient: const LinearGradient(
-                              colors: [lightOrange, darkOrange])),
-                      child: Text(AppLocalizations.of(context)!.signUp,
-                          style: TextStyle(
-                              color: Colors.white.withOpacity(.8),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold)),
-                    ),
                   ),
                   setRegistrationOutput(_showRegError),
                   Container(
@@ -381,7 +357,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextSpan(
                           text: AppLocalizations.of(context)!.haveAnAcc,
                           style: TextStyle(
-                              color: Theme.of(context).textTheme.bodyText1?.color,
+                              color:
+                                  Theme.of(context).textTheme.bodyText1?.color,
                               fontSize: 20)),
                       TextSpan(
                           text: " ${AppLocalizations.of(context)!.clickH}\n",
@@ -392,7 +369,8 @@ class _RegisterPageState extends State<RegisterPage> {
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => const LoginScreen()));
+                                      builder: (context) =>
+                                          const LoginScreen()));
                             })
                     ])),
                   )
@@ -419,8 +397,7 @@ class _RegisterPageState extends State<RegisterPage> {
         margin: const EdgeInsets.all(10),
         color: Colors.red,
         child: Text(text,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20)),
+            textAlign: TextAlign.center, style: const TextStyle(fontSize: 20)),
       );
     } else {
       return Container();

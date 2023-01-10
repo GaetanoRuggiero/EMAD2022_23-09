@@ -1,11 +1,16 @@
 import 'package:arts/ui/styles.dart';
+import 'package:arts/utils/user_provider.dart';
+import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../exception/exceptions.dart';
 import './singlepoiview.dart';
 import '../utils/debouncer.dart';
-import '../model/POI.dart';
 import '../api/poi_api.dart';
+import '../api/user_api.dart';
+import '../model/POI.dart';
 
 enum SearchFilter { city, name }
 
@@ -28,6 +33,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
         },
         child: Scaffold(
           appBar: AppBar(
+            centerTitle: true,
             actions: [
               IconButton(
                 icon: const Icon(Icons.home_rounded),
@@ -91,59 +97,150 @@ class _CollectionScreenState extends State<CollectionScreen> {
 }
 
 class VisitedTabView extends StatefulWidget {
-  const VisitedTabView({Key? key})
-      : super(key: key);
+  const VisitedTabView({Key? key}) : super(key: key);
 
   @override
   State<VisitedTabView> createState() => _VisitedTabViewState();
 }
 
-class _VisitedTabViewState extends State<VisitedTabView> {
-  List<POI> _visitedPOIList = [];
+class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAliveClientMixin<VisitedTabView> {
+  Map<POI, String> _visitedPOIMap = {};
+  late Future _visitedPOIFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /* The first time we load this widget we get visited POI's by using
+    *  Provider/Consumer, so for now we give an empty map as value to this
+    *  future. This future is useful when the user wants to refresh the widget.
+    *  Only in that case we make calls to database.*/
+    _visitedPOIFuture = Future.value(<POI, String>{});
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+  Future<void> refreshTab() async {
+      String? email = await UserUtils.readEmail();
+      String? token = await UserUtils.readToken();
+      if (email != null && token != null) {
+        try {
+          _visitedPOIMap = await getVisitedPOI(email, token);
+          setState(() {
+            _visitedPOIFuture = Future.value(_visitedPOIMap);
+          });
+        } on ConnectionErrorException catch(e) {
+          debugPrint(e.cause);
+          setState(() {
+            _visitedPOIFuture = Future.value();
+          });
+        }
+      }
+      return _visitedPOIFuture;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getVisitedPOI(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.data != null) {
-            _visitedPOIList = snapshot.data!;
-            return GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                padding: const EdgeInsets.all(10),
-                childAspectRatio: 1,
-                children: _visitedPOIList.map((poi) {
-                  return GestureDetector(
-                    child: _GridPOIItem(poi: poi),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SinglePOIView(poi: poi)),
-                      );
-                    },
+    super.build(context);
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        return FutureBuilder(
+          future: _visitedPOIFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.data != null) {
+                _visitedPOIMap = snapshot.data;
+                // If the user has collected a new POI we update the provider's value
+                if (_visitedPOIMap.length > userProvider.visited.length) {
+                  userProvider.visited = _visitedPOIMap;
+                }
+                if (userProvider.visited.isNotEmpty) {
+                  // Showing visited POI in a grid
+                  return RefreshIndicator(
+                    onRefresh: refreshTab,
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      padding: const EdgeInsets.all(10),
+                      childAspectRatio: 1,
+                      children: userProvider.visited.keys.map((poi) {
+                        return InkWell(
+                          child: _GridPOIItem(poi: poi),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi)),
+                            );
+                          },
+                        );
+                      }).toList()
+                    ),
                   );
-                }).toList());
-          }
-          else {
-            return Container(padding: const EdgeInsets.all(20.0), child: Column(
-              children: [
-                const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
-                Text(textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
-                  AppLocalizations.of(context)!.connectionError
-                )
-              ],
-            ));
-          }
-        }
-        else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      }
+                }
+                else {
+                  // No POI visited yet
+                  return RefreshIndicator(
+                    onRefresh: refreshTab,
+                    child: Stack(
+                        children: [
+                          Center(
+                            child: Text(AppLocalizations.of(context)!.zeroPOIVisited),
+                          ),
+                          ListView(), //Pull to refresh needs at least a scrollable list to work
+                        ]
+                    ),
+                  );
+                }
+              }
+              else {
+                // Connection with server has failed (or timed out)
+                return RefreshIndicator(
+                  onRefresh: refreshTab,
+                  child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+                              Text(textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                                  AppLocalizations.of(context)!.connectionError
+                              ),
+                            ],
+                          ),
+                        ),
+                        ListView(), //Pull to refresh needs at least a scrollable list to work
+                      ]
+                  ),
+                );
+              }
+            }
+            else {
+              // Showing a loading screen until future is complete
+              return Center(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: CircularProgressIndicator(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(AppLocalizations.of(context)!.loading),
+                        ),
+                      ]
+                  )
+              );
+            }
+          },
+        );
+      },
     );
   }
 }
@@ -175,7 +272,7 @@ class SearchTabView extends StatefulWidget {
   State<SearchTabView> createState() => _SearchTabViewState();
 }
 
-class _SearchTabViewState extends State<SearchTabView> {
+class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveClientMixin<SearchTabView> {
   final _searchTextController = TextEditingController();
   String _searchText = '';
   SearchFilter? _searchFilter = SearchFilter.city;
@@ -216,7 +313,7 @@ class _SearchTabViewState extends State<SearchTabView> {
         padding: const EdgeInsets.all(20),
         childAspectRatio: 1,
         children: _filteredList.map((poi) {
-          return GestureDetector(
+          return InkWell(
             child: _GridPOIItem(poi: poi),
             onTap: () {
               Navigator.push(
@@ -276,7 +373,11 @@ class _SearchTabViewState extends State<SearchTabView> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(children: [
       Center(child: radioButtonFilter()),
       Container(
@@ -302,28 +403,26 @@ class _SearchTabViewState extends State<SearchTabView> {
                   });
                 }
 
-                List<POI>? newFilteredList;
-                if (_searchFilter == SearchFilter.city) {
-                  newFilteredList = await getPOIListByCity(text);
-                }
-                else {
-                  newFilteredList = await getPOIListByNameKeywords(text);
-                }
-
-
-                if (newFilteredList == null) {
-                  /* Server did not respond. */
-                  debugPrint("Showing error");
+                List<POI> newFilteredList = [];
+                try {
+                  if (_searchFilter == SearchFilter.city) {
+                    newFilteredList = await getPOIListByCity(text);
+                  }
+                  else {
+                    newFilteredList = await getPOIListByNameKeywords(text);
+                  }
+                } on ConnectionErrorException catch(e) {
+                  debugPrint(e.cause);
                   setState(() {
                     _showLoading = false;
                     _showError = true;
                   });
                 }
-                else if (newFilteredList.isNotEmpty) {
+                if (newFilteredList.isNotEmpty) {
                   /* Server responded successfully, we turn off all the flags. */
                   debugPrint("Ready! Showing results.");
                   setState(() {
-                    _filteredList = newFilteredList!;
+                    _filteredList = newFilteredList;
                     _showLoading = false;
                     _showError = false;
                     _noResultsFound = false;

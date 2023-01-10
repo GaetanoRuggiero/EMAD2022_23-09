@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../api/itinerary_api.dart';
 import '../model/itinerary.dart';
+import '../ui/itineraryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class TourListScreen extends StatefulWidget {
@@ -85,7 +86,16 @@ class _TourListScreenState extends State<TourListScreen> {
                     child: ListView.separated(
                       scrollDirection: Axis.vertical,
                       itemBuilder: (context, index) {
-                        return PathCard(itinerary: _itineraryList[index]);
+                        return InkWell(
+                          child: PathCard(itinerary: _itineraryList[index]),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ItineraryScreen(
+                                itinerary: _itineraryList[index],
+                              )));
+                          },
+                        );
                       },
                       separatorBuilder: (BuildContext context, int index) {return const PathCardDivider();},
                       itemCount: _itineraryList.length,
