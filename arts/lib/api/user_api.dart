@@ -9,6 +9,20 @@ import '../exception/exceptions.dart';
 import '../model/POI.dart';
 import '../model/user.dart';
 
+String generateToken() {
+  final randomNumber = Random.secure().nextDouble();
+  final randomBytes = utf8.encode(randomNumber.toString());
+  final randomString = sha256.convert(randomBytes).toString();
+  return randomString;
+}
+
+String hashPassword(String password){
+  var saltedPassword = Env.salt + password;
+  var bytes = utf8.encode(saltedPassword);
+  var hash = sha256.convert(bytes).toString();
+  return hash;
+}
+
 Future<User?> loginUser(String email, String password, String token) async {
   Uri uri = Uri(
       scheme: 'http',
@@ -16,7 +30,9 @@ Future<User?> loginUser(String email, String password, String token) async {
       port: Env.serverPort,
       path: 'users/login');
 
-  final body = {'email': email, 'password': password, 'token': token};
+  String hashedPassword = hashPassword(password);
+
+  final body = {'email': email, 'password': hashedPassword, 'token': token};
 
   final headers = <String, String> {
     "Content-Type": "application/json; charset=utf-8"
@@ -58,7 +74,10 @@ Future<bool?> signUpUser(String name, String surname, String email, String passw
       host: Env.serverIP,
       port: Env.serverPort,
       path: 'users/signUp');
-  final body = {'name': name, 'surname': surname, 'email': email, 'password': password, 'token': token};
+
+  String hashedPassword = hashPassword(password);
+
+  final body = {'name': name, 'surname': surname, 'email': email, 'password': hashedPassword, 'token': token};
 
   final headers = <String, String> {
     "Content-Type": "application/json; charset=utf-8"
@@ -162,13 +181,6 @@ Future<bool> deleteToken(String email, String token) async {
     throw Exception('Could not delete token validity');
   }
   return false;
-}
-
-String generateToken() {
-  final randomNumber = Random.secure().nextDouble();
-  final randomBytes = utf8.encode(randomNumber.toString());
-  final randomString = sha256.convert(randomBytes).toString();
-  return randomString;
 }
 
 Future<Map<POI, String>> getVisitedPOI(String email, String token) async {
