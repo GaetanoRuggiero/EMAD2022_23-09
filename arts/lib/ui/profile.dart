@@ -48,7 +48,6 @@ class Profile extends StatelessWidget {
                           child: Column(
                             children: [
                               IconButton(
-                                  color: const Color(0xFFEB9E5C),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -58,7 +57,6 @@ class Profile extends StatelessWidget {
                                   },
                                   icon: const Icon(size: 30, Icons.settings)),
                               IconButton(
-                                  color: const Color(0xFFEB9E5C),
                                   onPressed: () {
                                     Navigator.push(
                                         context,

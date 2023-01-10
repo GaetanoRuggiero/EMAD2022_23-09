@@ -72,14 +72,13 @@ class StepsState extends State<Steps> {
   }
 
   Widget _renderSteps() {
-    debugPrint(widget.poiHistory);
     final List<_Step> steps = [_Step(AppLocalizations.of(context)!.history, widget.poiHistory) ,_Step(AppLocalizations.of(context)!.trivia, widget.poiTrivia)];
 
     return ExpansionPanelList.radio(
       children: steps.map<ExpansionPanelRadio>((_Step step) {
         return ExpansionPanelRadio(
             canTapOnHeader: true,
-            backgroundColor: Colors.grey.shade200,
+            //backgroundColor: Colors.grey.shade200,
             headerBuilder: (BuildContext context, bool isExpanded) {
               return ListTile(
                 title: Text(step.title),
