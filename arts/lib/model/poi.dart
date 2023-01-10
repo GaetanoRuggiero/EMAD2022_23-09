@@ -86,8 +86,9 @@ class POI {
       other is POI &&
           runtimeType == other.runtimeType &&
           latitude == other.latitude &&
-          longitude == other.longitude;
+          longitude == other.longitude &&
+          name == other.name;
 
   @override
-  int get hashCode => latitude.hashCode ^ longitude.hashCode;
+  int get hashCode => latitude.hashCode ^ longitude.hashCode ^ name.hashCode;
 }

@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:arts/model/vision_response.dart';
 import 'package:http/http.dart' as http;
 import '../env/env.dart';
+import '../exception/exceptions.dart';
+import '../model/google_vision_response.dart';
 
-Future<GoogleVisionResponse?> getVisionResults(String imageBase64) async {
+Future<GoogleVisionResponse> getVisionResults(String imageBase64) async {
   final String apiKey = Env.apiKey;
   const String apiType = "WEB_DETECTION";
   const int maxResults = 5;
@@ -40,7 +41,7 @@ Future<GoogleVisionResponse?> getVisionResults(String imageBase64) async {
     return GoogleVisionResponse.fromJson(jsonDecode(response.body));
   }
   else if (response.statusCode == 500) {
-    return null;
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   }
   else {
     throw Exception("Failure! Couldn't make the call to Google Vision.");

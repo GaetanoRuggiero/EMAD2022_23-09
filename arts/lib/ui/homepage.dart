@@ -56,7 +56,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         showLocationDisabledDialog();
       }
       locationServiceToggle = true;
-      debugPrint("Location services are disabled.");
       return false;
     }
 
@@ -124,7 +123,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void showLocationDisabledDialog() {
-    showDialog(barrierDismissible: false, context: context, builder: (context) {
+    showDialog(context: context, builder: (_) {
       return AlertDialog(
         title: Text(AppLocalizations.of(context)!.locationOffDialogTitle),
         content: Text(AppLocalizations.of(context)!.locationOffDialogContent),
@@ -146,7 +145,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void showPermissionDeniedDialog() {
-    showDialog(barrierDismissible: false, context: context, builder: (context) {
+    showDialog(context: context, builder: (_) {
       return AlertDialog(
         title: Text(AppLocalizations.of(context)!.locationPermissionDialogTitle),
         content: Text(AppLocalizations.of(context)!.locationPermissionDialogContent),
@@ -206,20 +205,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _serviceStatusStreamSubscription?.cancel();
         _serviceStatusStreamSubscription = null;
       }).listen((serviceStatus) {
-        if (serviceStatus == ServiceStatus.enabled) {
-          debugPrint("Location service enabled");
-        } else {
+        if (serviceStatus == ServiceStatus.disabled) {
           if (_positionStreamSubscription != null) {
             _positionStreamSubscription?.cancel();
             _positionStreamSubscription = null;
           }
-          debugPrint("Location service disabled");
         }
-        /* Location state changed (either enabled or disabled). We reset current
-        * device location to ensure both location and service are enabled.*/
+        _currentPosition = null;
+        locationServiceToggle = true;
         setState(() {
-          locationServiceToggle = true;
-          _currentPosition = null;
           _currentPositionFuture = _getCurrentPosition();
         });
       });
@@ -291,7 +285,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           return Maps(latitude: snapshot.data!.latitude, longitude: snapshot.data!.longitude);
                         }
                         else {
-                          return Center(child: Text(AppLocalizations.of(context)!.deviceLocationNotAvailable));
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.location_off, size: 80),
+                                Text(AppLocalizations.of(context)!.deviceLocationNotAvailable),
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      _handlePermission();
+                                    },
+                                    child: Text(AppLocalizations.of(context)!.turnOnLocation)
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
                         }
                       }
                       else {

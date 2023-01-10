@@ -36,6 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
         UserUtils.deleteEmailAndToken();
       }
     } on ConnectionErrorException catch(e) {
+      debugPrint(e.cause);
       return Future.error(e);
     }
     return null;

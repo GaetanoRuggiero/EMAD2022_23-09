@@ -216,7 +216,8 @@ class _LoginFormState extends State<LoginForm> {
                             MaterialPageRoute(
                                 builder: (context) => const HomePage()));
                       }
-                    } on ConnectionErrorException {
+                    } on ConnectionErrorException catch(e) {
+                      debugPrint(e.cause);
                       setState(() {
                         _showLoginError = null;
                       });

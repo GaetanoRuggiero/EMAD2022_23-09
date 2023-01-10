@@ -1,15 +1,16 @@
 import 'dart:convert';
-import 'package:arts/model/vision_response.dart';
-import 'package:arts/ui/singlepoiview.dart';
+import 'package:arts/exception/exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:native_exif/native_exif.dart';
+import './styles.dart';
 import '../api/poi_api.dart';
 import '../api/recognition_api.dart';
+import '../model/google_vision_response.dart';
 import '../model/POI.dart';
-import './styles.dart';
+import '../ui/singlepoiview.dart';
 
 class TakePictureScreen extends StatefulWidget {
   final double latitude;
@@ -165,21 +166,25 @@ class ImageRecognitionScreen extends StatelessWidget {
     await exif.close();
 
     final String imageBase64 = base64Encode(await XFile(imagePath).readAsBytes());
-    GoogleVisionResponse? visionResponse = await getVisionResults(imageBase64);
-    if (visionResponse != null) {
+    try {
+      GoogleVisionResponse visionResponse = await getVisionResults(imageBase64);
       for (var webEntity in visionResponse.responses![0].webDetection!.webEntities!) {
         debugPrint("Searching for: ${webEntity.description!}");
         var searchResults = await getPOIListByName(webEntity.description!);
-        if (searchResults != null && searchResults.isNotEmpty) {
+        if (searchResults.isNotEmpty) {
           for (var result in searchResults) {
-            if (webEntity.description!.toLowerCase() == result.name!.toLowerCase()
-            || webEntity.description!.toLowerCase() == result.nameEn!.toLowerCase()) {
+            if (webEntity.description!.toLowerCase() ==
+                result.name!.toLowerCase()
+                || webEntity.description!.toLowerCase() ==
+                    result.nameEn!.toLowerCase()) {
               debugPrint("Found a match! ---- ${result.name}");
               return result;
             }
           }
         }
       }
+    } on ConnectionErrorException catch(e) {
+      debugPrint(e.cause);
     }
     return null;
   }
@@ -211,7 +216,7 @@ class ImageRecognitionScreen extends StatelessWidget {
                 Future.microtask(() {
                   // Going back to TakePictureScreen
                   Navigator.pop(context);
-                  // Replacing TakePicutreScreen with the recongized poi screen
+                  // Replacing TakePictureScreen with the recognized poi screen
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => SinglePOIView(poi: snapshot.data!)));

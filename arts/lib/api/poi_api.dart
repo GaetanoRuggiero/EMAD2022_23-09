@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../env/env.dart';
+import '../exception/exceptions.dart';
 import '../model/POI.dart';
 
-Future<List<POI>?> getPOIListByCity(String searchText) async {
+Future<List<POI>> getPOIListByCity(String searchText) async {
   Uri uri = Uri(
     scheme: 'http',
     host: Env.serverIP,
@@ -36,8 +37,7 @@ Future<List<POI>?> getPOIListByCity(String searchText) async {
     }
   }
   else if (response.statusCode == 500) {
-    debugPrint("Server did not respond at: $uri");
-    return null;
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   }
   else {
     throw Exception('Failed to load POI');
@@ -46,7 +46,7 @@ Future<List<POI>?> getPOIListByCity(String searchText) async {
   return filteredList;
 }
 
-Future<List<POI>?> getPOIListByNameKeywords(String searchText) async {
+Future<List<POI>> getPOIListByNameKeywords(String searchText) async {
   Uri uri = Uri(
     scheme: 'http',
     host: Env.serverIP,
@@ -78,8 +78,7 @@ Future<List<POI>?> getPOIListByNameKeywords(String searchText) async {
     }
   }
   else if (response.statusCode == 500) {
-    debugPrint("Server did not respond at: $uri");
-    return null;
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   }
   else {
     throw Exception('Failed to load POI');
@@ -88,7 +87,7 @@ Future<List<POI>?> getPOIListByNameKeywords(String searchText) async {
   return filteredList;
 }
 
-Future<List<POI>?> getPOIListByName(String searchText) async {
+Future<List<POI>> getPOIListByName(String searchText) async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -120,8 +119,7 @@ Future<List<POI>?> getPOIListByName(String searchText) async {
     }
   }
   else if (response.statusCode == 500) {
-    debugPrint("Server did not respond at: $uri");
-    return null;
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   }
   else {
     throw Exception('Failed to load POI');
@@ -130,7 +128,7 @@ Future<List<POI>?> getPOIListByName(String searchText) async {
   return filteredList;
 }
 
-Future<POI?> getPOIbyId(String id) async {
+Future<POI> getPOIbyId(String id) async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -155,8 +153,7 @@ Future<POI?> getPOIbyId(String id) async {
     return poi;
   }
   else if (response.statusCode == 500) {
-    debugPrint("Server did not respond at: $uri");
-    return null;
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   }
   else {
     throw Exception('Failed to load POI');

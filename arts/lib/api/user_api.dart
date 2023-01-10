@@ -200,9 +200,11 @@ Future<Map<POI, String>> getVisitedPOI(String email, String token) async {
     List jsonArray = jsonDecode(response.body);
     for (var x in jsonArray) {
       Visited visited = Visited.fromJson(x);
-      POI? poi = await getPOIbyId(visited.poiId!);
-      if (poi != null) {
+      try {
+        POI poi = await getPOIbyId(visited.poiId!);
         visitedPOIMap.putIfAbsent(poi, () => visited.lastVisited!);
+      } on ConnectionErrorException catch(e) {
+        debugPrint(e.cause);
       }
     }
   } else if (response.statusCode == 500) {

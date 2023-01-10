@@ -19,7 +19,11 @@ Future<void> main() async {
   // Requesting latest Google Maps renderer (on Android)
   final GoogleMapsFlutterPlatform mapsImplementation = GoogleMapsFlutterPlatform.instance;
   if (mapsImplementation is GoogleMapsFlutterAndroid) {
-    await mapsImplementation.initializeWithRenderer(AndroidMapRenderer.latest);
+    try {
+      await mapsImplementation.initializeWithRenderer(AndroidMapRenderer.latest);
+    } catch(e) {
+      debugPrint("The renderer can be requested only once!");
+    }
   }
 
   // Obtain a list of the available cameras on the device.
