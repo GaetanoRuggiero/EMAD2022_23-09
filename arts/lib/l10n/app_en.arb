@@ -103,6 +103,7 @@
   "locationPermissionDialogTitle": "Allow geolocation permission",
   "locationPermissionDialogContent": "To continue, please allow location's permission in the application settings.",
   "allowPermission": "App settings",
+  "myLocation": "My Location",
 
   "itineraryList": "Itinerary list",
   "recommendedItinerary": "Recommended itinerary",

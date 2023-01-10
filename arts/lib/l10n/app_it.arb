@@ -103,6 +103,7 @@
   "locationPermissionDialogTitle": "Consentire l'accesso alla geolocalizzazione",
   "locationPermissionDialogContent": "Per proseguire, è necessario consentire all'applicazione il permesso di accedere alla posizione del dispositivo.",
   "allowPermission": "Concedi permessi",
+  "myLocation": "La mia posizione",
 
   "itineraryList": "Lista itinerari",
   "recommendedItinerary": "Itinerario consigliato",
