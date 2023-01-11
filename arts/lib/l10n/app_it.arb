@@ -1,6 +1,7 @@
 {
   "appName": "ARTS",
 
+  "close": "chiudi",
   "notLoggedDialogTitle":  "Accesso richiesto",
   "notLoggedDialogContent": "Per favore, accedi per poter sbloccare questa funzionalità.",
   "collectionTitle": "Collezione",
@@ -85,6 +86,8 @@
   "rewards": "Premi",
   "seasonMex": "La stagione termina il",
   "seasonRewardMex": "Terminando gli obiettivi potrai ricevere le seguenti ricompense",
+  "numberVisitedPoi": "Hai visitato",
+  "xRegion": "per questa regione",
 
   "poiRecognitionTitleBar": "Scatta la foto",
   "poiRecognitionLoading": "Provo a riconoscere il luogo",

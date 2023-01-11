@@ -1,6 +1,7 @@
 {
   "appName": "ARTS",
 
+  "close": "close",
   "notLoggedDialogTitle":  "Login required",
   "notLoggedDialogContent": "Please, login to unlock this feature.",
   "collectionTitle": "Collection",
@@ -85,6 +86,8 @@
   "rewards": "Rewards",
   "seasonMex": "The season ends on ",
   "seasonRewardMex": "By finishing the goals you can receive the following rewards.",
+  "numberVisitedPoi": "You have visited",
+  "xRegion": "for this region",
 
   "poiRecognitionTitleBar": "Take a pitcure",
   "poiRecognitionLoading": "Recognizing the place",

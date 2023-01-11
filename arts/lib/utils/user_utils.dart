@@ -41,12 +41,12 @@ class UserUtils {
     return await storage.read(key: tokenKey);
   }
 
-  static Future<Map<String, int>> getBadgePerRegion(Map<POI,String> visitedPoi) async {
+  static Map<String, int> getBadgePerRegion(Map<POI,String> visitedPoi) {
     Map<String, int> badgeMap = {};
     visitedPoi.forEach((poi, timestamp) {
-      badgeMap.update(poi.region!, (value) => value + 1, ifAbsent: () => 0);
+      badgeMap.update(poi.region!, (value) => value + 1, ifAbsent: () => 1);
     });
-    return badgeMap;
+    return Map.fromEntries(badgeMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
   }
 
 }
