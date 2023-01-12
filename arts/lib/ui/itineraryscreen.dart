@@ -9,7 +9,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../api/itinerary_api.dart';
 import '../model/POI.dart';
 import '../model/itinerary.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ItineraryScreen extends StatefulWidget {
   final Itinerary itinerary;
@@ -20,13 +19,17 @@ class ItineraryScreen extends StatefulWidget {
 }
 
 class _ItineraryScreenState extends State<ItineraryScreen> {
-  late GoogleMapController _mapController;
+  GoogleMapController? _mapController;
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+  StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
-  bool locationServiceToggle = false;
-  late Position? _currentPosition;
-  List<Marker> _markers = [];
-  late Future<List<Polyline>?> _drawPolylinesFuture;
+  final LocationSettings locationSettings = const LocationSettings(
+    distanceFilter: 5,
+  );
+  Position? _currentPosition;
+  Set<Marker> _markers = {};
+  Set<Polyline> _polylines = {};
+  bool _showError = false;
 
   Future<bool> _handlePermission() async {
     LocationPermission permission;
@@ -38,7 +41,6 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
       // Location services are not enabled don't continue
       // accessing the position and request users of the
       // App to enable the location services.
-      showLocationDisabledDialog();
       return false;
     }
 
@@ -138,11 +140,13 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
+    _drawPolylines();
   }
 
-  List<Marker> _drawMarkers(List<POI> places) {
-    List<Marker> markers = [];
+  Set<Marker> _drawMarkers() {
+    Set<Marker> markers = {};
     //Initializing markers
+    List<POI> places = widget.itinerary.path!;
     for (var poi in places) {
       markers.add(
           Marker(
@@ -155,24 +159,38 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
             position: LatLng(poi.latitude!, poi.longitude!),
           ));
     }
+
     return markers;
   }
 
-  Future<List<Polyline>?> _drawPolylines() async {
-    Position? myPosition = await _getCurrentPosition();
-    if (myPosition != null) {
-      _currentPosition = myPosition;
-    }
-    else {
+  void _drawPolylines() async {
+    if (_currentPosition == null) {
+      setState(() {
+        _showError = true;
+      });
       return null;
     }
-    List<POI> path = widget.itinerary.path!;
-    List<Polyline> polylines = [];
+    List<POI> path = List.from(widget.itinerary.path!);
     List<LatLng> coordinates = [];
-    coordinates.add(LatLng(myPosition.latitude, myPosition.longitude));
-    for (var poi in path) {
-      coordinates.add(LatLng(poi.latitude!, poi.longitude!));
+    Set<Polyline> polylines = {};
+    _polylines = {}; // Resetting the current path displayed on the map
+    // Adding user's location as first coordinate
+    coordinates.add(LatLng(_currentPosition!.latitude, _currentPosition!.longitude));
+    // Adding shortest path
+    while (path.isNotEmpty) {
+      double minDistance = _geolocatorPlatform.distanceBetween(coordinates.last.latitude, coordinates.last.longitude, path[0].latitude!, path[0].longitude!);
+      int minDistanceIndex = 0;
+      for (int i = 1; i < path.length; i++) {
+        double newDistance = _geolocatorPlatform.distanceBetween(coordinates.last.latitude, coordinates.last.longitude, path[i].latitude!, path[i].longitude!);
+        if (minDistance > newDistance) {
+          minDistance = newDistance;
+          minDistanceIndex = i;
+        }
+      }
+      coordinates.add(LatLng(path[minDistanceIndex].latitude!, path[minDistanceIndex].longitude!));
+      path.removeAt(minDistanceIndex);
     }
+
     try {
       GoogleRoutesResponse routesResponse = await getRoutesBetweenCoordinates(coordinates);
       // Decode polyline
@@ -189,40 +207,146 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
                 points: points,
                 width: 6,
                 color: Colors.blue,
-              startCap: Cap.roundCap,
-              endCap: Cap.buttCap
+                startCap: Cap.roundCap,
+                endCap: Cap.buttCap
             )
         );
       }
+      setState(() {
+        _showError = false;
+        _polylines = polylines;
+      });
     } on ConnectionErrorException catch(e) {
       debugPrint(e.cause);
-      return null;
     }
-    return polylines;
+  }
+
+  Widget _setUIState() {
+    if (_showError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.location_off, size: 80),
+            Text(AppLocalizations.of(context)!.deviceLocationNotAvailable),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ElevatedButton(
+                  onPressed: () async {
+                    bool hasPermissions = await _handlePermission();
+                    if (!hasPermissions) {
+                      showLocationDisabledDialog();
+                    }
+                  },
+                  child: Text(AppLocalizations.of(context)!.turnOnLocation)
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if (_currentPosition != null) {
+      return GoogleMap(
+        markers: _markers,
+        polylines: _polylines,
+        zoomControlsEnabled: false,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: CameraPosition(
+          target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          zoom: 18.0
+        )
+      );
+    }
+    else {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("${AppLocalizations.of(context)!.fetchingGPSCoordinates}..."),
+            const Padding(
+              padding: EdgeInsets.all(10.0),
+              child: CircularProgressIndicator(),
+            )
+          ],
+        ),
+      );
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
-    _markers = _drawMarkers(widget.itinerary.path!);
-    _drawPolylinesFuture = _drawPolylines();
+    Future.delayed(Duration.zero, () async {
+      Position? position = await _getCurrentPosition();
+      if (position == null) {
+        setState(() {
+          _showError = true;
+        });
+      } else {
+        setState(() {
+          _currentPosition = position;
+        });
+      }
+      return;
+    });
+
+    _markers = _drawMarkers();
 
     _serviceStatusStreamSubscription = _geolocatorPlatform.getServiceStatusStream()
         .handleError((error) {
       _serviceStatusStreamSubscription?.cancel();
       _serviceStatusStreamSubscription = null;
     }).listen((serviceStatus) {
-      setState(() {
-        _drawPolylinesFuture = _drawPolylines();
-      });
+      if (serviceStatus == ServiceStatus.enabled) {
+        setState(() {
+          _showError = false;
+          _currentPosition = null;
+        });
+        Future.delayed(Duration.zero, () async {
+          Position? position = await _getCurrentPosition();
+          if (position != null) {
+            setState(() {
+              _showError = false;
+              _currentPosition = position;
+            });
+          }
+          return;
+        });
+      } else {
+        setState(() {
+          _showError = true;
+          _currentPosition = null;
+        });
+      }
     });
+
+    _positionStreamSubscription = _geolocatorPlatform.getPositionStream(locationSettings: locationSettings)
+      .handleError((error) {
+        _positionStreamSubscription?.cancel();
+        _positionStreamSubscription = null;
+      })
+      .listen((Position? position) {
+        if (position != null) {
+          _currentPosition = position;
+          _drawPolylines();
+        }
+        debugPrint(position == null ? 'Unknown' : 'ItineraryScreen: Location updated successfully.');
+      });
   }
 
   @override
   void dispose() {
     super.dispose();
-    _mapController.dispose();
+    if (_mapController != null) {
+      _mapController!.dispose();
+    }
+    if (_positionStreamSubscription != null) {
+      _positionStreamSubscription!.cancel();
+      _positionStreamSubscription = null;
+    }
     if (_serviceStatusStreamSubscription != null) {
       _serviceStatusStreamSubscription?.cancel();
       _serviceStatusStreamSubscription = null;
@@ -233,78 +357,25 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder(
-            future: _drawPolylinesFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasData) {
-                  List<Polyline> polylines = snapshot.data!;
-                  return GoogleMap(
-                    markers: Set.from(_markers),
-                    polylines: Set.from(polylines),
-                    zoomControlsEnabled: false,
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                        target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-                        zoom: 18.0
-                    ),
-                  );
-                }
-                else {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.location_off, size: 80),
-                        Text(AppLocalizations.of(context)!.deviceLocationNotAvailable),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _handlePermission();
-                            },
-                            child: Text(AppLocalizations.of(context)!.turnOnLocation)
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              }
-              else {
-                return const Center(child: CircularProgressIndicator());
-              }
-            }
-        ),
+        child: _setUIState()
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToMyPosition,
-        label: Text(AppLocalizations.of(context)!.myLocation),
-        icon: const Icon(Icons.my_location))
+      onPressed: _goToMyPosition,
+      label: Text(AppLocalizations.of(context)!.myLocation),
+      icon: const Icon(Icons.my_location))
     );
   }
 
   Future<void> _goToMyPosition() async {
     Position? position = await _getCurrentPosition();
     if (position != null) {
-      _mapController.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(
-              target: LatLng(position.latitude, position.longitude),
-              zoom: 18.0
-          )
+      _currentPosition = position;
+      _mapController?.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 18.0
+        )
       ));
     }
-  }
-
-  // TODO
-  Future<void> _startNavigation() async {
-      var uri = Uri.parse("");
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      } else {
-        throw 'Could not launch ${uri.toString()}';
-      }
   }
 }
