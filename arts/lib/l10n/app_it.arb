@@ -25,6 +25,11 @@
   "sideQuestEventCompleted": "Evento completato!",
   "emptyMission": "Non sono disponibili missioni da completare.",
   "expiredMission": "Evento scaduto il:",
+  "thereAreNoExpiredMission": "Non ci sono missioni scadute!",
+  "thereAreNoCompletedMission": "Non ci sono missioni completate!",
+  "available": "Disponibili",
+  "completed": "Completate",
+  "expired": "Scadute",
 
   "settings": "Impostazioni",
   "languageAndTheme": "Lingua e tema",

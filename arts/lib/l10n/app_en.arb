@@ -25,6 +25,11 @@
   "sideQuestEventCompleted": "Event completed!",
   "emptyMission": "There are no sidequest to complete.",
   "expiredMission": "Event expired on:",
+  "thereAreNoExpiredMission": "There are no expired missions!",
+  "thereAreNoCompletedMission": "There are no completed missions!",
+  "available": "Available",
+  "completed": "Completed",
+  "expired": "Expired",
 
   "settings": "Settings",
   "languageAndTheme": "Language and theme",
