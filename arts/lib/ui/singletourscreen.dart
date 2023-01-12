@@ -10,15 +10,15 @@ import '../api/itinerary_api.dart';
 import '../model/POI.dart';
 import '../model/itinerary.dart';
 
-class ItineraryScreen extends StatefulWidget {
+class SingleTourScreen extends StatefulWidget {
   final Itinerary itinerary;
-  const ItineraryScreen({Key? key, required this.itinerary}) : super(key: key);
+  const SingleTourScreen({Key? key, required this.itinerary}) : super(key: key);
 
   @override
-  State<ItineraryScreen> createState() => _ItineraryScreenState();
+  State<SingleTourScreen> createState() => _SingleTourScreenState();
 }
 
-class _ItineraryScreenState extends State<ItineraryScreen> {
+class _SingleTourScreenState extends State<SingleTourScreen> {
   GoogleMapController? _mapController;
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   StreamSubscription<Position>? _positionStreamSubscription;
