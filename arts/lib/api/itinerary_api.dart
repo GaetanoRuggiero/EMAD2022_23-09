@@ -43,65 +43,6 @@ Future<List<Itinerary>?> getAllItinerary() async {
   }
   return allItineraryList;
 }
-/*
-Future<GoogleRoutesResponse> getRoutesBetweenCoordinates(LatLng origin, LatLng destination) async {
-  final String apiKey = Env.apiKey;
-  final request = {
-    "origin":{
-      "location":{
-        "latLng":{
-          "latitude": origin.latitude,
-          "longitude": origin.longitude
-        }
-      }
-    },
-    "destination":{
-      "location":{
-        "latLng":{
-          "latitude": destination.latitude,
-          "longitude": destination.longitude
-        }
-      }
-    },
-    "travelMode": "WALK",
-    "polylineQuality": "HIGH_QUALITY",
-    "computeAlternativeRoutes": false,
-    "routeModifiers": {
-      "avoidTolls": false,
-      "avoidHighways": false,
-      "avoidFerries": false,
-      "avoidIndoor": true
-    }
-  };
-  final headers = <String, String> {
-    "Content-Type": "application/json",
-    "X-Goog-Api-Key": apiKey,
-    "X-Goog-FieldMask": "routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline"
-  };
-  Uri uri = Uri.parse('https://routes.googleapis.com/directions/v2:computeRoutes');
-
-  debugPrint("Calling $uri");
-
-  final http.Response response = await http
-      .post(uri, headers: headers, body: jsonEncode(request))
-      .timeout(const Duration(seconds: 10), onTimeout: () {
-    return http.Response('Timeout', 500);
-  })
-      .onError((error, stackTrace) {
-    debugPrint(error.toString());
-    return http.Response('Server unreachable', 500);
-  });
-  if (response.statusCode == 200) {
-    debugPrint("HTTP ${response.statusCode}: OK");
-    return GoogleRoutesResponse.fromJson(jsonDecode(response.body));
-  }
-  else if (response.statusCode == 500) {
-    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
-  }
-  else {
-    throw Exception("Failure! Couldn't make the call to Google Routes API.");
-  }
-}*/
 
 Future<routes.GoogleRoutesResponse> getRoutesBetweenCoordinates(List<LatLng> coordinates) async {
   final String apiKey = Env.apiKey;
