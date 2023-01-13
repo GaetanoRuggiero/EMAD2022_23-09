@@ -115,7 +115,9 @@
   "itineraryEnd": "End at:",
   "km": "km",
   "length": "Length",
+  "distance": "Distance",
   "emptyItinerary": "There are no routes to follow.",
+  "nextStep": "Next step",
 
   "trivia": "Trivia",
   "history": "History",

@@ -115,7 +115,9 @@
   "itineraryEnd": "Punto di fine:",
   "km": "km",
   "length": "Lunghezza",
+  "distance": "Distanza",
   "emptyItinerary": "Non sono disponibili itinerari da seguire.",
+  "nextStep": "Prossima tappa",
 
   "trivia": "Curiosità",
   "history": "Cenni storici",

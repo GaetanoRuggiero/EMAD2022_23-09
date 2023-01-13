@@ -54,7 +54,7 @@ class _TourListScreenState extends State<TourListScreen> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 var itineraryList = snapshot.data;
-                if (itineraryList == null){
+                if (itineraryList == null) {
 
                   return Container(padding: const EdgeInsets.all(20.0), child: Column(
                     children: [
