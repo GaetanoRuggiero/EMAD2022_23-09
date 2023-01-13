@@ -5,11 +5,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../exception/exceptions.dart';
 import '../utils/user_utils.dart';
 
-extension StringCasingExtension on String {
-  String toCapitalized() => length > 0 ?'${this[0].toUpperCase()}${substring(1).toLowerCase()}':'';
-  String toTitleCase() => replaceAll(RegExp(' +'), ' ').split(' ').map((str) => str.toCapitalized()).join(' ');
-}
-
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
 
@@ -73,7 +68,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         margin: const EdgeInsets.all(20),
                         child: Text(
                             textAlign: TextAlign.center,
-                            AppLocalizations.of(context)!.modifyPassword.toCapitalized(),
+                            AppLocalizations.of(context)!.modifyPassword,
                             style: TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
@@ -313,7 +308,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   borderRadius: BorderRadius.circular(100),
                   gradient: const LinearGradient(
                       colors: [lightOrange, darkOrange])),
-              child: Text(AppLocalizations.of(context)!.modifyPassword.toCapitalized(),
+              child: Text(AppLocalizations.of(context)!.modifyPassword,
                   style: TextStyle(
                       color: Colors.white.withOpacity(.8),
                       fontSize: 20,
