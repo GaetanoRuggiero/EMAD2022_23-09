@@ -6,6 +6,7 @@ import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'editprofilescreen.dart';
 import 'rewards.dart';
 
 const int badgeDiamond = 50, badgePlatinum = 25, badgeGold = 10, badgeSilver = 3, badgeBronze = 1;
@@ -45,33 +46,53 @@ class Profile extends StatelessWidget {
                       Positioned(
                         right: 0,
                         child: Container(
-                          margin: const EdgeInsets.fromLTRB(0, 30, 5, 0),
+                          margin: const EdgeInsets.fromLTRB(0, 20, 5, 0),
                           child: Column(
                             children: [
-                              IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => const SettingsScreen()),
-                                    );
-                                  },
-                                  icon: const Icon(size: 35, Icons.settings)),
-                              IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
+                              Tooltip(
+                                message: AppLocalizations.of(context)!.modifyPassword,
+                                child: IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => const RewardsPage()));
-                                  },
-                                  icon: const Icon(size: 35, Icons.redeem_rounded)),
+                                            builder: (context) => const EditProfileScreen()),
+                                      );
+                                    },
+                                    icon: const Icon(size: 30, Icons.edit)),
+                              ),
+                              Tooltip(
+                                message: AppLocalizations.of(context)!.settings,
+                                child: IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => const SettingsScreen()),
+                                      );
+                                    },
+                                    icon: const Icon(size: 30, Icons.settings)),
+                              ),
+                              Tooltip(
+                                message: AppLocalizations.of(context)!.rewards,
+                                child: IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => const RewardsPage()));
+                                    },
+                                    icon: const Icon(size: 30, Icons.redeem_rounded)),
+                              ),
                             ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                  Expanded(child: BadgeWidget(visitedPoi: userProvider.visited)),
+                  Flexible(
+                      child: BadgeWidget(visitedPoi: userProvider.visited)
+                  ),
                 ]);
           },
         ));
@@ -88,7 +109,7 @@ class SeasonCard extends StatelessWidget {
     String month = now.month.toString();
     String year = now.year.toString();
     return Card(
-      margin: const EdgeInsets.only(top: 20, bottom: 30),
+      margin: const EdgeInsets.only(top: 30, bottom: 30),
       elevation: 4,
       color: const Color(0xFFEB9E5C),
       child: Container(
@@ -143,7 +164,6 @@ class BadgeWidget extends StatelessWidget {
             showDialog(
                 context: context,
                 builder: (context) {
-                  debugPrint(count.toString());
                   return AlertDialog(
                     shape: RoundedRectangleBorder(
                         borderRadius:BorderRadius.circular(30.0)),
@@ -180,44 +200,69 @@ class BadgeWidget extends StatelessWidget {
     Map<String, int> badgePerRegion = UserUtils.getBadgePerRegion(visitedPoi);
     int regionCount = badgePerRegion.keys.length;
     const int maxRegionCount = 3;
-    return ListView.builder(
-      scrollDirection: Axis.vertical,
-      shrinkWrap: true,
-      itemCount: regionCount < maxRegionCount ? regionCount : maxRegionCount,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(left: 20),
-              alignment: Alignment.bottomLeft,
-              child: Text(style: const TextStyle(fontSize: 15), badgePerRegion.keys.elementAt(index)),
-            ),
-            Card(
-              margin: const EdgeInsets.symmetric(horizontal: 20,vertical: 5),
-              elevation: 3,
-              child: Container(
-                height: 90,
-                width: double.maxFinite,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20)),
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: displayBadgePerRegion(context, badgePerRegion.values.elementAt(index)),
+    if (regionCount > 0) {
+      return ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: regionCount < maxRegionCount ? regionCount : maxRegionCount,
+        itemBuilder: (context, index) {
+          return Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(left: 20),
+                alignment: Alignment.bottomLeft,
+                child: Text(style: const TextStyle(fontSize: 15), badgePerRegion.keys.elementAt(index)),
+              ),
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 20,vertical: 5),
+                elevation: 3,
+                child: Container(
+                  height: 90,
+                  width: double.maxFinite,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20)),
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: displayBadgePerRegion(context, badgePerRegion.values.elementAt(index)),
+                    ),
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      return Container(
+        margin: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).backgroundColor,
+          border: Border.all(
+            color: Theme.of(context).dividerColor,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.sentiment_dissatisfied_outlined,size: 40,),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(textAlign: TextAlign.center,style: TextStyle(fontSize: 15, color: Theme.of(context).errorColor), AppLocalizations.of(context)!.noBadge),
             ),
-            const SizedBox(
-              height: 10,
-            ),
+
           ],
-        );
-      },
-    );
+        ),
+      );
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import '../model/POI.dart';
 import '../model/user.dart';
 
 class UserUtils {
+  static const storage = FlutterSecureStorage();
   static const String tokenKey = "authToken";
   static const String emailKey = "email";
 
@@ -26,18 +27,15 @@ class UserUtils {
   }
 
   static deleteEmailAndToken() async {
-    const storage = FlutterSecureStorage();
     await storage.delete(key: UserUtils.tokenKey);
     await storage.delete(key: UserUtils.emailKey);
   }
 
   static Future<String?> readEmail() async {
-    const storage = FlutterSecureStorage();
     return await storage.read(key: emailKey);
   }
 
   static Future<String?> readToken() async {
-    const storage = FlutterSecureStorage();
     return await storage.read(key: tokenKey);
   }
 

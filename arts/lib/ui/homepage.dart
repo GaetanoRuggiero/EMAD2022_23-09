@@ -10,6 +10,7 @@ import './maps.dart';
 import './profile.dart';
 import './settings.dart';
 import './sidequest.dart';
+import './sidequest_ui.dart';
 import './styles.dart';
 import './takepicture.dart';
 import './tourlistscreen.dart';
@@ -357,7 +358,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const SideQuest()),
+                                  builder: (context) => const SidequestScreen()),
                             );
                           }),
                     ],
