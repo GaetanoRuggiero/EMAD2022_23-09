@@ -38,6 +38,8 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
   ),
   iconTheme: const IconThemeData(color: Color(0xffE68532)),
   dividerColor: Colors.black26,
+  errorColor: Colors.red,
+  colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.green),
 );
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
@@ -50,4 +52,6 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
   backgroundColor: const Color(0xff242F72),
   iconTheme: const IconThemeData(color: Color(0xffE68532)),
   dividerColor: const Color(0xff414c9c),
+  errorColor: Colors.red,
+  colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.green),
 );

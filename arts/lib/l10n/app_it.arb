@@ -93,6 +93,13 @@
   "seasonRewardMex": "Terminando gli obiettivi potrai ricevere le seguenti ricompense",
   "numberVisitedPoi": "Hai visitato",
   "xRegion": "per questa regione",
+  "noBadge": "Sfortunatamente non hai ancora nessun badge, inizia a riconoscere opere per ottenerne.",
+  "modifyPassword": "modifica password",
+  "oldPassword": "Vecchia password",
+  "newPassword": "Nuova password",
+  "changePasswordVerification": "La nuova password deve essere diversa dalla vecchia",
+  "changedPasswordSucc": "Password cambiata con successo",
+  "changedPasswordFailed": "Errore, password inserita sbagliata",
 
   "poiRecognitionTitleBar": "Scatta la foto",
   "poiRecognitionLoading": "Provo a riconoscere il luogo",
