@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import '../env/env.dart';
 import '../model/sidequest.dart';
 
-// TODO: not implemented yet
 Future<List<Sidequest>?> getAllSidequest() async {
   Uri uri = Uri(
       scheme: 'http',
@@ -17,7 +16,7 @@ Future<List<Sidequest>?> getAllSidequest() async {
   List<Sidequest> allSidequestList = [];
   final response = await http
       .get(uri)
-      .timeout(const Duration(seconds: 7), onTimeout: () {
+      .timeout(const Duration(seconds: 4), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);
