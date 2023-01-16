@@ -130,8 +130,11 @@
   "distance": "Distance",
   "emptyItinerary": "There are no routes to follow.",
   "nextStep": "Next step",
-  "destinationReached": "Congratulations! You have reached",
-  "takeAPictureToAddToCollection": "Take a picture of the place of interest you have reached to add it to your collection!",
+  "poiNearby": "You are near a place of interest!",
+  "congratulations": "Congratulations",
+  "destinationReached": "You have reached the end of the path!",
+  "itineraryCompleted": "Itinerary completed",
+  "takeAPictureAddToCollection": "If you haven't done it already, take a picture of it to enrich your collection and obtain rewards.",
   "takePicutre": "Take picture",
 
   "trivia": "Trivia",

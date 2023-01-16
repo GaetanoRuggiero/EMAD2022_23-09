@@ -190,11 +190,19 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
             showDialog(barrierColor: const Color(0x01000000),
               context: context,
               builder: (_) {
+                Color backgroundColor;
+                if (!_currentItineraryPath.contains(places[i])) {
+                  backgroundColor = Colors.green;
+                }
+                else {
+                  backgroundColor = lightOrange;
+                }
                 return SimpleDialog(
+                  backgroundColor: backgroundColor,
                   clipBehavior: Clip.antiAlias,
                   alignment: Alignment.topCenter,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)
+                      borderRadius: BorderRadius.circular(15)
                   ),
                   elevation: 2.0,
                   contentPadding: EdgeInsets.zero,
@@ -208,8 +216,28 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
                     Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(places[i].name!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          padding: const EdgeInsets.all(8.0),
+                          child: backgroundColor == Colors.green
+                            ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 8.0),
+                                  child: Icon(Icons.where_to_vote, color: Colors.white, size: 30.0),
+                                ),
+                                Text(places[i].name!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            )
+                            : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 8.0),
+                                  child: Icon(Icons.not_listed_location, color: Colors.white, size: 28.0),
+                                ),
+                                Text(places[i].name!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            )
                         )
                       ],
                     ),
@@ -316,17 +344,27 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   }
 
   void showDestinationReachedDialog() {
-    showDialog(context: context, builder: (context) {
+    showDialog(barrierColor: const Color(0x01000000), context: context, builder: (context) {
       return AlertDialog(
+        title: Text(AppLocalizations.of(context)!.poiNearby),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        icon: const Icon(Icons.flag, size: 25.0),
         content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text("${AppLocalizations.of(context)!.destinationReached}: ${_stepReached!.name}"),
-            Text(AppLocalizations.of(context)!.takeAPictureToAddToCollection),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("${_stepReached!.name}", style: const TextStyle(color: darkOrange, fontWeight: FontWeight.bold)),
+            ),
+            Text(AppLocalizations.of(context)!.takeAPictureAddToCollection),
           ],
+        ),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15)
         ),
         actions: [
           TextButton(
-            child: Text(AppLocalizations.of(context)!.nextStep),
+            child: Text(AppLocalizations.of(context)!.nextStep, style: const TextStyle(color: lightOrange)),
             onPressed: () {
               Navigator.pop(context);
               setState(() {
@@ -337,8 +375,8 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
               });
             }),
           TextButton.icon(
-            icon: const Icon(Icons.camera_alt),
-            label: Text(AppLocalizations.of(context)!.takePicutre),
+            icon: const Icon(Icons.camera_alt, color: lightOrange),
+            label: Text(AppLocalizations.of(context)!.takePicutre, style: const TextStyle(color: lightOrange)),
             onPressed: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera, latitude: _currentPosition!.latitude, longitude: _currentPosition!.longitude)));
@@ -512,7 +550,12 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0)
                 ),
-                child: NavigationDirections(legs: _legs, nextStep: _nextStep, stepReached: _stepReached)
+                child: NavigationDirections(
+                  legs: _legs,
+                  nextStep: _nextStep,
+                  stepReached: _stepReached,
+                  goToNextStep: _goToNextStep
+                )
               ),
             ),
           ],
@@ -524,6 +567,18 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
       label: Text(AppLocalizations.of(context)!.myLocation, style: const TextStyle(color: Colors.white)),
       icon: const Icon(Icons.my_location, color: darkOrange))
     );
+  }
+
+  void _goToNextStep() {
+    if (_currentItineraryPath.isNotEmpty && _stepReached != null) {
+      setState(() {
+        _currentItineraryPath.remove(_stepReached!);
+        _nextStep = null;
+        _stepReached = null;
+        _drawMarkers();
+        _drawPolylines();
+      });
+    }
   }
 
   Future<void> _goToMyPosition() async {
@@ -541,18 +596,35 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
 }
 
 class NavigationDirections extends StatelessWidget {
-  const NavigationDirections({Key? key, required this.legs, required this.nextStep, required this.stepReached}) : super(key: key);
+  const NavigationDirections({Key? key, required this.legs, required this.nextStep, required this.stepReached, required this.goToNextStep}) : super(key: key);
   final POI? stepReached;
   final POI? nextStep;
   final List<Legs>? legs;
+  final Function() goToNextStep;
 
   @override
   Widget build(BuildContext context) {
     if (stepReached != null) {
       return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text("${AppLocalizations.of(context)!.destinationReached}: ${stepReached!.name}", style: const TextStyle(color: Colors.white)),
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children:[
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(Icons.flag, size: 40),
+                ),
+                Center(child: Text("${stepReached!.name}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
+              ],
+            ),
+          ),
+          TextButton.icon(
+            icon: const Icon(Icons.skip_next),
+            onPressed: goToNextStep,
+            label: Text(AppLocalizations.of(context)!.nextStep),
+            style: TextButton.styleFrom(foregroundColor: lightOrange))
         ],
       );
     }
@@ -562,11 +634,25 @@ class NavigationDirections extends StatelessWidget {
       if (legs![0].distanceMeters! >= 1000) {
         distance = "${(legs![0].distanceMeters!.toDouble() / 1000).toStringAsFixed(1)} km";
       }
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      return Row(
         children: [
-          Text("${AppLocalizations.of(context)!.nextStep}: ${nextStep!.name}", style: const TextStyle(color: Colors.white)),
-          Text("${AppLocalizations.of(context)!.distance}: $distance", style: const TextStyle(color: Colors.white))
+          Padding(
+            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+            child: Image.asset("assets/icon/walking.gif"),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(AppLocalizations.of(context)!.nextStep, style: const TextStyle(color: Colors.white)),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("${nextStep!.name}", style: const TextStyle(fontSize: 18))
+                ),
+                Text("${AppLocalizations.of(context)!.distance}: $distance", style: const TextStyle(color: Colors.white))
+              ],
+            ),
+          ),
         ],
       );
     }

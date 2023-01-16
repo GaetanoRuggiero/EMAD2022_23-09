@@ -130,8 +130,11 @@
   "distance": "Distanza",
   "emptyItinerary": "Non sono disponibili itinerari da seguire.",
   "nextStep": "Prossima tappa",
-  "destinationReached": "Congratulazioni! Hai raggiunto",
-  "takeAPictureToAddToCollection": "Scatta una foto al punto di interesse per aggiungerlo alla tua collezione!",
+  "poiNearby": "Sei nei pressi di un punto di interesse!",
+  "congratulations": "Congratulazioni",
+  "destinationReached": "Hai raggiunto l'ultima tappa del percorso!",
+  "itineraryCompleted": "Itinerario completato",
+  "takeAPictureAddToCollection": "Se non lo hai già fatto, scatta una foto per arricchire la tua collezione e ricevere premi.",
   "takePicutre": "Scatta foto",
 
   "trivia": "Curiosità",
