@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:arts/exception/exceptions.dart';
 import 'package:arts/main.dart';
 import 'package:arts/model/google_routes_response.dart';
@@ -147,26 +148,43 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
+    var mapStyle = [{
+      "featureType": "poi",
+      "elementType": "labels",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    }];
+    _mapController!.setMapStyle(jsonEncode(mapStyle));
     _drawPolylines();
     _drawMarkers();
   }
 
-  void _drawMarkers() {
+  void _drawMarkers() async {
     if (_currentItineraryPath.isEmpty) {
       return;
     }
+
+    BitmapDescriptor defaultMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_default.png");
+    BitmapDescriptor completedMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_completed.png");
+    BitmapDescriptor markerType;
+
     Set<Marker> markers = {};
     //Initializing markers
     List<POI> places = widget.itinerary.path!;
     for (int i = 0; i < places.length; i++) {
-      BitmapDescriptor markerColor = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
       if (!_currentItineraryPath.contains(places[i])) {
-        markerColor = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
+        markerType = completedMarker;
+      }
+      else {
+        markerType = defaultMarker;
       }
       markers.add(
         Marker(
           markerId: MarkerId(i.toString()),
-          icon: markerColor,
+          icon: markerType,
           position: LatLng(places[i].latitude!, places[i].longitude!),
           onTap: () {
             showDialog(barrierColor: const Color(0x01000000),
@@ -474,6 +492,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
             GoogleMap(
               markers: _markers,
               polylines: _polylines,
+              mapToolbarEnabled: false,
               zoomControlsEnabled: false,
               myLocationEnabled: true,
               myLocationButtonEnabled: false,
