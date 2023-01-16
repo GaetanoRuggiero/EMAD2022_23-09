@@ -130,6 +130,9 @@
   "distance": "Distanza",
   "emptyItinerary": "Non sono disponibili itinerari da seguire.",
   "nextStep": "Prossima tappa",
+  "destinationReached": "Congratulazioni! Hai raggiunto",
+  "takeAPictureToAddToCollection": "Scatta una foto al punto di interesse per aggiungerlo alla tua collezione!",
+  "takePicutre": "Scatta foto",
 
   "trivia": "Curiosità",
   "history": "Cenni storici",

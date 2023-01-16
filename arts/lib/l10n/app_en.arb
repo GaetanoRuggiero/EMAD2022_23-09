@@ -130,6 +130,9 @@
   "distance": "Distance",
   "emptyItinerary": "There are no routes to follow.",
   "nextStep": "Next step",
+  "destinationReached": "Congratulations! You have reached",
+  "takeAPictureToAddToCollection": "Take a picture of the place of interest you have reached to add it to your collection!",
+  "takePicutre": "Take picture",
 
   "trivia": "Trivia",
   "history": "History",

@@ -48,17 +48,20 @@ Future<routes.GoogleRoutesResponse> getRoutesBetweenCoordinates(List<LatLng> coo
   final String apiKey = Env.apiKey;
   final LatLng origin = coordinates.first;
   final LatLng destination = coordinates.last;
-  final List<LatLng> waypoints = coordinates.sublist(1, coordinates.length-1);
-  final List<Map<String, Object>> intermediates = [];
-  for (var waypoint in waypoints) {
-    intermediates.add({
-      "location":{
-        "latLng":{
-          "latitude": waypoint.latitude,
-          "longitude": waypoint.longitude
+  List<LatLng> waypoints = [];
+  List<Map<String, Object>> intermediates = [];
+  if (coordinates.length > 2) {
+    waypoints = coordinates.sublist(1, coordinates.length-1);
+    for (var waypoint in waypoints) {
+      intermediates.add({
+        "location":{
+          "latLng":{
+            "latitude": waypoint.latitude,
+            "longitude": waypoint.longitude
+          }
         }
-      }
-    });
+      });
+    }
   }
   final request = {
     "origin":{
@@ -87,7 +90,6 @@ Future<routes.GoogleRoutesResponse> getRoutesBetweenCoordinates(List<LatLng> coo
       "avoidFerries": false
     }
   };
-
   final headers = <String, String> {
     "Content-Type": "application/json",
     "X-Goog-Api-Key": apiKey,

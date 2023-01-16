@@ -15,6 +15,7 @@ class POI {
   String? history;
   String? historyEn;
   String? modelName;
+  String? size;
 
   POI({
     this.city,
@@ -32,7 +33,8 @@ class POI {
     this.triviaEn,
     this.history,
     this.historyEn,
-    this.modelName
+    this.modelName,
+    this.size
   });
 
   POI.fromJson(Map<String, dynamic> json) {
@@ -52,6 +54,7 @@ class POI {
     history = json['history'];
     historyEn = json['history_en'];
     modelName = json['model_name'];
+    size = json['size'];
   }
 
   Map<String, dynamic> toJson() {
@@ -72,12 +75,13 @@ class POI {
     data['history'] = history;
     data['history_en'] = historyEn;
     data['model_name'] = modelName;
+    data['size'] = size;
     return data;
   }
 
   @override
   String toString() {
-    return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region, modelName: $modelName}';
+    return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region, modelName: $modelName, size: $size}';
   }
 
   @override
@@ -91,4 +95,20 @@ class POI {
 
   @override
   int get hashCode => latitude.hashCode ^ longitude.hashCode ^ name.hashCode;
+
+  static double getSize(String size) {
+    if (size == "S") {
+      return 15.0;
+    } else if (size == "M") {
+      return 30.0;
+    } else if (size == "L") {
+      return 50.0;
+    } else if (size == "XL") {
+      return 100.0;
+    } else if (size == "XXL") {
+      return 200.0;
+    } else {
+      return 15.0; // Default value
+    }
+  }
 }
