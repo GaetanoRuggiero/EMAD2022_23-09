@@ -37,6 +37,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   List<Legs>? _legs;
   POI? _nextStep;
   POI? _stepReached;
+  bool _itineraryCompleted = false;
   bool _showLocationError = false;
 
   Future<bool> _handlePermission() async {
@@ -163,9 +164,6 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   }
 
   void _drawMarkers() async {
-    if (_currentItineraryPath.isEmpty) {
-      return;
-    }
 
     BitmapDescriptor defaultMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_default.png");
     BitmapDescriptor completedMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_completed.png");
@@ -255,9 +253,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   }
 
   void _drawPolylines() async {
-    if (_currentItineraryPath.isEmpty) {
-      //TODO Show completed itinerary message
-      debugPrint("The itinerary has been completed!");
+    if (_itineraryCompleted) {
       return;
     }
     if (_currentPosition == null) {
@@ -295,23 +291,33 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
       GoogleRoutesResponse routesResponse = await getRoutesBetweenCoordinates(coordinates);
       // Decode polyline
       List<Legs> legs = routesResponse.routes!.first.legs!;
-      if (legs[0].distanceMeters == null ||
-          legs[0].distanceMeters! < POI.getSize(_nextStep!.size!)) {
-        debugPrint("Destination reached! - ${_nextStep!.name}");
+      if (legs[0].distanceMeters == null || legs[0].distanceMeters! < POI.getSize(_nextStep!.size!)) {
+        debugPrint("Step reached! - ${_nextStep!.name}");
         path.remove(_nextStep);
-        debugPrint("Remaining steps:");
-        for (var element in path) {
-          debugPrint("  -- ${element.name}");
+
+        // We check if there are more steps
+        if (path.isNotEmpty) {
+          debugPrint("Remaining steps:");
+          for (var element in path) {
+            debugPrint("  -- ${element.name}");
+          }
+          setState(() {
+            _currentItineraryPath = path;
+            _polylines = {};
+            _stepReached = _nextStep;
+            _nextStep = null;
+          });
+          showDestinationReachedDialog();
+        } else {
+          setState(() {
+            _currentItineraryPath = path;
+            _polylines = {};
+            _itineraryCompleted = true;
+          });
+          _drawMarkers();
+          showItineraryCompletedDialog();
+          debugPrint("The itinerary has been completed!");
         }
-        setState(() {
-          _currentItineraryPath = path;
-          _polylines = {};
-          _stepReached = _nextStep;
-          _nextStep = null;
-        });
-
-        showDestinationReachedDialog();
-
         return;
       }
 
@@ -322,14 +328,12 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
         }).toList();
 
         polylines.add(
-            Polyline(
-                polylineId: PolylineId(leg.hashCode.toString()),
-                points: points,
-                width: 6,
-                color: Colors.blue,
-                startCap: Cap.roundCap,
-                endCap: Cap.buttCap
-            )
+          Polyline(
+            polylineId: PolylineId(leg.hashCode.toString()),
+            points: points,
+            width: 6,
+            color: Colors.blue,
+          )
         );
       }
       setState(() {
@@ -363,16 +367,13 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
             borderRadius: BorderRadius.circular(15)
         ),
         actions: [
-          TextButton(
-            child: Text(AppLocalizations.of(context)!.nextStep, style: const TextStyle(color: lightOrange)),
+          TextButton.icon(
+            icon: const Icon(Icons.skip_next, color: lightOrange),
+            label: Text(AppLocalizations.of(context)!.nextStep, style: const TextStyle(color: lightOrange)),
             onPressed: () {
               Navigator.pop(context);
-              setState(() {
-                _stepReached = null;
-                _nextStep = null;
-                _drawMarkers();
-                _drawPolylines();
-              });
+              _drawMarkers();
+              _drawPolylines();
             }),
           TextButton.icon(
             icon: const Icon(Icons.camera_alt, color: lightOrange),
@@ -380,13 +381,36 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
             onPressed: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera, latitude: _currentPosition!.latitude, longitude: _currentPosition!.longitude)));
-              setState(() {
-                _stepReached = null;
-                _nextStep = null;
-                _drawMarkers();
-                _drawPolylines();
-              });
+              _drawMarkers();
+              _drawPolylines();
             }),
+        ],
+      );
+    });
+  }
+
+  void showItineraryCompletedDialog() {
+    showDialog(barrierColor: const Color(0x01000000), context: context, builder: (context) {
+      return AlertDialog(
+        title: Text("${AppLocalizations.of(context)!.congratulations}!"),
+        actionsAlignment: MainAxisAlignment.center,
+        icon: const Icon(Icons.sports_score, size: 25.0),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(AppLocalizations.of(context)!.destinationReached),
+          ],
+        ),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15)
+        ),
+        actions: [
+          TextButton(
+            child: Text(AppLocalizations.of(context)!.backToHomepage, style: const TextStyle(color: lightOrange)),
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            }
+          ),
         ],
       );
     });
@@ -449,10 +473,10 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
         if (position != null) {
           _currentPosition = position;
           _mapController?.animateCamera(CameraUpdate.newCameraPosition(
-              CameraPosition(
-                  target: LatLng(position.latitude, position.longitude),
-                  zoom: 18.0
-              )
+            CameraPosition(
+                target: LatLng(position.latitude, position.longitude),
+                zoom: 18.0
+            )
           ));
           _drawPolylines();
         }
@@ -554,7 +578,8 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
                   legs: _legs,
                   nextStep: _nextStep,
                   stepReached: _stepReached,
-                  goToNextStep: _goToNextStep
+                  goToNextStep: _goToNextStep,
+                  itineraryCompleted: _itineraryCompleted,
                 )
               ),
             ),
@@ -596,14 +621,49 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
 }
 
 class NavigationDirections extends StatelessWidget {
-  const NavigationDirections({Key? key, required this.legs, required this.nextStep, required this.stepReached, required this.goToNextStep}) : super(key: key);
-  final POI? stepReached;
-  final POI? nextStep;
+  const NavigationDirections({
+    Key? key,
+    required this.legs,
+    required this.nextStep,
+    required this.stepReached,
+    required this.goToNextStep,
+    required this.itineraryCompleted}) : super(key: key);
+
   final List<Legs>? legs;
+  final POI? nextStep;
+  final POI? stepReached;
+  final bool itineraryCompleted;
   final Function() goToNextStep;
 
   @override
   Widget build(BuildContext context) {
+
+    if (itineraryCompleted) {
+      return Column(
+        children:[
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.sports_score, size: 40),
+                  Expanded(child: Text(textAlign: TextAlign.center, AppLocalizations.of(context)!.destinationReached, style: const TextStyle(fontWeight: FontWeight.bold))),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: TextButton.icon(
+                icon: const Icon(Icons.home),
+                onPressed: () { Navigator.of(context).popUntil((route) => route.isFirst); },
+                label: Text(AppLocalizations.of(context)!.backToHomepage),
+                style: TextButton.styleFrom(foregroundColor: lightOrange)),
+          )
+        ],
+      );
+    }
+
+    // Show the POI that has been reached
     if (stepReached != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -629,6 +689,7 @@ class NavigationDirections extends StatelessWidget {
       );
     }
 
+    // Show the next POI to be reached with distance
     if (legs != null && nextStep != null) {
       String distance = "${legs![0].distanceMeters!} m";
       if (legs![0].distanceMeters! >= 1000) {
@@ -656,6 +717,14 @@ class NavigationDirections extends StatelessWidget {
         ],
       );
     }
-    return const Text("");
+
+    // Show loading indicator
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        const CircularProgressIndicator(),
+        Text(AppLocalizations.of(context)!.loading),
+      ],
+    );
   }
 }
