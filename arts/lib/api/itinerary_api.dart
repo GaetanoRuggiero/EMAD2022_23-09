@@ -48,17 +48,20 @@ Future<routes.GoogleRoutesResponse> getRoutesBetweenCoordinates(List<LatLng> coo
   final String apiKey = Env.apiKey;
   final LatLng origin = coordinates.first;
   final LatLng destination = coordinates.last;
-  final List<LatLng> waypoints = coordinates.sublist(1, coordinates.length-1);
-  final Map<String, Object> intermediates = {};
-  for (var waypoint in waypoints) {
-    intermediates.addAll({
-      "location":{
-        "latLng":{
-          "latitude": waypoint.latitude,
-          "longitude": waypoint.longitude
+  List<LatLng> waypoints = [];
+  List<Map<String, Object>> intermediates = [];
+  if (coordinates.length > 2) {
+    waypoints = coordinates.sublist(1, coordinates.length-1);
+    for (var waypoint in waypoints) {
+      intermediates.add({
+        "location":{
+          "latLng":{
+            "latitude": waypoint.latitude,
+            "longitude": waypoint.longitude
+          }
         }
-      }
-    });
+      });
+    }
   }
   final request = {
     "origin":{
@@ -77,11 +80,9 @@ Future<routes.GoogleRoutesResponse> getRoutesBetweenCoordinates(List<LatLng> coo
         }
       }
     },
-    "intermediates": [
-      intermediates
-    ],
+    "intermediates": intermediates,
     "travelMode": "WALK",
-    "polylineQuality": "HIGH_QUALITY",
+    "polylineQuality": "OVERVIEW",
     "computeAlternativeRoutes": false,
     "routeModifiers": {
       "avoidTolls": false,
@@ -108,7 +109,7 @@ Future<routes.GoogleRoutesResponse> getRoutesBetweenCoordinates(List<LatLng> coo
     return http.Response('Server unreachable', 500);
   });
   if (response.statusCode == 200) {
-    debugPrint("HTTP ${response.statusCode}: OK");
+    debugPrint("HTTP ${response.statusCode}: OK at: $uri");
     return routes.GoogleRoutesResponse.fromJson(jsonDecode(response.body));
   }
   else if (response.statusCode == 500) {
