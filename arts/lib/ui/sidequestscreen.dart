@@ -53,7 +53,7 @@ class _SidequestScreenState extends State<SidequestScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Padding(
-                    padding: EdgeInsets.only(right: 5),
+                    padding: EdgeInsets.only(right: 0),
                     child: Icon(Icons.directions_walk_outlined, size: 22),
                   ),
                   Text(AppLocalizations.of(context)!.available),
@@ -75,7 +75,7 @@ class _SidequestScreenState extends State<SidequestScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Padding(
-                    padding: EdgeInsets.only(right: 5),
+                    padding: EdgeInsets.only(right: 1),
                     child: Icon(Icons.block, size: 22),
                   ),
                   Text(AppLocalizations.of(context)!.expired),
@@ -98,7 +98,6 @@ class _SidequestScreenState extends State<SidequestScreen> {
                       List<Sidequest> expiredSidequestList = [];
                       Map<POI, String> visitedPOIMap = userProvider.visited;
                       var nowDate = DateTime.now().toLocal();
-                      debugPrint("NowDate: $nowDate");
 
                       for (var sidequest in sidequestList) {
                         final startDate = DateTime.fromMillisecondsSinceEpoch(sidequest.startDate!.seconds! * 1000);
@@ -315,7 +314,6 @@ class _CompletedSidequestState extends State<CompletedSidequest> with AutomaticK
       List<Sidequest> sidequestListUpdated = [];
 
       if (sidequestList != null) {
-
         for (var sidequest in sidequestList!) {
           final startDate = DateTime.fromMillisecondsSinceEpoch(sidequest.startDate!.seconds! * 1000);
           final endDate = DateTime.fromMillisecondsSinceEpoch(sidequest.endDate!.seconds! * 1000);
@@ -330,7 +328,7 @@ class _CompletedSidequestState extends State<CompletedSidequest> with AutomaticK
           }
         }
         setState(() {
-          _sidequestList = sidequestList;
+          _sidequestList = sidequestListUpdated;
         });
       }
       else {
