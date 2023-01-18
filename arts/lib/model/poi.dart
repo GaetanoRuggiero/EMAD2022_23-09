@@ -1,4 +1,5 @@
 class POI {
+  String? id;
   String? city;
   List<String>? cityKeywords;
   String? country;
@@ -18,6 +19,7 @@ class POI {
   String? size;
 
   POI({
+    this.id,
     this.city,
     this.cityKeywords,
     this.country,
@@ -38,6 +40,7 @@ class POI {
   });
 
   POI.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     city = json['city'];
     cityKeywords = json['city_keywords'].cast<String>();
     country = json['country'];
@@ -59,6 +62,7 @@ class POI {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
     data['city'] = city;
     data['city_keywords'] = cityKeywords;
     data['country'] = country;
@@ -81,20 +85,16 @@ class POI {
 
   @override
   String toString() {
-    return 'POI{city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region, modelName: $modelName, size: $size}';
+    return 'POI{id: $id, city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region, modelName: $modelName, size: $size}';
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is POI &&
-          runtimeType == other.runtimeType &&
-          latitude == other.latitude &&
-          longitude == other.longitude &&
-          name == other.name;
+      other is POI && runtimeType == other.runtimeType && id == other.id;
 
   @override
-  int get hashCode => latitude.hashCode ^ longitude.hashCode ^ name.hashCode;
+  int get hashCode => id.hashCode;
 
   static double getSize(String size) {
     if (size == "S") {
@@ -109,6 +109,22 @@ class POI {
       return 200.0;
     } else {
       return 15.0; // Default value
+    }
+  }
+
+  static double getMaxPhotoThreshold(String size) {
+    if (size == "S") {
+      return 20.0;
+    } else if (size == "M") {
+      return 40.0;
+    } else if (size == "L") {
+      return 80.0;
+    } else if (size == "XL") {
+      return 150.0;
+    } else if (size == "XXL") {
+      return 400.0;
+    } else {
+      return 20.0; // Default value
     }
   }
 }

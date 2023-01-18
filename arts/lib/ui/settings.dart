@@ -189,13 +189,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       const SizedBox(height: 10),
 
-                      InkWell(
-                        onTap: () {},
-                        child: SettingsTile(
-                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                          leftIcon: Icons.account_circle_outlined,
-                          title: AppLocalizations.of(context)!.infoAccount
+                      SettingsTile(
+                        rightIcon: Consumer<UserProvider>(
+                          builder: (context, userProvider, child) {
+                            return Switch(
+                              value: userProvider.isDeveloperModeOn,
+                              onChanged: (bool value) {
+                                debugPrint("[App Settings] Developer mode: $value");
+                                setState(() {
+                                  userProvider.isDeveloperModeOn = value;
+                                });
+                              },
+                            );
+                          },
                         ),
+                        leftIcon: Icons.code,
+                        title: AppLocalizations.of(context)!.developerMode
                       ),
 
                       const SizedBox(height: 10),

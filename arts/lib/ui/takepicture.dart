@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'package:arts/exception/exceptions.dart';
+import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:native_exif/native_exif.dart';
+import 'package:provider/provider.dart';
+import '../utils/user_provider.dart';
 import './styles.dart';
 import '../api/poi_api.dart';
 import '../api/recognition_api.dart';
+import '../api/user_api.dart';
 import '../model/google_vision_response.dart';
 import '../model/POI.dart';
 import '../ui/singlepoiview.dart';
@@ -57,6 +61,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {
@@ -148,12 +153,12 @@ class ImageRecognitionScreen extends StatelessWidget {
   final String imagePath;
   final double latitude;
   final double longitude;
-  final double distanceThreshold = 500; // maximum allowed distance in meters
 
   const ImageRecognitionScreen(
     {super.key, required this.imagePath, required this.latitude, required this.longitude});
 
-  Future<POI?> recognizePOI(String imagePath) async {
+  Future<List<POI>> recognizePOI(String imagePath) async {
+    List<POI> candidates = [];
     /* Storing the device location into image's EXIF metadata to improve
     probability of success of the recognition step. */
     Exif? exif = await Exif.fromPath(imagePath);
@@ -169,7 +174,7 @@ class ImageRecognitionScreen extends StatelessWidget {
     try {
       GoogleVisionResponse visionResponse = await getVisionResults(imageBase64);
       for (var webEntity in visionResponse.responses![0].webDetection!.webEntities!) {
-        debugPrint("Searching for: ${webEntity.description!}");
+        debugPrint("[ImageRecognitionScreen] Searching for: ${webEntity.description!}");
         var searchResults = await getPOIListByName(webEntity.description!);
         if (searchResults.isNotEmpty) {
           for (var result in searchResults) {
@@ -177,8 +182,8 @@ class ImageRecognitionScreen extends StatelessWidget {
                 result.name!.toLowerCase()
                 || webEntity.description!.toLowerCase() ==
                     result.nameEn!.toLowerCase()) {
-              debugPrint("Found a match! ---- ${result.name}");
-              return result;
+              debugPrint("[ImageRecognitionScreen] Found a match! ---- ${result.nameEn}");
+              candidates.add(result);
             }
           }
         }
@@ -186,18 +191,21 @@ class ImageRecognitionScreen extends StatelessWidget {
     } on ConnectionErrorException catch(e) {
       debugPrint(e.cause);
     }
-    return null;
+    return candidates;
   }
 
-  bool checkDistance(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
+  double calculateDistance(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
     double distanceInMeters = Geolocator.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude);
-    debugPrint("Distance between current location and POI is: $distanceInMeters meters.");
-    if (distanceInMeters <= distanceThreshold) {
-      debugPrint("Distance is OK!");
+    debugPrint("[ImageRecognitionScreen] Distance between current location and POI is: $distanceInMeters meters.");
+    return distanceInMeters;
+  }
+
+  bool checkPhotoThreshold(double distance, double threshold) {
+    if (distance <= threshold) {
+      debugPrint("[ImageRecognitionScreen] Distance is OK!");
       return true;
-    }
-    else {
-      debugPrint("You are too distant!");
+    } else {
+      debugPrint("[ImageRecognitionScreen] You are too distant!");
       return false;
     }
   }
@@ -205,52 +213,85 @@ class ImageRecognitionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: recognizePOI(imagePath),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasData) {
-              POI poi = snapshot.data!;
-              bool isDistanceValid = checkDistance(latitude, longitude, poi.latitude!, poi.longitude!);
-              if (isDistanceValid) {
-                Future.microtask(() {
-                  // Going back to TakePictureScreen
-                  Navigator.pop(context);
-                  // Replacing TakePictureScreen with the recognized poi screen
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SinglePOIView(poi: snapshot.data!)));
-                });
+      body: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          return FutureBuilder(
+            future: recognizePOI(imagePath),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  List<POI> candidates = snapshot.data!;
+                  POI bestCandidate = candidates.first;
+                  double distanceThreshold = POI.getMaxPhotoThreshold(bestCandidate.size!);
+                  if (userProvider.isDeveloperModeOn) {
+                    distanceThreshold = 99999999999999999.9;
+                  }
+
+                  double minDistance = calculateDistance(latitude, longitude, bestCandidate.latitude!, bestCandidate.longitude!);
+                  for (var candidate in candidates) {
+                    double distance = calculateDistance(latitude, longitude, candidate.latitude!, candidate.longitude!);
+                    if (minDistance > distance) {
+                      minDistance = distance;
+                      bestCandidate = candidate;
+                    }
+                  }
+                  bool isDistanceValid = checkPhotoThreshold(minDistance, distanceThreshold);
+
+                  if (isDistanceValid) {
+                    Future.delayed(Duration.zero, () async {
+                      String? email = await UserUtils.readEmail();
+                      String? token = await UserUtils.readToken();
+                      if (email != null && token != null) {
+                        String lastVisited = DateTime.now().toLocal().toString();
+                        userProvider.visited.update(bestCandidate, (value) => lastVisited, ifAbsent: () => lastVisited);
+                        try {
+                          await updateVisitedPOI(email, token, bestCandidate.id!, lastVisited);
+                        } on ConnectionErrorException catch(e) {
+                          debugPrint(e.cause);
+                        }
+                      }
+                    });
+
+                    Future.microtask(() {
+                      // Going back to TakePictureScreen
+                      Navigator.pop(context);
+                      // Replacing TakePictureScreen with the recognized poi screen
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => SinglePOIView(poi: bestCandidate)));
+                    });
+                  }
+                  else {
+                    // POI is too distant. Showing an information message
+                    return TooDistantDialog(poi: bestCandidate);
+                  }
+                }
+                else {
+                  // POI not recognized
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(child: Text(AppLocalizations.of(context)!.poiNotRecognized)),
+                      ElevatedButton(
+                          child: Text(AppLocalizations.of(context)!.tryAgain),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          })
+                    ],
+                  );
+                }
               }
-              else {
-                // POI is too distant. Showing an information message
-                return TooDistantDialog(poi: snapshot.data!);
-              }
-            }
-            else {
-              // POI not recognized
+              // Show a loading indicator during POI recognition
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Center(child: Text(AppLocalizations.of(context)!.poiNotRecognized)),
-                  ElevatedButton(
-                      child: Text(AppLocalizations.of(context)!.tryAgain),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      })
+                  Center(child: Text(AppLocalizations.of(context)!.poiRecognitionLoading)),
+                  const Center(child: CircularProgressIndicator()),
                 ],
               );
-            }
-          }
-          // Show a loading indicator during POI recognition
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(child: Text(AppLocalizations.of(context)!.poiRecognitionLoading)),
-              const Center(child: CircularProgressIndicator()),
-            ],
-          );
-        }),
+            });
+        },
+      ),
     );
   }
 }

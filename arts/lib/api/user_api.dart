@@ -224,9 +224,44 @@ Future<Map<POI, String>> getVisitedPOI(String email, String token) async {
   } else if (response.statusCode == 500) {
     throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   } else {
-    throw Exception('Failed to load POI');
+    throw Exception('Failed to make HTTP request.');
   }
   return visitedPOIMap;
+}
+
+Future<bool> updateVisitedPOI(String email, String token, String poiId, String lastVisited) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: '/users/updateVisited',
+      queryParameters: {'poi_id': poiId, 'last_visited': lastVisited}
+  );
+  debugPrint("Calling $uri");
+
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    return response.body.isNotEmpty;
+
+  } else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  } else {
+    throw Exception('Failed to make HTTP request.');
+  }
 }
 
 Future<bool> changePassword(String email, String oldPassword, String newPassword, String token) async {
