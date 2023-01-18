@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:arts/api/poi_api.dart';
+import 'package:arts/api/rewards_api.dart';
+import 'package:arts/model/reward.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -178,7 +180,7 @@ Future<bool> deleteToken(String email, String token) async {
     debugPrint("Server did not respond at: $uri");
     return false;
   } else {
-    throw Exception('Could not delete token validity');
+    throw Exception('Could not delete token');
   }
   return false;
 }
@@ -270,6 +272,86 @@ Future<bool> changePassword(String email, String oldPassword, String newPassword
   }
   debugPrint("Wrong credentials for: email: $email and password: $oldPassword");
   return false;
+}
+
+Future<Map<Reward, Coupon>?> getCoupon(String email, String token) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: '/users/getCoupon'
+  );
+  debugPrint("Calling $uri");
+
+  Map<Reward, Coupon> couponMap = {};
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      List jsonArray = jsonDecode(response.body);
+      for (var x in jsonArray) {
+        Coupon coupon = Coupon.fromJson(x);
+        try {
+          Reward reward = await getRewardById(coupon.rewardId!);
+          couponMap.putIfAbsent(reward, () => coupon);
+        } on ConnectionErrorException catch(e) {
+          debugPrint(e.cause);
+        }
+      }
+      return couponMap;
+    }
+  } else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  } else {
+    throw Exception('Failed to load POI');
+  }
+  return null;
+}
+
+Future<String> getIdUser(String email) async{
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: 'users/idUser',
+      queryParameters: {'email' : email}
+  );
+
+  debugPrint("Calling $uri");
+
+  final response = await http
+      .get(uri)
+      .timeout(const Duration(seconds: 4), onTimeout: () {
+    return http.Response('Timeout', 500);
+  })
+      .onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    String idUser = response.body;
+    return idUser;
+  }
+  else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  }
+  else {
+    throw Exception('Failed to load POI');
+  }
 }
 
 

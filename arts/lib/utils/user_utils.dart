@@ -39,10 +39,10 @@ class UserUtils {
     return await storage.read(key: tokenKey);
   }
 
-  static Map<String, int> getBadgePerRegion(Map<POI,String> visitedPoi) {
+  static Map<String, int> getBadgePerCountry(Map<POI,String> visitedPoi) {
     Map<String, int> badgeMap = {};
     visitedPoi.forEach((poi, timestamp) {
-      badgeMap.update(poi.region!, (value) => value + 1, ifAbsent: () => 1);
+      badgeMap.update(poi.country!, (value) => value + 1, ifAbsent: () => 1);
     });
     return Map.fromEntries(badgeMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
   }

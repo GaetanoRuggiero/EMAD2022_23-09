@@ -32,11 +32,11 @@ final ButtonStyle topButtonStyle = ElevatedButton.styleFrom(
 final ThemeData lightTheme = ThemeData.light().copyWith(
   appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xff113197),
-      actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
-      iconTheme: IconThemeData(color: Color(0xffE68532)),
+      actionsIconTheme: IconThemeData(color: lightOrange),
+      iconTheme: IconThemeData(color: lightOrange),
       titleTextStyle: TextStyle(color: Colors.white, fontSize: 20)
   ),
-  iconTheme: const IconThemeData(color: Color(0xffE68532)),
+  iconTheme: const IconThemeData(color: lightOrange),
   dividerColor: Colors.black26,
   errorColor: Colors.red,
   colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.green),
@@ -45,12 +45,12 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
 final ThemeData darkTheme = ThemeData.dark().copyWith(
   appBarTheme: const AppBarTheme(
     backgroundColor: Color(0xff113197),
-    actionsIconTheme: IconThemeData(color: Color(0xffE68532)),
-    iconTheme: IconThemeData(color: Color(0xffE68532)),
+    actionsIconTheme: IconThemeData(color: lightOrange),
+    iconTheme: IconThemeData(color: lightOrange),
     titleTextStyle: TextStyle(color: Colors.white, fontSize: 20)
   ),
   backgroundColor: const Color(0xff242F72),
-  iconTheme: const IconThemeData(color: Color(0xffE68532)),
+  iconTheme: const IconThemeData(color: lightOrange),
   dividerColor: const Color(0xff414c9c),
   errorColor: Colors.red,
   colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.green),

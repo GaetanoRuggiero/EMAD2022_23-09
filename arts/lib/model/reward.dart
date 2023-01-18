@@ -10,7 +10,8 @@ class Reward {
         this.expiryDate,
         this.placeEvent,
         this.poster,
-        this.type});
+        this.type,
+      });
 
   Reward.fromJson(Map<String, dynamic> json) {
     discountAmount = json['discount_amount'];

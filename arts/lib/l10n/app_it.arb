@@ -94,7 +94,7 @@
   "seasonMex": "La stagione termina il",
   "seasonRewardMex": "Terminando gli obiettivi potrai ricevere le seguenti ricompense",
   "numberVisitedPoi": "Hai visitato",
-  "xRegion": "per questa regione",
+  "xRegion": "per questa nazione",
   "noBadge": "Sfortunatamente non hai ancora nessun badge, inizia a riconoscere opere per ottenerne.",
   "modifyPassword": "Modifica password",
   "oldPassword": "Vecchia password",
@@ -142,5 +142,18 @@
   "trivia": "Curiosità",
   "history": "Cenni storici",
   "view3dModel": "Guarda modello 3D",
-  "modelNotAvailable": "Modello 3D non disponibile"
+  "modelNotAvailable": "Modello 3D non disponibile",
+
+  "coupon": "Sconto del",
+  "ticketDiscount": "Biglietto scontato del",
+  "at": "presso",
+  "availableUpTo": "disponibile fino al",
+  "noCoupon": "Siamo spiacenti, non hai ancora ottenuto nessun Coupon. Completa una missione per ottenerne uno.",
+
+  "goTo": "Recati presso",
+  "redeem": "con questo qr per riscoutere la tua ricompensa",
+  "remember": "Ricordati di utilizzarlo prima del",
+
+  "disconnected": "Sei stato disconnesso",
+  "mustLoginAgain": "Devi effettuare nuovamente l'accesso"
 }

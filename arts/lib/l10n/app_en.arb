@@ -94,7 +94,7 @@
   "seasonMex": "The season ends on ",
   "seasonRewardMex": "By finishing the goals you can receive the following rewards.",
   "numberVisitedPoi": "You have visited",
-  "xRegion": "for this region",
+  "xRegion": "for this country",
   "noBadge": "Unfortunately you don't have any badges yet, start recognizing to get them.",
   "modifyPassword": "Modify password",
   "oldPassword": "Old password",
@@ -142,5 +142,19 @@
   "trivia": "Trivia",
   "history": "History",
   "view3dModel": "View 3D model",
-  "modelNotAvailable": "3D Model not available"
+  "modelNotAvailable": "3D Model not available",
+
+  "coupon": "Discount of",
+  "ticketDiscount": "Discounted ticket of",
+  "at": "at",
+  "availableUpTo": "available up to",
+  "noCoupon": "Sorry, you have not yet obtained any Coupons. Complete a mission to obtain one.",
+
+
+  "goTo": "Go to",
+  "redeem": "with this qr to redeem your reward",
+  "remember": "Remember to use it before the",
+
+  "disconnected": "You got disconnected",
+  "mustLoginAgain": "You have to log in again"
 }

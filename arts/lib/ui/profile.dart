@@ -1,6 +1,7 @@
 import 'package:arts/model/POI.dart';
 import 'package:arts/ui/seasonrewards.dart';
 import 'package:arts/ui/settings.dart';
+import 'package:arts/ui/styles.dart';
 import 'package:arts/utils/user_provider.dart';
 import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +9,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'editprofilescreen.dart';
 import 'rewards.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
-const int badgeDiamond = 50, badgePlatinum = 25, badgeGold = 10, badgeSilver = 3, badgeBronze = 1;
+const int poiCountForLevel=5, firstStep=1, secondStep=2, thirdStep=3, fourthStep=4, fifthStep=5;
 class Profile extends StatelessWidget {
   const Profile({Key? key}) : super(key: key);
 
@@ -28,6 +30,8 @@ class Profile extends StatelessWidget {
         ),
         body: Consumer<UserProvider>(
           builder: (context, userProvider, child) {
+            String level = (userProvider.visited.length~/poiCountForLevel).toString();
+            int levelProgress = (userProvider.visited.length%poiCountForLevel);
             return Column(
                 children: [
                   Stack(
@@ -37,8 +41,19 @@ class Profile extends StatelessWidget {
                         margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                         child: Column(
                           children: [
-                            const Icon(size: 100, Icons.account_circle),
-                            Text("${userProvider.name} ${userProvider.surname}", style: const TextStyle(fontSize: 20)),
+                            CircularPercentIndicator(
+                              radius: 60,
+                              lineWidth: 13.0,
+                              animation: true,
+                              center: Text(level, style: TextStyle(fontSize: 40, color: Theme.of(context).backgroundColor, /*TODO: SET FONT fontFamily:*/ )),
+                              percent: levelProgress*0.2,
+                              circularStrokeCap: CircularStrokeCap.round,
+                              //TODO: GRADIENT OR DINAMIC COLOR? progressColor: levelProgress == firstStep ? Theme ,
+                              footer: Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text("${userProvider.name} ${userProvider.surname}", style: const TextStyle(fontSize: 20)),
+                              ),
+                            ),
                             const SeasonCard(),
                           ],
                         ),
@@ -90,6 +105,23 @@ class Profile extends StatelessWidget {
                       ),
                     ],
                   ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5,vertical: 20),
+                    child: Row(
+                      children: const [
+                        Expanded(
+                          child: Divider()
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text("Badge"),
+                        ),
+                        Expanded(
+                          child: Divider()
+                        ),
+                      ]
+                    ),
+                  ),
                   Flexible(
                       child: BadgeWidget(visitedPoi: userProvider.visited)
                   ),
@@ -109,7 +141,7 @@ class SeasonCard extends StatelessWidget {
     String month = now.month.toString();
     String year = now.year.toString();
     return Card(
-      margin: const EdgeInsets.only(top: 30, bottom: 30),
+      margin: const EdgeInsets.only(top: 30, bottom: 10),
       elevation: 4,
       color: const Color(0xFFEB9E5C),
       child: Container(
@@ -138,113 +170,71 @@ class SeasonCard extends StatelessWidget {
   }
 }
 
+class GridBadgeItem extends StatelessWidget {
+  const GridBadgeItem({Key? key, required this.element}) : super(key: key);
+  final MapEntry<String, int> element;
+  static const String italia = "Italia", francia = "Francia", spagna = "Spagna";
+
+  @override
+  Widget build(BuildContext context) {
+    String assets="";
+    switch(element.key) {
+      case italia :{assets = 'assets/icon/italy.png';}
+        break;
+      case francia :{assets = 'assets/icon/france.png';}
+      break;
+      case spagna :{assets = 'assets/icon/spain.png';}
+      break;
+    }
+
+    return GridTile(
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage(assets)),
+        ),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 3),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.7),
+                border: Border.all()
+            ),
+            child: Text(element.value.toString(),style: const TextStyle(fontSize: 25),),
+          ),
+        ),
+      )
+    );
+  }
+}
+
+
 class BadgeWidget extends StatelessWidget {
   const BadgeWidget({Key? key, required this.visitedPoi}) : super(key: key);
   final Map<POI, String> visitedPoi;
 
-  List<Widget> displayBadgePerRegion(BuildContext context, int count){
-    List<Widget> badges = [];
-    int countBadges = 0;
-    if (count >= badgeDiamond) {
-      countBadges = 5;
-    } else if (count < badgeDiamond && count >= badgePlatinum) {
-      countBadges = 4;
-    } else if (count < badgePlatinum && count >= badgeGold) {
-      countBadges = 3;
-    } else if (count < badgeGold && count >= badgeSilver) {
-      countBadges = 2;
-    } else if (count < badgeSilver && count >= badgeBronze) {
-      countBadges = 1;
-    }
-    for (var i = 1; i <= countBadges; i++) {
-      badges.add(
-        IconButton(
-          iconSize: 50,
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius:BorderRadius.circular(30.0)),
-                    content: Text("${AppLocalizations.of(context)!.numberVisitedPoi} $count POI ${AppLocalizations.of(context)!.xRegion}"),
-                    actions: <Widget>[
-                      TextButton(
-                        child: Text(AppLocalizations.of(context)!.close),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                });
-          },
-          icon: const Icon(Icons.stars)
-        )
-      );
-    }
-    for (var i = countBadges+1; i <= 5; i++) {
-      badges.add(
-          const IconButton(
-              iconSize: 50,
-              onPressed: null,
-              icon: Icon(Icons.stars_outlined)
-          )
-      );
-    }
-    return badges;
-  }
-
   @override
   Widget build(BuildContext context) {
-    Map<String, int> badgePerRegion = UserUtils.getBadgePerRegion(visitedPoi);
-    int regionCount = badgePerRegion.keys.length;
-    const int maxRegionCount = 3;
-    if (regionCount > 0) {
-      return ListView.builder(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        itemCount: regionCount < maxRegionCount ? regionCount : maxRegionCount,
-        itemBuilder: (context, index) {
-          return Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(left: 20),
-                alignment: Alignment.bottomLeft,
-                child: Text(style: const TextStyle(fontSize: 15), badgePerRegion.keys.elementAt(index)),
-              ),
-              Card(
-                margin: const EdgeInsets.symmetric(horizontal: 20,vertical: 5),
-                elevation: 3,
-                child: Container(
-                  height: 90,
-                  width: double.maxFinite,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20)),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: displayBadgePerRegion(context, badgePerRegion.values.elementAt(index)),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-            ],
-          );
-        },
+    Map<String, int> badgePerCountry = UserUtils.getBadgePerCountry(visitedPoi);
+    int countryCount = badgePerCountry.keys.length;
+    if (countryCount > 0) {
+      return GridView.count(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          crossAxisCount: 3,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          padding: const EdgeInsets.all(10),
+          childAspectRatio: 1,
+          children: badgePerCountry.entries.map((element) {
+            return GridBadgeItem(element: element);
+          }).toList()
       );
     } else {
       return Container(
-        margin: const EdgeInsets.all(20),
+        margin: const EdgeInsets.fromLTRB(20,  0, 20, 0),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).appBarTheme.backgroundColor,
           border: Border.all(
             color: Theme.of(context).dividerColor,
           ),
@@ -256,9 +246,8 @@ class BadgeWidget extends StatelessWidget {
             const Icon(Icons.sentiment_dissatisfied_outlined,size: 40,),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(textAlign: TextAlign.center,style: TextStyle(fontSize: 15, color: Theme.of(context).errorColor), AppLocalizations.of(context)!.noBadge),
+              child: Text(textAlign: TextAlign.center,style: const TextStyle(fontSize: 15, color: lightOrange), AppLocalizations.of(context)!.noBadge),
             ),
-
           ],
         ),
       );
