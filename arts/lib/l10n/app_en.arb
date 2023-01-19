@@ -156,5 +156,8 @@
   "remember": "Remember to use it before the",
 
   "disconnected": "You got disconnected",
-  "mustLoginAgain": "You have to log in again"
+  "mustLoginAgain": "You have to log in again",
+
+  "frameQR": "Frame the QR."
+
 }

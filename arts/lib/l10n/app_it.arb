@@ -155,5 +155,7 @@
   "remember": "Ricordati di utilizzarlo prima del",
 
   "disconnected": "Sei stato disconnesso",
-  "mustLoginAgain": "Devi effettuare nuovamente l'accesso"
+  "mustLoginAgain": "Devi effettuare nuovamente l'accesso",
+
+  "frameQR": "Inquadra il QR."
 }

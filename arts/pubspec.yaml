@@ -61,6 +61,7 @@ dependencies:
   smooth_page_indicator: ^1.0.0+2
   pretty_qr_code: ^2.0.3
   percent_indicator: ^4.0.1
+  mobile_scanner: ^2.1.0
 
 flutter_icons:
   android: true
