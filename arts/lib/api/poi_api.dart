@@ -159,3 +159,44 @@ Future<POI> getPOIbyId(String id) async {
     throw Exception('Failed to load POI');
   }
 }
+
+Future<List<POI>> getPOIByRange(double latitude, double longitude, double range) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: 'poi/distance',
+      queryParameters: {'latitude' : latitude.toString(), 'longitude' : longitude.toString(), 'range' : range.toString()}
+  );
+  debugPrint("Calling $uri");
+
+  List<POI> filteredList = [];
+  final response = await http
+      .post(uri)
+      .timeout(const Duration(seconds: 10), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    /*If the server did return a 200 OK response, parse the Json and decode
+      its content with UTF-8 to allow accented characters to be shown correctly */
+    List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
+    for (var x in jsonArray) {
+      POI poi = POI.fromJson(x);
+      filteredList.add(poi);
+    }
+  }
+  else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  }
+  else {
+    throw Exception('Failed to load POI');
+  }
+
+  return filteredList;
+}

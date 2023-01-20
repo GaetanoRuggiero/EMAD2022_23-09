@@ -12,10 +12,9 @@ import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../api/itinerary_api.dart';
 import '../model/POI.dart';
-import '../model/itinerary.dart';
 
 class SingleTourScreen extends StatefulWidget {
-  final Itinerary itinerary;
+  final List<POI> itinerary;
   const SingleTourScreen({Key? key, required this.itinerary}) : super(key: key);
 
   @override
@@ -171,7 +170,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
 
     Set<Marker> markers = {};
     //Initializing markers
-    List<POI> places = widget.itinerary.path!;
+    List<POI> places = widget.itinerary;
     for (int i = 0; i < places.length; i++) {
       if (!_currentItineraryPath.contains(places[i])) {
         markerType = completedMarker;
@@ -420,7 +419,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   void initState() {
     super.initState();
 
-    _currentItineraryPath = widget.itinerary.path!;
+    _currentItineraryPath = widget.itinerary;
 
     Future.delayed(Duration.zero, () async {
       Position? position = await _getCurrentPosition();
