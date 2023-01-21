@@ -247,30 +247,40 @@ class _FullScreenDialogDemo extends StatelessWidget {
               icon: const Icon(Icons.home))
         ],
       ),
-      body: Stack(
+      body: Column(
         children: [
           Container(
-            margin: const EdgeInsets.all(20),
-            child: Text.rich(
-              TextSpan(
-                style: const TextStyle(fontSize: 22),
-                text: "${AppLocalizations.of(context)!.goTo} ${reward.placeEvent} ${AppLocalizations.of(context)!.redeem} ",
-                children: <TextSpan>[
-                  TextSpan(text: "\n${AppLocalizations.of(context)!.remember} ${reward.expiryDate}", style: const TextStyle(fontWeight: FontWeight.bold))
-                ]
+              margin: const EdgeInsets.all(20),
+              child: Text.rich(
+                  TextSpan(
+                      style: const TextStyle(fontSize: 22),
+                      text: "${AppLocalizations.of(context)!.goTo} ${reward.placeEvent} ${AppLocalizations.of(context)!.redeem} ",
+                      children: <TextSpan>[
+                        TextSpan(text: "\n${AppLocalizations.of(context)!.remember} ${reward.expiryDate}", style: const TextStyle(fontWeight: FontWeight.bold))
+                      ]
+                  )
               )
-            )
           ),
-          Center(
-            child: PrettyQr(
-                  image: const AssetImage('assets/icon/icon.png'),
-                  size: 350,
-                  data: qrUrl,
-                  errorCorrectLevel: QrErrorCorrectLevel.M,
-                  roundEdges: true,
+          Stack(
+            children: [
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(15.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0)
+                  ),
+                  child: PrettyQr(
+                    image: const AssetImage('assets/icon/icon_big.png'),
+                    size: MediaQuery.of(context).size.width - 100,
+                    data: qrUrl,
+                    errorCorrectLevel: QrErrorCorrectLevel.M,
+                    roundEdges: true,
+                  ),
                 ),
+              ),
+            ],
           ),
-
         ],
       )
     );
