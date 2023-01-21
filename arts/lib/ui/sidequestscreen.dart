@@ -48,34 +48,41 @@ class _SidequestScreenState extends State<SidequestScreen> {
           title: Text(AppLocalizations.of(context)!.mission),
           bottom: TabBar(
             tabs: [
-              Tab(child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 0),
-                    child: Icon(Icons.directions_walk_outlined, size: 22),
-                  ),
-                  Text(AppLocalizations.of(context)!.available),
-                ],
+              Tab(child: FittedBox(
+                fit: BoxFit.fitWidth,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(Icons.directions_walk_outlined, size: 22),
+                    ),
+                    Text(AppLocalizations.of(context)!.available),
+                  ],
+                ),
               )),
+              Tab(child: FittedBox(
+                fit: BoxFit.fitWidth,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(right: 2),
+                      child: Icon(Icons.done_outlined, size: 22),
+                    ),
+                    Text(AppLocalizations.of(context)!.completed),
+                  ],
+                ),
+              ),
+              ),
               Tab(child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Padding(
-                    padding: EdgeInsets.only(right: 2),
-                    child: Icon(Icons.done_outlined, size: 22),
-                  ),
-                  Text(AppLocalizations.of(context)!.completed),
-                ],
-              )),
-              Tab(child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 1),
+                    padding: EdgeInsets.only(right: 5),
                     child: Icon(Icons.block, size: 22),
                   ),
                   Text(AppLocalizations.of(context)!.expired),
@@ -575,16 +582,16 @@ class SideQuestCard extends StatelessWidget {
       if (isCompleted != null && isCompleted!) {
         return Positioned(
           bottom: 5.0,
-          right: 5.0,
-          child: Icon(Icons.check_circle_outline, size: 80, color: Colors.white.withOpacity(0.4)),
+          right: 15.0,
+          child: Icon(Icons.check_circle_outline, size: 40, color: Colors.white.withOpacity(0.4)),
         );
       }
 
       if (isExpired != null && isExpired!) {
         return Positioned(
             bottom: 5.0,
-            right: 5.0,
-            child: Icon(Icons.block_outlined, color: Colors.white.withOpacity(0.4), size: 80)
+            right: 15.0,
+            child: Icon(Icons.block_outlined, color: Colors.white.withOpacity(0.4), size: 40)
         );
       }
       return pos;
@@ -631,6 +638,95 @@ class SideQuestCard extends StatelessWidget {
       return pos;
     }
 
+    Widget categoryReward() {
+
+      if ((sidequest.reward!.category!).compareTo("restaurant") == 0) {
+        return Positioned(
+            top: 15.0,
+            right: 15.0,
+            child: Row(
+              children: [
+                Icon(Icons.restaurant_outlined, color: Colors.white.withOpacity(0.4), size: 40),
+              ],
+            )
+        );
+      }
+
+      if ((sidequest.reward!.category!).compareTo("bakery") == 0) {
+        return Positioned(
+            top: 20.0,
+            right: 15.0,
+            child: Row(
+              children: [
+                Icon(Icons.bakery_dining_outlined, color: Colors.white.withOpacity(0.4), size: 40),
+              ],
+            )
+        );
+      }
+
+      if ((sidequest.reward!.category!).compareTo("museum") == 0) {
+        return Positioned(
+            top: 20.0,
+            right: 15.0,
+            child: Row(
+              children: [
+                Icon(Icons.museum_outlined, color: Colors.white.withOpacity(0.4), size: 40),
+              ],
+            )
+        );
+      }
+
+      if ((sidequest.reward!.category!).compareTo("theater") == 0) {
+        return Positioned(
+            top: 20.0,
+            right: 15.0,
+            child: Row(
+              children: [
+                Icon(Icons.theater_comedy_outlined, color: Colors.white.withOpacity(0.4), size: 40),
+              ],
+            )
+        );
+      }
+
+      if ((sidequest.reward!.category!).compareTo("pizza") == 0) {
+        return Positioned(
+            top: 20.0,
+            right: 15.0,
+            child: Row(
+              children: [
+                Icon(Icons.local_pizza_outlined, color: Colors.white.withOpacity(0.4), size: 40),
+              ],
+            )
+        );
+      }
+
+      if ((sidequest.reward!.category!).compareTo("ice cream") == 0) {
+        return Positioned(
+            top: 20.0,
+            right: 15.0,
+            child: Row(
+              children: [
+                Icon(Icons.icecream_outlined, color: Colors.white.withOpacity(0.4), size: 40),
+              ],
+            )
+        );
+      }
+
+      if ((sidequest.reward!.category!).compareTo("sandwich") == 0) {
+        return Positioned(
+            top: 20.0,
+            right: 15.0,
+            child: Row(
+              children: [
+                Icon(Icons.lunch_dining_outlined, color: Colors.white.withOpacity(0.4), size: 40),
+              ],
+            )
+        );
+      }
+
+      return Container();
+    }
+
     return Card(
       margin: const EdgeInsets.only(right: 15, left: 15, top: 10, bottom: 10),
       clipBehavior: Clip.antiAlias,
@@ -644,7 +740,7 @@ class SideQuestCard extends StatelessWidget {
               margin: const EdgeInsets.only(left: 70.0),
               height: 250.0,
               width: double.infinity,
-              child: Image.network(sidequest.reward!.poster!,
+              child: Image.asset(sidequest.poi!.imageURL!,
                   fit: ( deviceOrientation == Orientation.portrait ? BoxFit.cover : BoxFit.fitWidth))
           ),
 
@@ -664,8 +760,10 @@ class SideQuestCard extends StatelessWidget {
 
           expiredOrCompleted(),
 
+          categoryReward(),
+
           Container(
-            width: 250,
+            width: 200,
             margin: const EdgeInsets.all(20),
             child:
             RichText(
@@ -673,11 +771,11 @@ class SideQuestCard extends StatelessWidget {
                 style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white,),
                 children: <TextSpan> [
                   TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestGoToUpper} ")),
-                  TextSpan(text: "${sidequest.poi!.name!} ", style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                  TextSpan(text: "${sidequest.poi!.name!} ", style: TextStyle(color: Theme.of(context).iconTheme.color, fontStyle: FontStyle.italic)),
                   TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestScan} ")),
                   TextSpan(text: sidequest.reward!.type!),
                   TextSpan(text: (" ${AppLocalizations.of(context)!.sideQuestGoToLower} ")),
-                  TextSpan(text: sidequest.reward!.placeEvent!, style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                  TextSpan(text: "${sidequest.reward!.placeEvent!}.", style: TextStyle(color: Theme.of(context).iconTheme.color, fontStyle: FontStyle.italic)),
                 ],
               ),
             ),
