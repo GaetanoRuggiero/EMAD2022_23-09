@@ -10,7 +10,7 @@ class UserUtils {
   static const String emailKey = "email";
 
   static Future<User?> isLogged (String email, String token) async {
-    User? user = await checkIfLogged(email, token);
+    User? user = await checkTokenValidity(email, token);
     return user;
   }
 
@@ -37,6 +37,14 @@ class UserUtils {
 
   static Future<String?> readToken() async {
     return await storage.read(key: tokenKey);
+  }
+
+  static void writeToken(String token) async {
+    await storage.write(key: UserUtils.tokenKey, value: token);
+  }
+
+  static void writeEmail(String email) async {
+    await storage.write(key: UserUtils.emailKey, value: email);
   }
 
   static Map<String, int> getBadgePerCountry(Map<POI,String> visitedPoi) {

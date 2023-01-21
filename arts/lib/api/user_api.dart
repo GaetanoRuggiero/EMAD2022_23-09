@@ -70,7 +70,7 @@ Future<User?> loginUser(String email, String password, String token) async {
   return null;
 }
 
-Future<bool?> signUpUser(String name, String surname, String email, String password, String token) async {
+Future<bool> signUpUser(String name, String surname, String email, String password, String token, bool isPartner) async {
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -79,7 +79,7 @@ Future<bool?> signUpUser(String name, String surname, String email, String passw
 
   String hashedPassword = hashPassword(password);
 
-  final body = {'name': name, 'surname': surname, 'email': email, 'password': hashedPassword, 'token': token};
+  final body = {'name': name, 'surname': surname, 'email': email, 'password': hashedPassword, 'token': token, 'partner': isPartner};
 
   final headers = <String, String> {
     "Content-Type": "application/json; charset=utf-8"
@@ -106,15 +106,14 @@ Future<bool?> signUpUser(String name, String surname, String email, String passw
       return true;
     }
   } else if (response.statusCode == 500) {
-    debugPrint("Server did not respond at: $uri");
-    return null;
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   } else {
     throw Exception('Fatal Error');
   }
   return false;
 }
 
-Future<User?> checkIfLogged(String email, String token) async {
+Future<User?> checkTokenValidity(String email, String token) async {
   Uri uri = Uri(
       scheme: 'http', host: Env.serverIP, port: Env.serverPort, path: 'users/checkTokenValidity');
   debugPrint("Calling $uri");
@@ -387,6 +386,48 @@ Future<String> getIdUser(String email) async{
   else {
     throw Exception('Failed to load POI');
   }
+}
+
+Future<bool> scanQr(String qrUrl) async{
+  Uri uri = Uri.parse(qrUrl);
+
+  if (uri.host == "localhost") {
+    uri = Uri(
+        scheme: 'http',
+        host: Env.serverIP,
+        port: Env.serverPort,
+        path: uri.path,
+        queryParameters: uri.queryParameters
+    );
+  } else {
+    throw QrException("Qr has not been genereted by artS application");
+  }
+
+  final response = await http
+      .get(uri)
+      .timeout(const Duration(seconds: 4), onTimeout: () {
+    return http.Response('Timeout', 500);
+  })
+      .onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    bool scanned = jsonDecode(response.body);
+    if (scanned) {
+      debugPrint("QR scanned successfully ");
+      return true;
+    }
+  }
+  else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  }
+  else {
+    throw Exception('Failed to load POI');
+  }
+  debugPrint("Wrong QR");
+  return false;
 }
 
 

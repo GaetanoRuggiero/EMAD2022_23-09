@@ -234,9 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       _colorSnackbar = Colors.green;
                                                     });
                                                     UserUtils.deleteEmailAndToken();
-                                                    userProvider.isLogged = false;
-                                                    userProvider.name = "";
-                                                    userProvider.surname = "";
+                                                    userProvider.logout();
                                                     if (!mounted) return;
                                                     Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
                                                         builder: (context) => const LoginScreen()), (Route route) => false);

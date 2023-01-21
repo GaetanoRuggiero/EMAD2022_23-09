@@ -3,16 +3,18 @@ class User {
   String? surname;
   String? email;
   String? password;
+  bool? partner;
   List<Visited>? visited;
   List<Coupon>? couponList;
 
-  User({this.name, this.surname, this.email, this.password, this.visited, this.couponList});
+  User({this.name, this.surname, this.email, this.password, this.partner, this.visited, this.couponList});
 
   User.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     surname = json['surname'];
     email = json['email'];
     password = json['password'];
+    partner = json['partner'];
     if (json['visited'] != null) {
       visited = <Visited>[];
       json['visited'].forEach((v) {
@@ -33,6 +35,7 @@ class User {
     data['surname'] = surname;
     data['email'] = email;
     data['password'] = password;
+    data['partner'] = partner;
     if (visited != null) {
       data['visited'] = visited!.map((v) => v.toJson()).toList();
     }
@@ -44,7 +47,7 @@ class User {
 
   @override
   String toString() {
-    return 'User{name: $name, surname: $surname, email: $email, visited: $visited, coupons: $couponList}';
+    return 'User{name: $name, surname: $surname, email: $email, partner: $partner, visited: $visited, coupons: $couponList}';
   }
 }
 

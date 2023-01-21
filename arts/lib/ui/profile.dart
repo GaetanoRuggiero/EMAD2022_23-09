@@ -30,102 +30,103 @@ class Profile extends StatelessWidget {
         ),
         body: Consumer<UserProvider>(
           builder: (context, userProvider, child) {
-            String level = (userProvider.visited.length~/poiCountForLevel).toString();
-            int levelProgress = (userProvider.visited.length%poiCountForLevel);
+            String level = (userProvider.visited.length ~/ poiCountForLevel).toString();
+            int levelProgress = (userProvider.visited.length % poiCountForLevel);
             return Column(
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        alignment: Alignment.center,
-                        margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                      child: Column(
+                        children: [
+                          CircularPercentIndicator(
+                            radius: 60,
+                            lineWidth: 13.0,
+                            animation: true,
+                            center: Text(level, style: TextStyle(fontSize: 40, color: Theme.of(context).backgroundColor, /*TODO: SET FONT fontFamily:*/ )),
+                            percent: levelProgress*0.2,
+                            circularStrokeCap: CircularStrokeCap.round,
+                            //TODO: GRADIENT OR DINAMIC COLOR? progressColor: levelProgress == firstStep ? Theme ,
+                            footer: Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Text("${userProvider.name} ${userProvider.surname}", style: const TextStyle(fontSize: 20)),
+                            ),
+                          ),
+                          const SeasonCard(),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(0, 20, 5, 0),
                         child: Column(
                           children: [
-                            CircularPercentIndicator(
-                              radius: 60,
-                              lineWidth: 13.0,
-                              animation: true,
-                              center: Text(level, style: TextStyle(fontSize: 40, color: Theme.of(context).backgroundColor, /*TODO: SET FONT fontFamily:*/ )),
-                              percent: levelProgress*0.2,
-                              circularStrokeCap: CircularStrokeCap.round,
-                              //TODO: GRADIENT OR DINAMIC COLOR? progressColor: levelProgress == firstStep ? Theme ,
-                              footer: Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: Text("${userProvider.name} ${userProvider.surname}", style: const TextStyle(fontSize: 20)),
-                              ),
+                            Tooltip(
+                              message: AppLocalizations.of(context)!.modifyPassword,
+                              child: IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const EditProfileScreen()),
+                                    );
+                                  },
+                                  icon: const Icon(size: 30, Icons.edit)),
                             ),
-                            const SeasonCard(),
+                            Tooltip(
+                              message: AppLocalizations.of(context)!.settings,
+                              child: IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const SettingsScreen()),
+                                    );
+                                  },
+                                  icon: const Icon(size: 30, Icons.settings)),
+                            ),
+                            Tooltip(
+                              message: AppLocalizations.of(context)!.rewards,
+                              child: IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => const RewardsPage()));
+                                  },
+                                  icon: const Icon(size: 30, Icons.redeem_rounded)),
+                            ),
                           ],
                         ),
                       ),
-                      Positioned(
-                        right: 0,
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(0, 20, 5, 0),
-                          child: Column(
-                            children: [
-                              Tooltip(
-                                message: AppLocalizations.of(context)!.modifyPassword,
-                                child: IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => const EditProfileScreen()),
-                                      );
-                                    },
-                                    icon: const Icon(size: 30, Icons.edit)),
-                              ),
-                              Tooltip(
-                                message: AppLocalizations.of(context)!.settings,
-                                child: IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => const SettingsScreen()),
-                                      );
-                                    },
-                                    icon: const Icon(size: 30, Icons.settings)),
-                              ),
-                              Tooltip(
-                                message: AppLocalizations.of(context)!.rewards,
-                                child: IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => const RewardsPage()));
-                                    },
-                                    icon: const Icon(size: 30, Icons.redeem_rounded)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 5,vertical: 20),
-                    child: Row(
-                      children: const [
-                        Expanded(
-                          child: Divider()
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Text("Badge"),
-                        ),
-                        Expanded(
-                          child: Divider()
-                        ),
-                      ]
                     ),
+                  ],
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5,vertical: 20),
+                  child: Row(
+                    children: const [
+                      Expanded(
+                        child: Divider()
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Text("Badge"),
+                      ),
+                      Expanded(
+                        child: Divider()
+                      ),
+                    ]
                   ),
-                  Flexible(
-                      child: BadgeWidget(visitedPoi: userProvider.visited)
-                  ),
-                ]);
+                ),
+                Flexible(
+                    child: BadgeWidget(visitedPoi: userProvider.visited)
+                ),
+              ]
+            );
           },
         ));
   }
