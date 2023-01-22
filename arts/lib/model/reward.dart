@@ -35,6 +35,28 @@ class Reward {
     return data;
   }
 
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Reward &&
+          runtimeType == other.runtimeType &&
+          discountAmount == other.discountAmount &&
+          expiryDate == other.expiryDate &&
+          placeEvent == other.placeEvent &&
+          poster == other.poster &&
+          type == other.type &&
+          category == other.category;
+
+  @override
+  int get hashCode =>
+      discountAmount.hashCode ^
+      expiryDate.hashCode ^
+      placeEvent.hashCode ^
+      poster.hashCode ^
+      type.hashCode ^
+      category.hashCode;
+
   @override
   String toString() {
     return 'Reward{discountAmount: $discountAmount, expiryDate: $expiryDate, placeEvent: $placeEvent, poster: $poster, type: $type, category: $category}';

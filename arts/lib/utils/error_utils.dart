@@ -22,3 +22,28 @@ void showDisconnectedDialog(BuildContext context) async {
     },
   );
 }
+
+RefreshIndicator showConnectionError(String errorMessage, Future<void> Function() onRefresh) {
+  return RefreshIndicator(
+    onRefresh: onRefresh,
+    child: Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
+              Text(
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
+                errorMessage
+              ),
+            ],
+          ),
+        ),
+        ListView(), //Pull to refresh needs at least a scrollable list to work
+      ]
+    ),
+  );
+}

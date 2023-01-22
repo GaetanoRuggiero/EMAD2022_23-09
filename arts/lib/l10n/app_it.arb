@@ -164,5 +164,6 @@
   "qrPositiveMessage": "QR valido",
   "qrNegativeMessage": "QR non valido",
   "invalidQR": "QR non è stato generato dall'applicazione artS",
-  "retry": "Riprova"
+  "retry": "Riprova",
+  "all": "Tutti"
 }
