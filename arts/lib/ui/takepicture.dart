@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:arts/api/sidequest_api.dart';
 import 'package:arts/exception/exceptions.dart';
 import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:native_exif/native_exif.dart';
 import 'package:provider/provider.dart';
+import '../model/sidequest.dart';
+import '../model/user.dart';
 import '../utils/user_provider.dart';
 import './styles.dart';
 import '../api/poi_api.dart';
@@ -157,8 +160,9 @@ class ImageRecognitionScreen extends StatelessWidget {
   const ImageRecognitionScreen(
     {super.key, required this.imagePath, required this.latitude, required this.longitude});
 
-  Future<List<POI>> recognizePOI(String imagePath) async {
-    List<POI> candidates = [];
+  Future<Map<POI, double>> recognizePOI(String imagePath) async {
+    Map<POI, double> candidates = {};
+    double acceptableScore = 0.4;
     /* Storing the device location into image's EXIF metadata to improve
     probability of success of the recognition step. */
     Exif? exif = await Exif.fromPath(imagePath);
@@ -173,6 +177,7 @@ class ImageRecognitionScreen extends StatelessWidget {
     final String imageBase64 = base64Encode(await XFile(imagePath).readAsBytes());
     try {
       GoogleVisionResponse visionResponse = await getVisionResults(imageBase64);
+      String? bestGuessLabel = visionResponse.responses?[0].webDetection?.bestGuessLabels?[0].label;
       for (var webEntity in visionResponse.responses![0].webDetection!.webEntities!) {
         debugPrint("[ImageRecognitionScreen] Searching for: ${webEntity.description!}");
         var searchResults = await getPOIListByName(webEntity.description!);
@@ -182,8 +187,30 @@ class ImageRecognitionScreen extends StatelessWidget {
                 result.name!.toLowerCase()
                 || webEntity.description!.toLowerCase() ==
                     result.nameEn!.toLowerCase()) {
-              debugPrint("[ImageRecognitionScreen] Found a match! ---- ${result.nameEn}");
-              candidates.add(result);
+              if (webEntity.score! < acceptableScore) {
+                debugPrint("[ImageRecognitionScreen] Not considering - ${result.nameEn}, score is too low: ${webEntity.score}");
+                continue;
+              }
+              debugPrint("[ImageRecognitionScreen] Found a match! - ${result.nameEn} with score: ${webEntity.score}");
+              candidates.update(result,
+                (value) {
+                  if (value < webEntity.score!) {
+                    return webEntity.score!;
+                  } else {
+                    return (value + 0.5);
+                  }
+                },
+                ifAbsent: () {
+                double score = webEntity.score!;
+                  if (bestGuessLabel != null && bestGuessLabel.isNotEmpty) {
+                    if (bestGuessLabel.toLowerCase() == result.name!.toLowerCase()
+                      || bestGuessLabel.toLowerCase() == result.nameEn!.toLowerCase()) {
+                      score = score + 0.5;
+                      debugPrint("[ImageRecognitionScreen] bestGuessLabel: $bestGuessLabel");
+                    }
+                  }
+                  return score;
+                });
             }
           }
         }
@@ -210,6 +237,16 @@ class ImageRecognitionScreen extends StatelessWidget {
     }
   }
 
+  Future<Sidequest?> checkCompletedSidequest(POI recognizedPOI) async {
+    List<Sidequest> availableSidequests = await getAvailableSidequest();
+    for (var sidequest in availableSidequests) {
+      if (sidequest.poi == recognizedPOI) {
+        return sidequest;
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,24 +257,34 @@ class ImageRecognitionScreen extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                  List<POI> candidates = snapshot.data!;
-                  POI bestCandidate = candidates.first;
+                  Map<POI, double> candidates = snapshot.data!;
+                  POI bestCandidate = candidates.keys.first;
+
+                  double minDistance = calculateDistance(latitude, longitude, bestCandidate.latitude!, bestCandidate.longitude!);
+                  for (int i = 1; i < candidates.length; i++) {
+                    double distance = calculateDistance(latitude, longitude, candidates.keys.elementAt(i).latitude!,  candidates.keys.elementAt(i).longitude!);
+                    if (minDistance > distance) {
+                      double currentScore = candidates[bestCandidate]!;
+                      double newScore = candidates[candidates.keys.elementAt(i)]!;
+                      if (currentScore > (newScore + 0.3)) {
+                        continue;
+                      }
+                      minDistance = distance;
+                      bestCandidate =  candidates.keys.elementAt(i);
+                    }
+
+                  }
+
                   double distanceThreshold = POI.getMaxPhotoThreshold(bestCandidate.size!);
                   if (userProvider.isDeveloperModeOn) {
                     distanceThreshold = 99999999999999999.9;
                   }
 
-                  double minDistance = calculateDistance(latitude, longitude, bestCandidate.latitude!, bestCandidate.longitude!);
-                  for (var candidate in candidates) {
-                    double distance = calculateDistance(latitude, longitude, candidate.latitude!, candidate.longitude!);
-                    if (minDistance > distance) {
-                      minDistance = distance;
-                      bestCandidate = candidate;
-                    }
-                  }
                   bool isDistanceValid = checkPhotoThreshold(minDistance, distanceThreshold);
 
                   if (isDistanceValid) {
+                    debugPrint("[ImageRecognitionScreen] Best candidate: ${bestCandidate.nameEn} with score: ${candidates[bestCandidate]}");
+                    Sidequest? completedSidequest;
                     Future.delayed(Duration.zero, () async {
                       String? email = await UserUtils.readEmail();
                       String? token = await UserUtils.readToken();
@@ -245,20 +292,29 @@ class ImageRecognitionScreen extends StatelessWidget {
                         String lastVisited = DateTime.now().toLocal().toString();
                         userProvider.visited.update(bestCandidate, (value) => lastVisited, ifAbsent: () => lastVisited);
                         try {
-                          await updateVisitedPOI(email, token, bestCandidate.id!, lastVisited);
+                          updateVisitedPOI(email, token, bestCandidate.id!, lastVisited);
+                          completedSidequest = await checkCompletedSidequest(bestCandidate);
+                          if (completedSidequest != null) {
+                            Coupon? coupon = await giveSidequestCoupon(email, token, completedSidequest!.reward!.id!);
+                            if (coupon == null) {
+                              debugPrint("\n[ Sidequest already Completed ]\n- Reward place: ${completedSidequest!.reward!.placeEvent}\n- POI to recognize: ${completedSidequest!.poi!.nameEn}");
+                              completedSidequest = null;
+                            } else {
+                              debugPrint("\n[ Sidequest Completed ]\n- Reward place: ${completedSidequest!.reward!.placeEvent}\n- POI to recognize: ${completedSidequest!.poi!.nameEn}");
+                            }
+                          }
                         } on ConnectionErrorException catch(e) {
                           debugPrint(e.cause);
                         }
                       }
-                    });
-
-                    Future.microtask(() {
-                      // Going back to TakePictureScreen
-                      Navigator.pop(context);
-                      // Replacing TakePictureScreen with the recognized poi screen
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => SinglePOIView(poi: bestCandidate)));
+                      Future.microtask(() {
+                        // Going back to TakePictureScreen
+                        Navigator.pop(context);
+                        // Replacing TakePictureScreen with the recognized poi screen
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => SinglePOIView(poi: bestCandidate, sidequest: completedSidequest)));
+                      });
                     });
                   }
                   else {
@@ -285,7 +341,10 @@ class ImageRecognitionScreen extends StatelessWidget {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Center(child: Text(AppLocalizations.of(context)!.poiRecognitionLoading)),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: Text("${AppLocalizations.of(context)!.poiRecognitionLoading}...")),
+                  ),
                   const Center(child: CircularProgressIndicator()),
                 ],
               );
@@ -321,7 +380,7 @@ class TooDistantDialog extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi)));
+                      MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi, sidequest: null)));
                 });
               }),
         ],

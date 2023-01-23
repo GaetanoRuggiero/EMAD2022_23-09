@@ -146,6 +146,8 @@
   "history": "History",
   "view3dModel": "View 3D model",
   "modelNotAvailable": "3D Model not available",
+  "missionCompleted": "Mission completed",
+  "youHaveReceived": "You have received",
 
   "coupon": "Discount of",
   "ticketDiscount": "Discounted ticket of",

@@ -171,7 +171,7 @@ class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAlive
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi)),
+                              MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi, sidequest: null)),
                             );
                           },
                         );
@@ -319,7 +319,7 @@ class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveCl
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => SinglePOIView(poi: poi)),
+                    builder: (context) => SinglePOIView(poi: poi, sidequest: null)),
               );
             },
           );
