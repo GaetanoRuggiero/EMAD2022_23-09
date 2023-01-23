@@ -1,4 +1,5 @@
 class Reward {
+  String? id;
   int? discountAmount;
   String? expiryDate;
   String? placeEvent;
@@ -7,7 +8,9 @@ class Reward {
   String? category;
 
   Reward(
-      {this.discountAmount,
+      {
+        this.id,
+        this.discountAmount,
         this.expiryDate,
         this.placeEvent,
         this.poster,
@@ -16,6 +19,7 @@ class Reward {
       });
 
   Reward.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     discountAmount = json['discount_amount'];
     expiryDate = json['expiry_date'];
     placeEvent = json['place_event'];
@@ -26,6 +30,7 @@ class Reward {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
     data['discount_amount'] = discountAmount;
     data['expiry_date'] = expiryDate;
     data['place_event'] = placeEvent;
@@ -35,30 +40,16 @@ class Reward {
     return data;
   }
 
+  @override
+  String toString() {
+    return 'Reward{id: $id, discountAmount: $discountAmount, expiryDate: $expiryDate, placeEvent: $placeEvent, poster: $poster, type: $type, category: $category}';
+  }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Reward &&
-          runtimeType == other.runtimeType &&
-          discountAmount == other.discountAmount &&
-          expiryDate == other.expiryDate &&
-          placeEvent == other.placeEvent &&
-          poster == other.poster &&
-          type == other.type &&
-          category == other.category;
+      other is Reward && runtimeType == other.runtimeType && id == other.id;
 
   @override
-  int get hashCode =>
-      discountAmount.hashCode ^
-      expiryDate.hashCode ^
-      placeEvent.hashCode ^
-      poster.hashCode ^
-      type.hashCode ^
-      category.hashCode;
-
-  @override
-  String toString() {
-    return 'Reward{discountAmount: $discountAmount, expiryDate: $expiryDate, placeEvent: $placeEvent, poster: $poster, type: $type, category: $category}';
-  }
+  int get hashCode => id.hashCode;
 }
