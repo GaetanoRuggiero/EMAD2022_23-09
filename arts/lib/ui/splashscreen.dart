@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:arts/api/user_api.dart';
 import 'package:arts/model/user.dart';
+import 'package:arts/ui/profile_partner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
       String? token = await UserUtils.readToken();
       if (email != null && token != null) {
         User? user = await UserUtils.isLogged(email, token);
-        if (user != null) {
+        if (user != null && !user.partner!) {
           _visitedPOI = await getVisitedPOI(email, token);
         }
         return user;
@@ -91,17 +92,30 @@ class _SplashScreenState extends State<SplashScreen> {
                     });
                   } else {
                     userProvider.isLogged = true;
+                    userProvider.isPartner = user.partner!;
                     userProvider.name = user.name!;
-                    userProvider.surname = user.surname!;
-                    userProvider.visited = _visitedPOI;
-                    Future.delayed(const Duration(seconds: 2), () {
-                      Future.microtask(() {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HomePage())
-                        );
+                    if (!userProvider.isPartner) {
+                      userProvider.surname = user.surname!;
+                      userProvider.visited = _visitedPOI;
+                      Future.delayed(const Duration(seconds: 2), () {
+                        Future.microtask(() {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomePage())
+                          );
+                        });
                       });
-                    });
+                    } else {
+                      Future.delayed(const Duration(seconds: 2), () {
+                        Future.microtask(() {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ProfilePartner())
+                          );
+                        });
+                      });
+                    }
                     return Center(
                       child: Column(
                         mainAxisAlignment:  MainAxisAlignment.center,

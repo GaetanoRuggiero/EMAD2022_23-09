@@ -55,6 +55,7 @@
 
   "welcomeReg": "Sign in to unlock all functionalities",
   "name": "Name",
+  "partnerName": "Commercial business",
   "hintName": "Enter your name",
   "mandatoryField": "Mandatory field",
   "invalidEmail": "Invalid Email Address",
@@ -81,6 +82,7 @@
   "missingEmail": "Enter your email!",
   "missingPsw": "Enter your password!",
   "login": "Sign in",
+  "partner": "Are you a partner? Click here",
   "noMatchingPass": "The passwords do not match",
   "loginFailed": "Incorrect email or password.",
   "regFailed4Email": "Registration failed, email already taken.",
@@ -89,6 +91,7 @@
   "loading": "Loading...",
 
   "profile": "Profile",
+  "profilePartner": "Partner's Profile",
   "redirectLog": "Login now",
   "rewards": "Rewards",
   "seasonMex": "The season ends on ",
@@ -149,6 +152,8 @@
   "history": "History",
   "view3dModel": "View 3D model",
   "modelNotAvailable": "3D Model not available",
+  "missionCompleted": "Mission completed",
+  "youHaveReceived": "You have received",
 
   "coupon": "Discount of",
   "ticketDiscount": "Discounted ticket of",
@@ -164,6 +169,10 @@
   "disconnected": "You got disconnected",
   "mustLoginAgain": "You have to log in again",
 
-  "frameQR": "Frame the QR."
-
+  "frameQR": "Frame the QR.",
+  "qrPositiveMessage": "QR valid",
+  "qrNegativeMessage": "QR not valid",
+  "invalidQR": "QR has not been genereted by artS application",
+  "retry": "Retry",
+  "all": "All"
 }

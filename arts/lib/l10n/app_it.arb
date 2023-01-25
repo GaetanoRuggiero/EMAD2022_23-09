@@ -55,6 +55,7 @@
 
   "welcomeReg": "Iscriviti per usufruire di tutte le funzionalità",
   "name": "Nome",
+  "partnerName": "Esercizio commerciale",
   "hintName": "Inserisci il tuo nome",
   "mandatoryField": "Campo obbligatorio",
   "invalidEmail": "Email non valida",
@@ -80,6 +81,7 @@
   "emailExm": "Es. mariorossi@esempio.it",
   "missingEmail": "Inserisci la tua email!",
   "missingPsw": "Inserisci la tua password!",
+  "partner": "Sei un partner? Clicca qui",
   "login": "Entra",
   "noMatchingPass": "Le password non coincidono",
   "loginFailed": "Email o password errati.",
@@ -89,6 +91,7 @@
   "loading": "Caricamento...",
 
   "profile": "Profilo",
+  "profilePartner": "Profilo Partner",
   "redirectLog": "Accedi",
   "rewards": "Premi",
   "seasonMex": "La stagione termina il",
@@ -149,6 +152,8 @@
   "history": "Cenni storici",
   "view3dModel": "Guarda modello 3D",
   "modelNotAvailable": "Modello 3D non disponibile",
+  "missionCompleted": "Missione completata",
+  "youHaveReceived": "Hai ottenuto",
 
   "coupon": "Sconto del",
   "ticketDiscount": "Biglietto scontato del",
@@ -163,5 +168,10 @@
   "disconnected": "Sei stato disconnesso",
   "mustLoginAgain": "Devi effettuare nuovamente l'accesso",
 
-  "frameQR": "Inquadra il QR."
+  "frameQR": "Inquadra il QR.",
+  "qrPositiveMessage": "QR valido",
+  "qrNegativeMessage": "QR non valido",
+  "invalidQR": "QR non è stato generato dall'applicazione artS",
+  "retry": "Riprova",
+  "all": "Tutti"
 }

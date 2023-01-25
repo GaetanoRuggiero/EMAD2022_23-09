@@ -7,6 +7,7 @@ class UserProvider extends ChangeNotifier {
   late String surname;
   late Map<POI, String> visited;
   late bool isDeveloperModeOn;
+  late bool isPartner;
 
   UserProvider() {
     isLogged = false;
@@ -14,5 +15,15 @@ class UserProvider extends ChangeNotifier {
     surname = "";
     visited = {};
     isDeveloperModeOn = false;
+    isPartner = false;
+  }
+
+  void logout() {
+    isLogged = false;
+    name = "";
+    surname = "";
+    visited = {};
+    isDeveloperModeOn = false;
+    isPartner = false;
   }
 }

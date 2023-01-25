@@ -1,13 +1,21 @@
+import 'package:arts/model/sidequest.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/POI.dart';
+import '../model/reward.dart';
 
 class SinglePOIView extends StatelessWidget {
-  const SinglePOIView({super.key, required this.poi});
+  const SinglePOIView({super.key, required this.poi, required this.sidequest});
   final POI poi;
+  final Sidequest? sidequest;
 
   @override
   Widget build(BuildContext context) {
+    if (sidequest != null) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        showDialog(context: context, builder: (context) => SidequestCompletedDialog(reward: sidequest!.reward!));
+      });
+    }
     return Scaffold(
         appBar: AppBar(
           title: Text(poi.name!),
@@ -44,11 +52,10 @@ class SinglePOIView extends StatelessWidget {
 }
 
 class _Step {
-  _Step(this.title, this.body, [this.isExpanded = false]);
+  _Step(this.title, this.body);
 
   String title;
   String body;
-  bool isExpanded;
 }
 
 class Steps extends StatefulWidget {
@@ -90,6 +97,28 @@ class StepsState extends State<Steps> {
                 child: Text(step.body)),
             value: step.title);
       }).toList(),
+    );
+  }
+}
+
+class SidequestCompletedDialog extends StatelessWidget {
+  const SidequestCompletedDialog({Key? key, required this.reward}) : super(key: key);
+  final Reward reward;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("${AppLocalizations.of(context)!.missionCompleted}!"),
+      content: Text("${AppLocalizations.of(context)!.youHaveReceived} 1 ${reward.type} ${AppLocalizations.of(context)!.sideQuestGoToLower} ${reward.placeEvent}!"),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          child: const Text("Ok"),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        )
+      ],
     );
   }
 }

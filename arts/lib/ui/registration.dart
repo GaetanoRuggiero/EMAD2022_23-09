@@ -1,12 +1,13 @@
 import 'package:arts/api/user_api.dart';
 import 'package:arts/ui/login.dart';
+import 'package:arts/ui/profile_partner.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import '../exception/exceptions.dart';
 import '../utils/user_utils.dart';
 import 'homepage.dart';
 
@@ -19,7 +20,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  bool isPasswordVisible = false, isConfirmPasswordVisible = false;
+  bool isPasswordVisible = false, isConfirmPasswordVisible = false, _isPartner= false;
   final TextEditingController _controllerName = TextEditingController(),
       _controllerSurname = TextEditingController(),
       _controllerEmail = TextEditingController(),
@@ -62,15 +63,15 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: [
                         Container(
                           margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                          child: const Icon(
-                            Icons.person,
+                          child: Icon(
+                            _isPartner ? Icons.store : Icons.person,
                             color: darkOrange,
                             size: 22,
                           ),
                         ),
                         Expanded(
                           child: Container(
-                            margin: const EdgeInsets.only(right: 5),
+                            margin: _isPartner ? const EdgeInsets.only(right: 0) : const EdgeInsets.only(right: 5),
                             child: TextFormField(
                                 controller: _controllerName,
                                 style: TextStyle(
@@ -81,7 +82,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     fontSize: 15),
                                 decoration: InputDecoration(
                                   border: const OutlineInputBorder(),
-                                  labelText: AppLocalizations.of(context)!.name,
+                                  labelText: _isPartner ? AppLocalizations.of(context)!.partnerName : AppLocalizations.of(context)!.name,
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -92,7 +93,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 }),
                           ),
                         ),
-                        Expanded(
+                        _isPartner ? Container()
+                        : Expanded(
                           child: Container(
                             margin: const EdgeInsets.only(left: 5),
                             child: TextFormField(
@@ -284,42 +286,82 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ],
                   ),
+                  Row(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(20, 0, 5, 10),
+                        child: const Icon(
+                          Icons.store,
+                          color: darkOrange,
+                          size: 22,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 10),
+                        child: Container(
+                            alignment: Alignment.centerLeft,
+                            margin: const EdgeInsets.only(bottom: 10, top: 10),
+                            child: Text("${AppLocalizations.of(context)!.partner}: ",
+                                style: const TextStyle(fontSize: 20))
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 20, 10),
+                        child: Switch(
+                          value: _isPartner,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _isPartner = value;
+                            });
+                          },
+                        ),
+                      )
+                    ],
+                  ),
                   Consumer<UserProvider>(
                     builder: (context, userProvider, child) {
                       return GestureDetector(
                         onTap: () async {
                           if (_formKey.currentState!.validate()) {
                             String newToken = generateToken();
-                            bool? reg = await signUpUser(
-                                _controllerName.text,
-                                _controllerSurname.text,
-                                _controllerEmail.text,
-                                _controllerPass.text,
-                                newToken);
-                            if (reg == null) {
-                              //in this case the server is unreachable
+                            try {
+                              bool? reg = await signUpUser(
+                                  _controllerName.text,
+                                  _controllerSurname.text,
+                                  _controllerEmail.text,
+                                  _controllerPass.text,
+                                  newToken,
+                                  _isPartner
+                              );
+                              if (reg) {
+                                UserUtils.writeEmail(_controllerEmail.text);
+                                UserUtils.writeToken(newToken);
+                                userProvider.isLogged = true;
+                                userProvider.name = _controllerName.text;
+                                userProvider.isPartner = _isPartner;
+                                if (userProvider.isPartner) {
+                                  if (!mounted) return;
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const ProfilePartner()));
+                                  return;
+                                }
+                                userProvider.surname = _controllerSurname.text;
+                                if (!mounted) return;
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => const HomePage()));
+                              } else {
+                                setState(() {
+                                  _showRegError = true;
+                                });
+                              }
+                            } on ConnectionErrorException catch(e) {
+                              debugPrint(e.cause);
                               setState(() {
                                 _showRegError = null;
-                              });
-                            }
-                            if (reg!) {
-                              const storage = FlutterSecureStorage();
-                              await storage.write(
-                                  key: UserUtils.tokenKey, value: newToken);
-                              await storage.write(
-                                  key: UserUtils.emailKey,
-                                  value: _controllerEmail.text);
-                              userProvider.isLogged = true;
-                              userProvider.name = _controllerName.text;
-                              userProvider.surname = _controllerSurname.text;
-                              if (!mounted) return;
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const HomePage()));
-                            } else {
-                              setState(() {
-                                _showRegError = true;
                               });
                             }
                           }
