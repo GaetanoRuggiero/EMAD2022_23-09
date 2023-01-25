@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import './singletourscreen.dart';
+import './custom_itinerary.dart';
 import '../api/itinerary_api.dart';
 import '../model/itinerary.dart';
-import '../ui/singletourscreen.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
 class TourListScreen extends StatefulWidget {
   const TourListScreen({Key? key}) : super(key: key);
@@ -14,7 +15,12 @@ class TourListScreen extends StatefulWidget {
 
 class _TourListScreenState extends State<TourListScreen> {
 
-  List<Itinerary> _itineraryList = [];
+  Route<void> _showCustomItineraryDialog(BuildContext context) {
+    return MaterialPageRoute<void>(
+      builder: (context) => const CustomItineraryDialog(),
+      fullscreenDialog: true,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +39,13 @@ class _TourListScreenState extends State<TourListScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 20.0, left: 25.0),
-            child: Row(
-              children: [
-                Text(AppLocalizations.of(context)!.recommendedItinerary, style: const TextStyle(fontWeight: FontWeight.bold))
-              ],
+            padding: const EdgeInsets.only(top: 20.0),
+            child: TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: Text(AppLocalizations.of(context)!.createCustomItinerary),
+                onPressed: () {
+                  Navigator.of(context).push(_showCustomItineraryDialog(context));
+                }
             ),
           ),
           const PathCardDivider(),
@@ -69,24 +77,23 @@ class _TourListScreenState extends State<TourListScreen> {
                   );
                 }
 
-                _itineraryList = itineraryList;
                 if (itineraryList.isNotEmpty) {
                   return Expanded(
                     child: ListView.builder(
                       scrollDirection: Axis.vertical,
                       itemBuilder: (context, index) {
                         return InkWell(
-                          child: PathCard(itinerary: _itineraryList[index]),
+                          child: PathCard(itinerary: itineraryList[index]),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SingleTourScreen(
-                                itinerary: _itineraryList[index],
+                                itinerary: itineraryList[index].path!,
                               )));
                           },
                         );
                       },
-                      itemCount: _itineraryList.length,
+                      itemCount: itineraryList.length,
                     ),
                   );
                 }
