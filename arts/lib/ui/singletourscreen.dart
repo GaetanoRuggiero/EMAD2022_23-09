@@ -1,17 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:arts/exception/exceptions.dart';
 import 'package:arts/main.dart';
 import 'package:arts/model/google_routes_response.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/takepicture.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../api/itinerary_api.dart';
 import '../model/POI.dart';
+import '../model/google_routes_matrix.dart';
 
 class SingleTourScreen extends StatefulWidget {
   final List<POI> itinerary;
@@ -164,8 +167,9 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
 
   void _drawMarkers() async {
 
-    BitmapDescriptor defaultMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_default.png");
-    BitmapDescriptor completedMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_completed.png");
+    BitmapDescriptor nextMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_next.png");
+    BitmapDescriptor toVisitMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_tovisit.png");
+    BitmapDescriptor visitedMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_visited.png");
     BitmapDescriptor markerType;
 
     Set<Marker> markers = {};
@@ -173,10 +177,14 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
     List<POI> places = widget.itinerary;
     for (int i = 0; i < places.length; i++) {
       if (!_currentItineraryPath.contains(places[i])) {
-        markerType = completedMarker;
+        markerType = visitedMarker;
       }
       else {
-        markerType = defaultMarker;
+        if (places[i] == _currentItineraryPath.first) {
+          markerType = nextMarker;
+        } else {
+          markerType = toVisitMarker;
+        }
       }
       markers.add(
         Marker(
@@ -261,34 +269,18 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
       });
       return;
     }
+
     List<POI> path = List.from(_currentItineraryPath);
     List<LatLng> coordinates = [];
     Set<Polyline> polylines = {};
 
-    // Adding user's location as first coordinate
-    coordinates.add(LatLng(_currentPosition!.latitude, _currentPosition!.longitude));
-
-    /* If the _nextStep is null it means that it needs to be chosen based on user's
-    nearest place. Otherwise if the _nextStep != null we don't want to change it
-    again while the user is moving so we skip the calculations. */
-    if (_nextStep == null) {
-      // Adding the user's nearest place as _nextStep
-      double minDistance = _geolocatorPlatform.distanceBetween(coordinates.last.latitude, coordinates.last.longitude, path[0].latitude!, path[0].longitude!);
-      int minDistanceIndex = 0;
-      for (int i = 1; i < path.length; i++) {
-        double newDistance = _geolocatorPlatform.distanceBetween(coordinates.last.latitude, coordinates.last.longitude, path[i].latitude!, path[i].longitude!);
-        if (minDistance > newDistance) {
-          minDistance = newDistance;
-          minDistanceIndex = i;
-        }
-      }
-      _nextStep = path[minDistanceIndex];
+    _nextStep ??= _currentItineraryPath.first;
+    for (var poi in _currentItineraryPath) {
+      coordinates.add(LatLng(poi.latitude!, poi.longitude!));
     }
-    coordinates.add(LatLng(_nextStep!.latitude!, _nextStep!.longitude!));
-
+    LatLng origin = LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
     try {
-      GoogleRoutesResponse routesResponse = await getRoutesBetweenCoordinates(coordinates);
-      // Decode polyline
+      GoogleRoutesResponse routesResponse = await getRoutesBetweenCoordinates(origin, coordinates.last, coordinates.sublist(0, coordinates.length-1));
       List<Legs> legs = routesResponse.routes!.first.legs!;
       if (legs[0].distanceMeters == null || legs[0].distanceMeters! < POI.getSize(_nextStep!.size!)) {
         debugPrint("Step reached! - ${_nextStep!.name}");
@@ -320,20 +312,46 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
         return;
       }
 
-      for (var leg in legs) {
-        final decodedPolyline = decodePolyline(leg.polyline!.encodedPolyline!);
+      // Decode polyline
+      for (int i = 0; i < legs.length; i++) {
+        final decodedPolyline = decodePolyline(legs[i].polyline!.encodedPolyline!);
         List<LatLng> points = decodedPolyline.map((coordinates) {
           return LatLng(coordinates[0].toDouble(), coordinates[1].toDouble());
         }).toList();
 
-        polylines.add(
-          Polyline(
-            polylineId: PolylineId(leg.hashCode.toString()),
-            points: points,
-            width: 6,
-            color: Colors.blue,
-          )
-        );
+        /* First Polyline represents the path to the next POI, we draw it with
+        * a different color. */
+        if (i == 0) {
+          polylines.add(
+            Polyline(
+              polylineId: PolylineId(i.toString()),
+              points: points,
+              patterns: [
+                //PatternItem.dash(10.0),
+                PatternItem.gap(20),
+                PatternItem.dot
+              ],
+              width: 10,
+              color: Colors.blue,
+              zIndex: 5
+            )
+          );
+        } else {
+          polylines.add(
+            Polyline(
+              polylineId: PolylineId(i.toString()),
+              points: points,
+              patterns: [
+                //PatternItem.dash(10.0),
+                PatternItem.gap(25),
+                PatternItem.dot
+              ],
+              width: 6,
+              color: Colors.grey.withOpacity(0.5),
+              zIndex: -1
+            )
+          );
+        }
       }
       setState(() {
         _showLocationError = false;
@@ -419,8 +437,6 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   void initState() {
     super.initState();
 
-    _currentItineraryPath = widget.itinerary;
-
     Future.delayed(Duration.zero, () async {
       Position? position = await _getCurrentPosition();
       if (position == null) {
@@ -428,9 +444,55 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
           _showLocationError = true;
         });
       } else {
-        setState(() {
-          _currentPosition = position;
-        });
+        try {
+          List<POI> orderedPath = [];
+          List<LatLng> coordinates = [];
+          coordinates.add(LatLng(position.latitude, position.longitude));
+          for (var poi in widget.itinerary) {
+            coordinates.add(LatLng(poi.latitude!, poi.longitude!));
+          }
+
+          List<GoogleRoutesMatrix> matrixResponse = await getRouteMatrix(coordinates, coordinates);
+
+          int originIndex = 0;
+          int minMatrixIndex = 0;
+          while (orderedPath.length != widget.itinerary.length) {
+            int distanceMeters = 999999999999;
+            for (int i = 0; i < matrixResponse.length; i++) {
+              if (matrixResponse[i].destinationIndex == 0 || matrixResponse[i].originIndex == matrixResponse[i].destinationIndex) {
+                matrixResponse.removeAt(i);
+                i--;
+                continue;
+              }
+              if (originIndex == matrixResponse[i].originIndex && originIndex != matrixResponse[i].destinationIndex) {
+                if (matrixResponse[i].distanceMeters == null) {
+                  distanceMeters = 0;
+                  minMatrixIndex = i;
+                } else if (distanceMeters > matrixResponse[i].distanceMeters!) {
+                  distanceMeters = matrixResponse[i].distanceMeters!;
+                  minMatrixIndex = i;
+                }
+              }
+            }
+            if (!orderedPath.contains(widget.itinerary[matrixResponse[minMatrixIndex].destinationIndex!-1])) {
+              orderedPath.add(widget.itinerary[matrixResponse[minMatrixIndex].destinationIndex!-1]);
+            }
+            originIndex = matrixResponse[minMatrixIndex].destinationIndex!;
+            matrixResponse.removeAt(minMatrixIndex);
+          }
+
+          debugPrint("The itinerary has been established!");
+          for (int i = 0; i < orderedPath.length-1; i++) {
+            debugPrint("${i+1} - ${orderedPath[i].name}");
+          }
+
+          setState(() {
+            _currentPosition = position;
+            _currentItineraryPath = orderedPath;
+          });
+        } on ConnectionErrorException catch(e) {
+          debugPrint(e.cause);
+        }
       }
       return;
     });
@@ -569,7 +631,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
               height: 100,
               child: Card(
                 margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                color: Theme.of(context).appBarTheme.backgroundColor,
+                color: Theme.of(context).colorScheme.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0)
                 ),
@@ -586,10 +648,10 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       onPressed: _goToMyPosition,
       label: Text(AppLocalizations.of(context)!.myLocation, style: const TextStyle(color: Colors.white)),
-      icon: const Icon(Icons.my_location, color: darkOrange))
+      icon: const Icon(Icons.my_location))
     );
   }
 
@@ -696,22 +758,28 @@ class NavigationDirections extends StatelessWidget {
       }
       return Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-            child: Image.asset("assets/icon/walking.gif"),
-          ),
           Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(AppLocalizations.of(context)!.nextStep, style: const TextStyle(color: Colors.white)),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("${nextStep!.name}", style: const TextStyle(fontSize: 18))
-                ),
-                Text("${AppLocalizations.of(context)!.distance}: $distance", style: const TextStyle(color: Colors.white))
-              ],
+            child: Padding(
+              padding: const EdgeInsets.only(left: 30.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(AppLocalizations.of(context)!.nextStep, style: const TextStyle(color: Colors.white)),
+                  Text("${nextStep!.name}", style: const TextStyle(fontSize: 16)),
+                  Text("${AppLocalizations.of(context)!.distance}: $distance", style: const TextStyle(color: Colors.white))
+                ],
+              ),
             ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: Transform.rotate(angle: 270 * math.pi / 180, child: const Icon(FontAwesomeIcons.shoePrints)),
+              ),
+            ],
           ),
         ],
       );
