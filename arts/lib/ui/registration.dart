@@ -522,8 +522,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   newToken,
                                   _isPartner,
                                 _controllerCategory!,
-                                  longitude,
-                                  latitude
+                                  latitude,
+                                  longitude
                               );
                               if (reg) {
                                 UserUtils.writeEmail(_controllerEmail.text);
