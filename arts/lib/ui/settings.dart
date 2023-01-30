@@ -8,6 +8,7 @@ import '../api/user_api.dart';
 import '../main.dart';
 import '../utils/user_utils.dart';
 import '../utils/settings_model.dart';
+import 'infoscreen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -56,6 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: SafeArea(
           child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
@@ -84,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         },
                         child: SettingsTile(
-                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
                           leftIcon: Icons.translate_outlined,
                           title: AppLocalizations.of(context)!.language),
                       ),
@@ -160,14 +162,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: SettingsTile(
                           leftIcon: Icons.palette_outlined,
                           title: AppLocalizations.of(context)!.theme,
-                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
                         ),
                       )
                     ]
                   )
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -266,7 +268,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   );
                                 },
                                 child: SettingsTile(
-                                    rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                    rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
                                     leftIcon: Icons.logout_outlined,
                                     title: AppLocalizations.of(context)!.logout
                                 ),
@@ -281,7 +283,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     );
                                   },
                                   child: SettingsTile(
-                                      rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                      rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
                                       leftIcon: Icons.login_outlined,
                                       title: AppLocalizations.of(context)!.redirectLog
                                   )
@@ -294,7 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   )
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -313,9 +315,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 10),
 
                       InkWell(
-                        onTap: () {},
+                        onTap: () {Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const InfoScreen()),
+                        );},
                         child: SettingsTile(
-                          rightIcon:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                          rightIcon:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
                           leftIcon: Icons.info_outlined,
                           title: AppLocalizations.of(context)!.infoAndRecognitions
                         ),

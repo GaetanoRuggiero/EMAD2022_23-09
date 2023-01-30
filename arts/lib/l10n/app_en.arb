@@ -1,5 +1,6 @@
 {
   "appName": "ARTS",
+  "appNameLowerCase": "artS",
 
   "close": "close",
   "notLoggedDialogTitle":  "Login required",
@@ -52,6 +53,8 @@
 
   "selectLanguage": "Choose the language",
   "yes": "Yes",
+  "no": "No",
+
 
   "welcomeReg": "Sign in to unlock all functionalities",
   "name": "Name",
@@ -79,6 +82,7 @@
   "or": "or",
   "logLater": "Skip this step",
   "emailExm": "e.g. janedoe@example.com",
+  "emailExm_2": "E-mail",
   "missingEmail": "Enter your email!",
   "missingPsw": "Enter your password!",
   "login": "Sign in",
@@ -134,6 +138,7 @@
   "startItinerary": "Start itinerary",
   "customItineraryResults": "Here the points of interest found within",
   "customItineraryBlank": "Here will be shown the results based on the selected range",
+  "itinerarySidequestQuestion": "Do you want to start an itinerary to",
   "itineraryStart": "Start at:",
   "itineraryEnd": "End at:",
   "km": "km",
@@ -174,5 +179,21 @@
   "qrNegativeMessage": "QR not valid",
   "invalidQR": "QR has not been genereted by artS application",
   "retry": "Retry",
-  "all": "All"
+  "all": "All",
+
+  "bornAsAProject": "originated as a university project of the master's degree program in computer science",
+  "emad": "Enterprise Mobile Application Development",
+  "unisa": "of the University of Salerno",
+  "developedBy": "It was developed by",
+  "aA": "Albanese Attilio",
+  "gR": "Ruggiero Gaetano",
+  "mS": "Salierno Marco",
+  "weThank": "We thank",
+  "wikipedia": "Wikipedia",
+  "thanksToWikipedia": "for information used in attraction descriptions and images of attractions",
+  "unsplash": "Unsplash",
+  "thanksToUnsplash": "for images used in different screens",
+  "johnsonMartin": "Johnson Martin",
+  "thanksToJohnson": "for providing us with a 3D© model of the Eiffel Tower available on the Sketchfab.com platform at the following",
+  "link": "link"
 }

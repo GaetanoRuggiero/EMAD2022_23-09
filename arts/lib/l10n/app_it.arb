@@ -1,5 +1,6 @@
 {
   "appName": "ARTS",
+  "appNameLowerCase": "artS",
 
   "close": "chiudi",
   "notLoggedDialogTitle":  "Accesso richiesto",
@@ -51,7 +52,8 @@
   "infoAndRecognitions": "Info e riconoscimenti",
 
   "selectLanguage": "Seleziona la lingua",
-  "yes": "Si",
+  "yes": "Sì",
+  "no": "No",
 
   "welcomeReg": "Iscriviti per usufruire di tutte le funzionalità",
   "name": "Nome",
@@ -75,14 +77,15 @@
   "welcomeLog": "Benvenuto in",
   "welcomeLog1": "il tuo viaggio inizia qui",
   "welcomeLog2": "Felice di rivederti",
-  "notHaveAnAcc": "Non possiedi già un account? Registrati!",
+  "notHaveAnAcc": "Non hai un account? Registrati!",
   "or": "oppure",
-  "logLater": "Entra in un secondo momento",
+  "logLater": "Entra senza account",
   "emailExm": "Es. mariorossi@esempio.it",
+  "emailExm_2": "E-mail",
   "missingEmail": "Inserisci la tua email!",
   "missingPsw": "Inserisci la tua password!",
   "partner": "Sei un partner? Clicca qui",
-  "login": "Entra",
+  "login": "Accedi",
   "noMatchingPass": "Le password non coincidono",
   "loginFailed": "Email o password errati.",
   "regFailed4Email": "Registrazione fallita, email già utilizzata.",
@@ -135,6 +138,7 @@
   "customItineraryResults": "Ecco i punti di interessi vicini alla tua posizione nel raggio di",
   "customItineraryBlank": "Qui verranno mostrati i risultati in base al range da te selezionato",
   "itineraryStart": "Punto di inizio:",
+  "itinerarySidequestQuestion": "Vuoi avviare un itinerario presso",
   "itineraryEnd": "Punto di fine:",
   "km": "km",
   "length": "Lunghezza",
@@ -173,5 +177,21 @@
   "qrNegativeMessage": "QR non valido",
   "invalidQR": "QR non è stato generato dall'applicazione artS",
   "retry": "Riprova",
-  "all": "Tutti"
+  "all": "Tutti",
+
+  "bornAsAProject": "nasce come progetto universitario del corso di Laurea Magistrale in Informatica",
+  "emad": "Enterprise Mobile Application Development",
+  "unisa": "dell'Università degli Studi di Salerno",
+  "developedBy": "È stata sviluppata dagli studenti",
+  "aA": "Albanese Attilio",
+  "gR": "Ruggiero Gaetano",
+  "mS": "Salierno Marco",
+  "weThank": "Si ringraziano",
+  "wikipedia": "Wikipedia",
+  "thanksToWikipedia": "per le informazioni utilizzate nelle descrizioni delle attrazioni e per le immagini delle stesse",
+  "unsplash": "Unsplash",
+  "thanksToUnsplash": "per le immagini utilizzate in diverse schermate",
+  "johnsonMartin": "Johnson Martin",
+  "thanksToJohnson": "per averci fornito di un modello 3D© della Torre Eiffel disponibile sulla piattaforma Sketchfab.com al seguente",
+  "link": "link"
 }
