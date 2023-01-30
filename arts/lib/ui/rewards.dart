@@ -66,6 +66,8 @@ class _RewardsPageState extends State<RewardsPage> {
 
   @override
   Widget build(BuildContext context) {
+    String expired = AppLocalizations.of(context)!.expired;
+    expired = "${expired.substring(0,expired.length -1)}i";
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -100,7 +102,7 @@ class _RewardsPageState extends State<RewardsPage> {
                       padding: EdgeInsets.only(right: 1),
                       child: Icon(Icons.event_busy, size: 22),
                     ),
-                    Text(AppLocalizations.of(context)!.expired),
+                    Text(expired),
                   ],
                 )),
                 Tab(child: Row(
@@ -192,7 +194,7 @@ class _AvailableCouponState extends State<AvailableCoupon> with AutomaticKeepAli
 
   static Route<void> _fullscreenDialogRoute(BuildContext context, Reward reward, String qrUrl) {
     return MaterialPageRoute<void>(
-      builder: (context) => _FullScreenDialogDemo(reward: reward, qrUrl: qrUrl),
+      builder: (context) => _FullScreenDialogCoupon(reward: reward, qrUrl: qrUrl),
       fullscreenDialog: true,
     );
   }
@@ -218,7 +220,9 @@ class _AvailableCouponState extends State<AvailableCoupon> with AutomaticKeepAli
           if (couponMap!.isNotEmpty) {
             couponMap!.forEach((reward, coupon) {
               DateTime expiredDate = DateTime.parse(reward.expiryDate!);
-              if (DateTime.now().isBefore(expiredDate) && !coupon.used) {
+              if (DateTime.now().isAfter(expiredDate) || coupon.used) {
+                _couponMap.remove(reward);
+              } else {
                 _couponMap.update(reward, (value) => coupon, ifAbsent: () => coupon);
               }
             });
@@ -235,6 +239,7 @@ class _AvailableCouponState extends State<AvailableCoupon> with AutomaticKeepAli
           _showConnectionError = true;
         });
       }
+      debugPrint(_couponMap.toString());
     });
   }
 
@@ -297,7 +302,7 @@ class _AvailableCouponState extends State<AvailableCoupon> with AutomaticKeepAli
     } else {
       return RefreshIndicator(
           onRefresh: refreshTab,
-        child: const NoCoupon(),
+        child: NoCoupon(errorMessage : AppLocalizations.of(context)!.noCouponAvaible, expired: false),
       );
     }
   }
@@ -338,6 +343,8 @@ class _ExpiredCouponState extends State<ExpiredCoupon> with AutomaticKeepAliveCl
               DateTime expiredDate = DateTime.parse(reward.expiryDate!);
               if (DateTime.now().isAfter(expiredDate)) {
                 _couponMap.update(reward, (value) => coupon, ifAbsent: () => coupon);
+              } else {
+                _couponMap.remove(reward);
               }
             });
           }
@@ -407,7 +414,7 @@ class _ExpiredCouponState extends State<ExpiredCoupon> with AutomaticKeepAliveCl
     } else {
       return RefreshIndicator(
         onRefresh: refreshTab,
-        child: const NoCoupon(),
+        child: NoCoupon(errorMessage: AppLocalizations.of(context)!.noCouponExpired, expired: true),
       );
     }
   }
@@ -428,7 +435,7 @@ class _AllCouponState extends State<AllCoupon> with AutomaticKeepAliveClientMixi
 
   static Route<void> _fullscreenDialogRoute(BuildContext context, Reward reward, String qrUrl) {
     return MaterialPageRoute<void>(
-      builder: (context) => _FullScreenDialogDemo(reward: reward, qrUrl: qrUrl),
+      builder: (context) => _FullScreenDialogCoupon(reward: reward, qrUrl: qrUrl),
       fullscreenDialog: true,
     );
   }
@@ -525,14 +532,14 @@ class _AllCouponState extends State<AllCoupon> with AutomaticKeepAliveClientMixi
     } else {
       return RefreshIndicator(
         onRefresh: refreshTab,
-        child: const NoCoupon(),
+        child: NoCoupon(errorMessage: AppLocalizations.of(context)!.noCouponObtained, expired: false),
       );
     }
   }
 }
 
-class _FullScreenDialogDemo extends StatelessWidget {
-  const _FullScreenDialogDemo({Key? key, required this.reward, required this.qrUrl}) : super(key: key);
+class _FullScreenDialogCoupon extends StatelessWidget {
+  const _FullScreenDialogCoupon({Key? key, required this.reward, required this.qrUrl}) : super(key: key);
   final Reward reward;
   final String qrUrl;
 
@@ -590,7 +597,9 @@ class _FullScreenDialogDemo extends StatelessWidget {
 }
 
 class NoCoupon extends StatelessWidget {
-  const NoCoupon({Key? key}) : super(key: key);
+  const NoCoupon({Key? key, required this.errorMessage, required this.expired}) : super(key: key);
+  final String errorMessage;
+  final bool expired;
 
   @override
   Widget build(BuildContext context) {
@@ -609,10 +618,10 @@ class NoCoupon extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.sentiment_dissatisfied_outlined,size: 40,),
+                  Icon(expired ? Icons.sentiment_satisfied_outlined : Icons.sentiment_dissatisfied_outlined,size: 40),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(textAlign: TextAlign.center,style: const TextStyle(fontSize: 15, color: lightOrange), AppLocalizations.of(context)!.noCoupon),
+                    child: Text(textAlign: TextAlign.center,style: const TextStyle(fontSize: 15, color: lightOrange), errorMessage),
                   ),
                 ],
               ),

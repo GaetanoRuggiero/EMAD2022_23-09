@@ -70,7 +70,9 @@ Future<User?> loginUser(String email, String password, String token) async {
   return null;
 }
 
-Future<bool> signUpUser(String name, String surname, String email, String password, String token, bool isPartner) async {
+Future<bool> signUpUser(String name, String surname, String email, String password,
+    String token, bool isPartner, String category, double latitude, double longitude) async {
+
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -79,7 +81,9 @@ Future<bool> signUpUser(String name, String surname, String email, String passwo
 
   String hashedPassword = hashPassword(password);
 
-  final body = {'name': name, 'surname': surname, 'email': email, 'password': hashedPassword, 'token': token, 'partner': isPartner};
+  final body = {'name': name, 'surname': surname, 'email': email, 'password': hashedPassword,
+                'token': token, 'partner': isPartner, 'category': category, 'latitude': latitude,
+                'longitude': longitude};
 
   final headers = <String, String> {
     "Content-Type": "application/json; charset=utf-8"
@@ -388,7 +392,7 @@ Future<String> getIdUser(String email) async{
   }
 }
 
-Future<bool> scanQr(String qrUrl) async{
+Future<bool> scanQr(String qrUrl, String email, String token) async{
   Uri uri = Uri.parse(qrUrl);
 
   if (uri.host == "localhost") {
@@ -403,9 +407,13 @@ Future<bool> scanQr(String qrUrl) async{
     throw QrException("Qr has not been genereted by artS application");
   }
 
-  final response = await http
-      .get(uri)
-      .timeout(const Duration(seconds: 4), onTimeout: () {
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
     return http.Response('Timeout', 500);
   })
       .onError((error, stackTrace) {
@@ -468,6 +476,78 @@ Future<Coupon?> giveSidequestCoupon(String email, String token, String rewardId)
   }
 }
 
+Future<bool> addSidequest(Reward reward, String email, String token) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: '/users/addSidequestByPartner',
+  );
+
+  debugPrint("Calling $uri");
+
+  final body = {'reward': reward, 'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+      await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    bool added = jsonDecode(response.body);
+    if (added) {
+      debugPrint("Reward added successfully");
+      return true;
+    }
+  } else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  } else {
+    throw Exception('Failed to make HTTP request.');
+  }
+  debugPrint(response.body);
+  return false;
+}
+
+Future<int> countReward(String email) async{
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: 'users/countReward',
+      queryParameters: {'email' : email}
+  );
+
+  debugPrint("Calling $uri");
+
+  final response = await http
+      .get(uri)
+      .timeout(const Duration(seconds: 4), onTimeout: () {
+    return http.Response('Timeout', 500);
+  })
+      .onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    int count = jsonDecode(response.body);
+    return count;
+  }
+  else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  }
+  else {
+    throw Exception('Failed to count reward');
+  }
+}
 
 
 

@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'package:arts/api/poi_api.dart';
+import 'package:arts/api/rewards_api.dart';
 import 'package:arts/exception/exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../env/env.dart';
+import '../model/POI.dart';
+import '../model/reward.dart';
 import '../model/sidequest.dart';
+import '../model/sidequest_database.dart';
 
 Future<List<Sidequest>?> getAllSidequest() async {
   Uri uri = Uri(
@@ -31,7 +36,12 @@ Future<List<Sidequest>?> getAllSidequest() async {
       its content with UTF-8 to allow accented characters to be shown correctly */
     List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
     for (var x in jsonArray) {
-      Sidequest sidequest = Sidequest.fromJson(x);
+      SidequestDatabase sidequestDatabase = SidequestDatabase.fromJson(x);
+      POI poi = await getPOIbyId(sidequestDatabase.poi!.substring(sidequestDatabase.poi!.indexOf("/")+1));
+      Reward reward = await getRewardById(sidequestDatabase.reward!.substring(sidequestDatabase.reward!.indexOf("/")+1));
+      StartDate? startDate =  sidequestDatabase.startDate;
+      StartDate? endDate =  sidequestDatabase.endDate;
+      Sidequest sidequest = Sidequest(poi: poi, reward: reward, endDate: endDate, startDate: startDate);
       allSidequestList.add(sidequest);
     }
   } else if (response.statusCode == 500) {
@@ -68,7 +78,12 @@ Future<List<Sidequest>> getAvailableSidequest() async {
       its content with UTF-8 to allow accented characters to be shown correctly */
     List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
     for (var x in jsonArray) {
-      Sidequest sidequest = Sidequest.fromJson(x);
+      SidequestDatabase sidequestDatabase = SidequestDatabase.fromJson(x);
+      POI poi = await getPOIbyId(sidequestDatabase.poi!.substring(sidequestDatabase.poi!.indexOf("/")+1));
+      Reward reward = await getRewardById(sidequestDatabase.reward!.substring(sidequestDatabase.reward!.indexOf("/")+1));
+      StartDate? startDate =  sidequestDatabase.startDate;
+      StartDate? endDate =  sidequestDatabase.endDate;
+      Sidequest sidequest = Sidequest(poi: poi, reward: reward, endDate: endDate, startDate: startDate);
       sidequestList.add(sidequest);
     }
   } else if (response.statusCode == 500) {

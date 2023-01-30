@@ -12,6 +12,9 @@ import './utils/settings_model.dart';
 
 late final CameraDescription camera;
 late SettingsModel settingsModel;
+const String bakery = "bakery", iceCreamShop = "ice Cream Shop", restourant = "restourant", pizzeria = "pizzeria",
+    museum = "museum", theater = "theater", sandwich = "sandwich shop", bar = "bar";
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

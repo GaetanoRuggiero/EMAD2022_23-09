@@ -237,12 +237,12 @@ class _LoginFormState extends State<LoginForm> {
                           await storage.write(
                               key: UserUtils.emailKey,
                               value: _controllerEmail.text);
-                          Map<POI, String> visited = await getVisitedPOI(
-                              _controllerEmail.text, newToken);
                           userProvider.isLogged = true;
                           userProvider.isPartner = user.partner!;
                           userProvider.name = user.name!;
                           if (!userProvider.isPartner) {
+                            Map<POI, String> visited = await getVisitedPOI(
+                                _controllerEmail.text, newToken);
                             userProvider.surname = user.surname!;
                             userProvider.visited = visited;
                             if (!mounted) return;
@@ -251,6 +251,9 @@ class _LoginFormState extends State<LoginForm> {
                                 MaterialPageRoute(
                                     builder: (context) => const HomePage()));
                           } else {
+                            userProvider.ongoingRewards = await countReward(_controllerEmail.text);
+                            userProvider.rewardsAdded = user.rewardsAdded!;
+                            userProvider.category = user.category!;
                             if (!mounted) return;
                             Navigator.pushReplacement(
                                 context,

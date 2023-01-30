@@ -22,6 +22,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   late Future<User?> _startingScreenFuture;
   late Map<POI, String> _visitedPOI;
+  late int _ongoingMision;
 
   Future<User?> initializeUser() async {
     try {
@@ -29,8 +30,15 @@ class _SplashScreenState extends State<SplashScreen> {
       String? token = await UserUtils.readToken();
       if (email != null && token != null) {
         User? user = await UserUtils.isLogged(email, token);
-        if (user != null && !user.partner!) {
-          _visitedPOI = await getVisitedPOI(email, token);
+        if (user != null) {
+          if (!user.partner!) {
+            _visitedPOI = await getVisitedPOI(email, token);
+          } else {
+            int ongoingMission = await countReward(email);
+            setState(() {
+              _ongoingMision = ongoingMission;
+            });
+          }
         }
         return user;
       } else {
@@ -71,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: Column(
                       mainAxisAlignment:  MainAxisAlignment.center,
                       children: [
-                        Text(AppLocalizations.of(context)!.connectionError, textAlign: TextAlign.center, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyText1?.color)),
+                        Text(AppLocalizations.of(context)!.connectionError, textAlign: TextAlign.center, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyLarge?.color)),
                         const Icon(
                           Icons.error_outline_outlined,
                           color: Colors.red,
@@ -106,6 +114,9 @@ class _SplashScreenState extends State<SplashScreen> {
                         });
                       });
                     } else {
+                      userProvider.ongoingRewards = _ongoingMision;
+                      userProvider.rewardsAdded = user.rewardsAdded!;
+                      userProvider.category = user.category!;
                       Future.delayed(const Duration(seconds: 2), () {
                         Future.microtask(() {
                           Navigator.pushReplacement(
@@ -120,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       child: Column(
                         mainAxisAlignment:  MainAxisAlignment.center,
                         children: [
-                          Text(AppLocalizations.of(context)!.welcomeLog2, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyText1?.color)),
+                          Text(AppLocalizations.of(context)!.welcomeLog2, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyLarge?.color)),
                           const Icon(
                             Icons.check_circle_outline,
                             color: Colors.green,

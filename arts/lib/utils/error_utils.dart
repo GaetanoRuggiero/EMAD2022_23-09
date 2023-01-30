@@ -42,7 +42,7 @@ RefreshIndicator showConnectionError(String errorMessage, Future<void> Function(
             ],
           ),
         ),
-        ListView(), //Pull to refresh needs at least a scrollable list to work
+        SizedBox(height: 100, child: ListView()), //Pull to refresh needs at least a scrollable list to work
       ]
     ),
   );

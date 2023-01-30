@@ -3,9 +3,9 @@ class Reward {
   int? discountAmount;
   String? expiryDate;
   String? placeEvent;
-  String? poster;
   String? type;
   String? category;
+  String? email;
 
   Reward(
       {
@@ -13,9 +13,9 @@ class Reward {
         this.discountAmount,
         this.expiryDate,
         this.placeEvent,
-        this.poster,
         this.type,
-        this.category
+        this.category,
+        this.email
       });
 
   Reward.fromJson(Map<String, dynamic> json) {
@@ -23,9 +23,9 @@ class Reward {
     discountAmount = json['discount_amount'];
     expiryDate = json['expiry_date'];
     placeEvent = json['place_event'];
-    poster = json['poster'];
     type = json['type'];
     category = json['category'];
+    email = json['email'];
   }
 
   Map<String, dynamic> toJson() {
@@ -34,15 +34,15 @@ class Reward {
     data['discount_amount'] = discountAmount;
     data['expiry_date'] = expiryDate;
     data['place_event'] = placeEvent;
-    data['poster'] = poster;
     data['type'] = type;
     data['category'] = category;
+    data['email'] = email;
     return data;
   }
 
   @override
   String toString() {
-    return 'Reward{id: $id, discountAmount: $discountAmount, expiryDate: $expiryDate, placeEvent: $placeEvent, poster: $poster, type: $type, category: $category}';
+    return 'Reward {id: $id, discountAmount: $discountAmount, expiryDate: $expiryDate, placeEvent: $placeEvent, type: $type, category: $category, email: $email}';
   }
 
   @override

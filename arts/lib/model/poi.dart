@@ -17,6 +17,7 @@ class POI {
   String? historyEn;
   String? modelName;
   String? size;
+  bool? ongoingMission;
 
   POI({
     this.id,
@@ -36,7 +37,8 @@ class POI {
     this.history,
     this.historyEn,
     this.modelName,
-    this.size
+    this.size,
+    this.ongoingMission
   });
 
   POI.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class POI {
     historyEn = json['history_en'];
     modelName = json['model_name'];
     size = json['size'];
+    ongoingMission = json['ongoing_mission'];
   }
 
   Map<String, dynamic> toJson() {
@@ -80,12 +83,13 @@ class POI {
     data['history_en'] = historyEn;
     data['model_name'] = modelName;
     data['size'] = size;
+    data['ongoing_mission'] = ongoingMission;
     return data;
   }
 
   @override
   String toString() {
-    return 'POI{id: $id, city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region, modelName: $modelName, size: $size}';
+    return 'POI{id: $id, city: $city, cityKeywords: $cityKeywords, country: $country, imageURL: $imageURL, latitude: $latitude, longitude: $longitude, name: $name, nameEn: $nameEn, nameKeywords: $nameKeywords, province: $province, region: $region, modelName: $modelName, size: $size, ongoingMission: $ongoingMission}';
   }
 
   @override

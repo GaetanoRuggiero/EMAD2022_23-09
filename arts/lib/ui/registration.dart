@@ -8,8 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../exception/exceptions.dart';
+import '../main.dart';
+import '../utils/debouncer.dart';
 import '../utils/user_utils.dart';
+import '../env/env.dart';
 import 'homepage.dart';
+import 'package:searchfield/searchfield.dart';
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+import 'package:geocoding/geocoding.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -21,13 +27,97 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   bool isPasswordVisible = false, isConfirmPasswordVisible = false, _isPartner= false;
-  final TextEditingController _controllerName = TextEditingController(),
+  final TextEditingController
+      _controllerName = TextEditingController(),
       _controllerSurname = TextEditingController(),
       _controllerEmail = TextEditingController(),
       _controllerPass = TextEditingController(),
-      _controllerPassVal = TextEditingController();
+      _controllerPassVal = TextEditingController(),
+      _controllerAddress = TextEditingController();
   String errorPassword = "";
+  String? _controllerCategory;
   bool? _showRegError = false;
+  late List<DropdownMenuItem<String>> _dropdownItemsCategory;
+  late final FlutterGooglePlacesSdk _places;
+  List<AutocompletePrediction> _predictions = [];
+  final _debouncer = Debouncer(milliseconds: 500);
+  String _selectedAddress = "";
+  bool _tapped = false;
+  double latitude = 0, longitude = 0;
+
+  List<DropdownMenuItem<String>> dropdownItemsCategory(){
+    List<DropdownMenuItem<String>> menuItems;
+    menuItems = [
+      DropdownMenuItem(
+          value: bakery,
+          child: Text(AppLocalizations.of(context)!.bakery)),
+      DropdownMenuItem(
+          value: iceCreamShop,
+          child: Text(AppLocalizations.of(context)!.iceCreamShop)),
+      DropdownMenuItem(
+          value: restourant,
+          child: Text(AppLocalizations.of(context)!.restourant)),
+      DropdownMenuItem(
+          value: pizzeria,
+          child: Text(AppLocalizations.of(context)!.pizzeria)),
+      DropdownMenuItem(
+          value: museum,
+          child: Text(AppLocalizations.of(context)!.museum)),
+      DropdownMenuItem(
+          value: theater,
+          child: Text(AppLocalizations.of(context)!.theater)),
+      DropdownMenuItem(
+          value: sandwich,
+          child: Text(AppLocalizations.of(context)!.sandwichBar)),
+      DropdownMenuItem(
+          value: bar,
+          child: Text(AppLocalizations.of(context)!.bar)),
+    ];
+    return menuItems;
+  }
+
+  Future<void> _searchAddress(String address) async {
+    _debouncer.run(() async {
+      if (address.length > 5 && address != _selectedAddress) {
+        final predictions = await _places.findAutocompletePredictions(address);
+        setState(() {
+          _predictions = predictions.predictions;
+          _selectedAddress = address;
+        });
+      } else if(address.length <= 5) {
+        setState(() {
+          _predictions = [];
+          _tapped = false;
+        });
+      }
+    });
+  }
+
+  Future<double> getLatitude(List<Location> locations) async {
+    return locations.first.latitude;    
+  }
+  
+  Future<double> getLongitude(List<Location> locations) async {
+    return locations.first.longitude;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _places = FlutterGooglePlacesSdk(Env.apiKey, locale: const Locale('it','IT'));
+
+    _controllerAddress.addListener(() async {
+      await _searchAddress(_controllerAddress.text);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _dropdownItemsCategory = dropdownItemsCategory();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +141,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             style: TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyText1
-                                    ?.color))),
+                                color: Theme.of(context).textTheme.bodyLarge?.color
+                            )
+                        )
+                    ),
                   ),
                   Container(
                     margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -75,11 +165,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             child: TextFormField(
                                 controller: _controllerName,
                                 style: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .headline1
-                                        ?.color,
-                                    fontSize: 15),
+                                    color: Theme.of(context).textTheme.displayLarge?.color,
+                                    fontSize: 15
+                                ),
                                 decoration: InputDecoration(
                                   border: const OutlineInputBorder(),
                                   labelText: _isPartner ? AppLocalizations.of(context)!.partnerName : AppLocalizations.of(context)!.name,
@@ -90,7 +178,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                         .mandatoryField;
                                   }
                                   return null;
-                                }),
+                                }
+                            ),
                           ),
                         ),
                         _isPartner ? Container()
@@ -100,11 +189,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             child: TextFormField(
                                 controller: _controllerSurname,
                                 style: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .headline1
-                                        ?.color,
-                                    fontSize: 15),
+                                    color: Theme.of(context).textTheme.displayLarge?.color,
+                                    fontSize: 15
+                                ),
                                 decoration: InputDecoration(
                                   border: const OutlineInputBorder(),
                                   labelText: AppLocalizations.of(context)!.surname,
@@ -115,7 +202,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                         .mandatoryField;
                                   }
                                   return null;
-                                }),
+                                }
+                            ),
                           ),
                         ),
                       ],
@@ -137,11 +225,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: TextFormField(
                               controller: _controllerEmail,
                               style: TextStyle(
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .headline1
-                                      ?.color,
-                                  fontSize: 15),
+                                  color: Theme.of(context).textTheme.displayLarge?.color,
+                                  fontSize: 15
+                              ),
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(),
                                 labelText: AppLocalizations.of(context)!.email,
@@ -156,7 +242,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 } else {
                                   return null;
                                 }
-                              }),
+                              }
+                          ),
                         ),
                       ),
                     ],
@@ -177,11 +264,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             child: TextFormField(
                                 controller: _controllerPass,
                                 style: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .headline1
-                                        ?.color,
-                                    fontSize: 15),
+                                    color: Theme.of(context).textTheme.displayLarge?.color,
+                                    fontSize: 15
+                                ),
                                 obscureText: isPasswordVisible ? false : true,
                                 decoration: InputDecoration(
                                     suffixIconConstraints: const BoxConstraints(
@@ -193,18 +278,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                         });
                                       },
                                       child: Icon(
-                                        isPasswordVisible
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1
-                                            ?.color,
+                                        isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                        color: Theme.of(context).textTheme.bodyLarge?.color,
                                         size: 22,
                                       ),
                                     ),
                                     border: const OutlineInputBorder(),
-                                    labelText: AppLocalizations.of(context)!.password,),
+                                    labelText: AppLocalizations.of(context)!.password
+                                ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return AppLocalizations.of(context)!
@@ -215,7 +296,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                   } else {
                                     return null;
                                   }
-                                })),
+                                }
+                            )
+                        ),
                       ),
                     ],
                   ),
@@ -235,16 +318,13 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: TextFormField(
                               controller: _controllerPassVal,
                               style: TextStyle(
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .headline1
-                                      ?.color,
+                                  color: Theme.of(context).textTheme.displayLarge?.color,
                                   fontSize: 15),
-                              obscureText:
-                                  isConfirmPasswordVisible ? false : true,
+                              obscureText: isConfirmPasswordVisible ? false : true,
                               decoration: InputDecoration(
                                   suffixIconConstraints: const BoxConstraints(
-                                      minWidth: 45, maxWidth: 46),
+                                      minWidth: 45, maxWidth: 46
+                                  ),
                                   suffixIcon: GestureDetector(
                                     onTap: () {
                                       setState(() {
@@ -253,18 +333,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                       });
                                     },
                                     child: Icon(
-                                      isConfirmPasswordVisible
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyText1
-                                          ?.color,
+                                      isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       size: 22,
                                     ),
                                   ),
                                   border: const OutlineInputBorder(),
-                                labelText: AppLocalizations.of(context)!.passConf,),
+                                labelText: AppLocalizations.of(context)!.passConf
+                              ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return AppLocalizations.of(context)!
@@ -281,11 +357,112 @@ class _RegisterPageState extends State<RegisterPage> {
                                   });
                                 }
                                 return null;
-                              }),
+                              }
+                          ),
                         ),
                       ),
                     ],
                   ),
+                  _isPartner ? Row(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(20, 0, 5, 10),
+                        child: _controllerCategory == bakery ? const Icon(Icons.bakery_dining, color: darkOrange, size: 22)
+                            : _controllerCategory == iceCreamShop ? const Icon(Icons.icecream, color: darkOrange, size: 22)
+                            : _controllerCategory == restourant ? const Icon(Icons.restaurant, color: darkOrange, size: 22)
+                            : _controllerCategory == pizzeria ? const Icon(Icons.local_pizza, color: darkOrange, size: 22)
+                            : _controllerCategory == museum ? const Icon(Icons.museum, color: darkOrange, size: 22)
+                            : _controllerCategory == theater ? const Icon(Icons.theater_comedy, color: darkOrange, size: 22)
+                            : _controllerCategory == bar ? const Icon(Icons.local_bar, color: darkOrange, size: 22)
+                            : _controllerCategory == sandwich ? const Icon(Icons.lunch_dining, color: darkOrange, size: 22)
+                            : const Icon(Icons.food_bank, color: darkOrange, size: 22),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(5, 0, 20, 10),
+                          child: ButtonTheme(
+                            alignedDropdown: true,
+                            child: DropdownButtonFormField(
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                hintText: AppLocalizations.of(context)!.insertCategory,
+                              ),
+                              items: _dropdownItemsCategory,
+                              value: _controllerCategory,
+                              onChanged: (String? newValue) {
+                                int indexClicked = 0;
+                                for (int i = 0; i < _dropdownItemsCategory.length; i++) {
+                                  if (_dropdownItemsCategory[i].value == newValue) {
+                                    indexClicked = i;
+                                    break;
+                                  }
+                                }
+                                var temp = _dropdownItemsCategory.first;
+                                _dropdownItemsCategory[0] = _dropdownItemsCategory[indexClicked];
+                                _dropdownItemsCategory[indexClicked] = temp;
+                                setState(() {
+                                  _controllerCategory = newValue;
+                                });
+
+                              },
+                              validator: (value) => value == null ? AppLocalizations.of(context)!.mandatoryField : null,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ) : Container(),
+                  _isPartner ? Row(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(20, 0, 5, 10),
+                        child: const Icon(
+                          Icons.home,
+                          color: darkOrange,
+                          size: 22,
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(5, 0, 20, 10),
+                          child: SearchField<AutocompletePrediction>(
+                            hint: AppLocalizations.of(context)!.insertAddress,
+                            onSuggestionTap: (prediction) async {
+                              setState(() {
+                                _predictions = [];
+                                _selectedAddress = prediction.item!.fullText;
+                                _controllerAddress.text = prediction.item!.fullText;
+                                _tapped = true;
+                              });
+                            },
+                            controller: _controllerAddress,
+                            suggestions: _predictions.map((prediction) => SearchFieldListItem<AutocompletePrediction>(
+                              prediction.fullText,
+                              item: prediction,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(child: Text(prediction.fullText)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ).toList(),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return AppLocalizations.of(context)!.mandatoryField;
+                              } else if (!_tapped) {
+                                FocusScope.of(context).unfocus();
+                                return AppLocalizations.of(context)!.addressNotTapped;
+                              } else {
+                              return null;
+                              }
+                            }),
+                          )
+                        ),
+                      ]
+                  ) : Container(),
                   Row(
                     children: [
                       Container(
@@ -302,7 +479,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             alignment: Alignment.centerLeft,
                             margin: const EdgeInsets.only(bottom: 10, top: 10),
                             child: Text("${AppLocalizations.of(context)!.partner}: ",
-                                style: const TextStyle(fontSize: 20))
+                                style: const TextStyle(fontSize: 20)
+                            )
                         ),
                       ),
                       Container(
@@ -312,6 +490,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           onChanged: (bool value) {
                             setState(() {
                               _isPartner = value;
+                              _controllerCategory = null;
+                              _selectedAddress = "";
+                              _controllerAddress.text = "";
                             });
                           },
                         ),
@@ -324,6 +505,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         onTap: () async {
                           if (_formKey.currentState!.validate()) {
                             String newToken = generateToken();
+                            _controllerCategory ??= "";
+                            if (_controllerAddress.text.isNotEmpty) {
+                              List<Location> locations =
+                                  await locationFromAddress(
+                                      _controllerAddress.text);
+                              latitude = await getLatitude(locations);
+                              longitude = await getLongitude(locations);
+                            }
                             try {
                               bool? reg = await signUpUser(
                                   _controllerName.text,
@@ -331,7 +520,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                   _controllerEmail.text,
                                   _controllerPass.text,
                                   newToken,
-                                  _isPartner
+                                  _isPartner,
+                                _controllerCategory!,
+                                  longitude,
+                                  latitude
                               );
                               if (reg) {
                                 UserUtils.writeEmail(_controllerEmail.text);
@@ -340,19 +532,16 @@ class _RegisterPageState extends State<RegisterPage> {
                                 userProvider.name = _controllerName.text;
                                 userProvider.isPartner = _isPartner;
                                 if (userProvider.isPartner) {
+                                  userProvider.category = _controllerCategory!;
                                   if (!mounted) return;
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => const ProfilePartner()));
+                                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                      builder: (context) => const ProfilePartner()), (Route route) => false);
                                   return;
                                 }
                                 userProvider.surname = _controllerSurname.text;
                                 if (!mounted) return;
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const HomePage()));
+                                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                    builder: (context) => const HomePage()), (Route route) => false);
                               } else {
                                 setState(() {
                                   _showRegError = true;
@@ -400,7 +589,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           text: AppLocalizations.of(context)!.haveAnAcc,
                           style: TextStyle(
                               color:
-                                  Theme.of(context).textTheme.bodyText1?.color,
+                                  Theme.of(context).textTheme.bodyLarge?.color,
                               fontSize: 20)),
                       TextSpan(
                           text: " ${AppLocalizations.of(context)!.clickH}\n",

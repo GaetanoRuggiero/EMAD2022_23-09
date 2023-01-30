@@ -8,6 +8,9 @@ class UserProvider extends ChangeNotifier {
   late Map<POI, String> visited;
   late bool isDeveloperModeOn;
   late bool isPartner;
+  late int rewardsAdded;
+  late String category;
+  late int ongoingRewards;
 
   UserProvider() {
     isLogged = false;
@@ -16,6 +19,9 @@ class UserProvider extends ChangeNotifier {
     visited = {};
     isDeveloperModeOn = false;
     isPartner = false;
+    rewardsAdded = 0;
+    category = "";
+    ongoingRewards = 0;
   }
 
   void logout() {
@@ -25,5 +31,14 @@ class UserProvider extends ChangeNotifier {
     visited = {};
     isDeveloperModeOn = false;
     isPartner = false;
+    rewardsAdded = 0;
+    category = "";
+    ongoingRewards = 0;
+  }
+
+  void incrementRewardCount() {
+    rewardsAdded++;
+    ongoingRewards++;
+    notifyListeners();
   }
 }

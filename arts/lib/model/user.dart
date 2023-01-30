@@ -4,10 +4,17 @@ class User {
   String? email;
   String? password;
   bool? partner;
+  int? rewardsAdded;
+  String? category;
+  double? latitude;
+  double? longitude;
   List<Visited>? visited;
   List<Coupon>? couponList;
 
-  User({this.name, this.surname, this.email, this.password, this.partner, this.visited, this.couponList});
+  User({this.name, this.surname, this.email, this.password, this.partner,
+    this.rewardsAdded, this.category,  this.latitude, this.longitude,
+    this.visited, this.couponList
+  });
 
   User.fromJson(Map<String, dynamic> json) {
     name = json['name'];
@@ -15,6 +22,10 @@ class User {
     email = json['email'];
     password = json['password'];
     partner = json['partner'];
+    rewardsAdded = json['rewards_added'];
+    category = json['category'];
+    latitude = json['latitude'];
+    longitude = json['longitude'];
     if (json['visited'] != null) {
       visited = <Visited>[];
       json['visited'].forEach((v) {
@@ -36,6 +47,10 @@ class User {
     data['email'] = email;
     data['password'] = password;
     data['partner'] = partner;
+    data['rewards_added'] = rewardsAdded;
+    data['category'] = category;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
     if (visited != null) {
       data['visited'] = visited!.map((v) => v.toJson()).toList();
     }
@@ -47,7 +62,7 @@ class User {
 
   @override
   String toString() {
-    return 'User{name: $name, surname: $surname, email: $email, partner: $partner, visited: $visited, coupons: $couponList}';
+    return 'User{name: $name, surname: $surname, email: $email, partner: $partner, rewardsAdded: $rewardsAdded, category: $category, visited: $visited, coupons: $couponList}';
   }
 }
 
