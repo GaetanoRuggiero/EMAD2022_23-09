@@ -10,7 +10,7 @@ Future<Reward> getRewardById(String id) async {
       scheme: 'http',
       host: Env.serverIP,
       port: Env.serverPort,
-      path: 'reward',
+      path: '/rewards/findById',
       queryParameters: {'id' : id}
   );
   debugPrint("Calling $uri");
