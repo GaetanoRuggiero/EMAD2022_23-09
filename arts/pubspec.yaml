@@ -39,7 +39,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-  camera: ^0.10.2+1
+  camera: ^0.10.3
   path_provider: ^2.0.11
   path: ^1.8.2
   font_awesome_flutter: ^10.3.0
@@ -68,6 +68,7 @@ dependencies:
   url_launcher: ^6.1.8
   confetti: ^0.7.0
   lottie: ^2.2.0
+  permission_handler: ^10.2.0
 
 flutter_icons:
   android: true
@@ -119,4 +120,4 @@ flutter:
         - asset: assets/fonts/DaVinci.ttf
     - family: JosefinSans
       fonts:
-        - asset: assets/fonts/JosefinSans-SemiBold.ttf
+        - asset: assets/fonts/JosefinSans-Regular.ttf

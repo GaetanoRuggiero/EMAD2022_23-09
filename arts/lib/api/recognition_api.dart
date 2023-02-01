@@ -28,6 +28,7 @@ Future<GoogleVisionResponse> getVisionResults(String imageBase64) async {
     "Content-Type": "application/json; charset=utf-8"
   };
   Uri uri = Uri.parse('https://vision.googleapis.com/v1/images:annotate?key=$apiKey');
+  debugPrint("Calling $uri");
   final http.Response response = await http
       .post(uri, headers: headers, body: jsonEncode(request))
       .timeout(const Duration(seconds: 4), onTimeout: () {
@@ -38,12 +39,14 @@ Future<GoogleVisionResponse> getVisionResults(String imageBase64) async {
     return http.Response('Server unreachable', 500);
   });
   if (response.statusCode == 200) {
+    debugPrint("HTTP ${response.statusCode}: OK at: $uri");
     return GoogleVisionResponse.fromJson(jsonDecode(response.body));
   }
   else if (response.statusCode == 500) {
     throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   }
   else {
+    debugPrint(response.body);
     throw Exception("Failure! Couldn't make the call to Google Vision.");
   }
 }

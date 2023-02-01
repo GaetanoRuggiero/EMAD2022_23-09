@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:native_exif/native_exif.dart';
 import 'package:provider/provider.dart';
 import '../model/sidequest.dart';
@@ -33,6 +34,7 @@ class TakePictureScreen extends StatefulWidget {
 class _TakePictureScreenState extends State<TakePictureScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  bool _cameraPermissionGranted = false;
   FlashMode flashMode = FlashMode.off;
 
   void initializeCamera() async {
@@ -43,8 +45,28 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
       ResolutionPreset.high,
     );
 
+
     // Next, initialize the controller. This returns a Future.
-    _initializeControllerFuture = _controller.initialize();
+    _initializeControllerFuture = _controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _cameraPermissionGranted = true;
+      });
+    }).catchError((error) {
+      if (error is CameraException) {
+        switch (error.code) {
+          case 'CameraAccessDenied':
+            setState(() {
+              _cameraPermissionGranted = false;
+            });
+            break;
+          default:
+            break;
+        }
+      }
+    });
   }
 
   @override
@@ -55,16 +77,62 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     // Dispose of the camera controller when the widget is disposed.
     _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_cameraPermissionGranted) {
+      return Scaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.no_photography_rounded, size: 40),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(AppLocalizations.of(context)!.cameraPermissionsError, textAlign: TextAlign.center),
+            ),
+            ElevatedButton(onPressed: () async {
+              var status = await Permission.camera.request();
+              debugPrint(status.toString());
+              if (status == PermissionStatus.denied) {
+                debugPrint("Camera permission denied.");
+              } else if (status == PermissionStatus.permanentlyDenied) {
+                debugPrint("Camera permission permanently denied.");
+                if (!mounted) {
+                  return;
+                }
+                showDialog(context: context, builder: (context) {
+                  return AlertDialog(
+                    title: Text(AppLocalizations.of(context)!.cameraPermissionDialogTitle),
+                    content: Text(AppLocalizations.of(context)!.cameraPermissionDialogContent),
+                    actions: [
+                      TextButton(
+                          child: Text(AppLocalizations.of(context)!.noThanks),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          }),
+                      TextButton(
+                          child: Text(AppLocalizations.of(context)!.allowPermission),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            openAppSettings();
+                          })
+                    ],
+                  );
+                });
+              } else if (status == PermissionStatus.granted) {
+                initializeCamera();
+              }
+            }, child: Text(AppLocalizations.of(context)!.allowPermission))
+          ],
+        ));
+    }
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {
