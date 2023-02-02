@@ -31,7 +31,7 @@ Future<GoogleVisionResponse> getVisionResults(String imageBase64) async {
   debugPrint("Calling $uri");
   final http.Response response = await http
       .post(uri, headers: headers, body: jsonEncode(request))
-      .timeout(const Duration(seconds: 4), onTimeout: () {
+      .timeout(const Duration(seconds: 15), onTimeout: () {
         return http.Response('Timeout', 500);
       })
       .onError((error, stackTrace) {

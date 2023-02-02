@@ -69,6 +69,7 @@ dependencies:
   confetti: ^0.7.0
   lottie: ^2.2.0
   permission_handler: ^10.2.0
+  native_device_orientation: ^1.1.4
 
 flutter_icons:
   android: true

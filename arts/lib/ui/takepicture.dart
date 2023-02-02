@@ -1,24 +1,29 @@
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:arts/api/sidequest_api.dart';
 import 'package:arts/exception/exceptions.dart';
 import 'package:arts/utils/user_utils.dart';
-import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:image/image.dart' as img;
+import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:native_exif/native_exif.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import '../model/sidequest.dart';
-import '../model/user.dart';
-import '../utils/user_provider.dart';
+
 import './styles.dart';
 import '../api/poi_api.dart';
 import '../api/recognition_api.dart';
 import '../api/user_api.dart';
-import '../model/google_vision_response.dart';
 import '../model/POI.dart';
+import '../model/google_vision_response.dart';
+import '../model/sidequest.dart';
+import '../model/user.dart';
 import '../ui/singlepoiview.dart';
+import '../utils/user_provider.dart';
 
 class TakePictureScreen extends StatefulWidget {
   final double latitude;
@@ -34,7 +39,7 @@ class TakePictureScreen extends StatefulWidget {
 class _TakePictureScreenState extends State<TakePictureScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-  bool _cameraPermissionGranted = false;
+  bool _cameraPermissionGranted = true;
   FlashMode flashMode = FlashMode.off;
 
   void initializeCamera() async {
@@ -86,6 +91,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   Widget build(BuildContext context) {
     if (!_cameraPermissionGranted) {
       return Scaffold(
+        appBar: AppBar(),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -132,89 +138,96 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
         ));
     }
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-            icon: const Icon(Icons.home_rounded))
-        ],
-        title: Text(AppLocalizations.of(context)!.poiRecognitionTitleBar),
+        shadowColor: Colors.transparent
       ),
-      body: Stack(
-        alignment: Alignment.center,
-          children: [
-            FutureBuilder(
-              future: _initializeControllerFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  // If the Future is complete, display the preview.
-                  _controller.setFlashMode(flashMode);
-                  final mediaSize = MediaQuery.of(context).size;
-                  final scale = 1 / (_controller.value.aspectRatio * mediaSize.aspectRatio);
-                  return ClipRect(
+      body: FutureBuilder(
+        future: _initializeControllerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            // If the Future is complete, display the preview.
+            _controller.setFlashMode(flashMode);
+            final mediaSize = MediaQuery.of(context).size;
+            final scale = 1 / (_controller.value.aspectRatio * mediaSize.aspectRatio);
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: ClipRect(
                     clipper: _MediaSizeClipper(mediaSize),
                     child: Transform.scale(
                       scale: scale,
                       alignment: Alignment.topCenter,
                       child: CameraPreview(_controller),
                     ),
-                  );
-                } else {
-                  // Otherwise, display a loading indicator.
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
-            Positioned(
-              bottom: 40.0,
-              child: ElevatedButton(
-                style: largeButtonStyle,
-                child: const Icon(Icons.camera),
-                onPressed: () async {
-                  try {
-                    // Ensure camera is initialized
-                    await _initializeControllerFuture;
+                  ),
+                ),
+                Positioned(
+                  bottom: 40,
+                  child: NativeDeviceOrientationReader(
+                    builder: (BuildContext context) {
+                      return ElevatedButton(
+                        style: largeButtonStyle,
+                        child: const Icon(Icons.camera),
+                        onPressed: () async {
+                          final orientation = await NativeDeviceOrientationCommunicator().orientation(useSensor: true);
+                          try {
+                            // Ensure camera is initialized
+                            await _initializeControllerFuture;
 
-                    final image = await _controller.takePicture();
+                            final image = await _controller.takePicture();
 
-                    /* When we're done taking the picture, we let the ImageRecogntionScreen
-                    widget do the rest of the work (calling Google Vision API). */
-                    if (!mounted) return;
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ImageRecognitionScreen(
-                          imagePath: image.path,
-                          latitude: widget.latitude,
-                          longitude: widget.longitude,
-                        ),
-                      ),
-                    );
-                  } catch (e) {
-                    debugPrint("Could not take the picture! Exception message:\n ${e.toString()}");
-                  }
-                }),
-            ),
-            Positioned(
-              bottom: 45.0,
-              left: MediaQuery.of(context).size.width / 2 + 60.0,
-              child: ElevatedButton(
-                style: smallButtonStyle,
-                onPressed: () {
-                  setState(() {
-                    if (flashMode == FlashMode.off) {
-                      _controller.setFlashMode(FlashMode.always);
-                      flashMode = FlashMode.always;
-                    } else {
-                      _controller.setFlashMode(FlashMode.off);
-                      flashMode = FlashMode.off;
-                    }
-                  });
-                }, child: flashMode == FlashMode.off ? const Icon(Icons.flash_off_outlined) : const Icon(Icons.flash_on_outlined)
-              ),
-            )
-          ]
+                            /* When we're done taking the picture, we let the ImageRecogntionScreen
+                            widget do the rest of the work (calling Google Vision API). */
+                            if (!mounted) return;
+                            await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ImageRecognitionScreen(
+                                imagePath: image.path,
+                                orientation: orientation,
+                                latitude: widget.latitude,
+                                longitude: widget.longitude,
+                              ),
+                            ),
+                            );
+                          } catch (e) {
+                            debugPrint("Could not take the picture! Exception message:\n ${e.toString()}");
+                          }
+                        });
+                    },
+                  ),
+                ),
+                Positioned(
+                  bottom: 45.0,
+                  left: MediaQuery.of(context).size.width / 2 + 60.0,
+                  child: ElevatedButton(
+                      style: smallButtonStyle,
+                      onPressed: () {
+                        setState(() {
+                          if (flashMode == FlashMode.off) {
+                            _controller.setFlashMode(FlashMode.always);
+                            flashMode = FlashMode.always;
+                          } else {
+                            _controller.setFlashMode(FlashMode.off);
+                            flashMode = FlashMode.off;
+                          }
+                        });
+                      },
+                      child: flashMode == FlashMode.off ?
+                      const Icon(Icons.flash_off_outlined)
+                      : const Icon(Icons.flash_on_outlined)
+                  ),
+                )
+              ],
+            );
+          } else {
+            // Otherwise, display a loading indicator.
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
       ),
     );
   }
@@ -224,11 +237,30 @@ class ImageRecognitionScreen extends StatelessWidget {
   final String imagePath;
   final double latitude;
   final double longitude;
+  final NativeDeviceOrientation orientation;
 
   const ImageRecognitionScreen(
-    {super.key, required this.imagePath, required this.latitude, required this.longitude});
+    {super.key, required this.imagePath, required this.orientation, required this.latitude, required this.longitude});
 
   Future<Map<POI, double>> recognizePOI(String imagePath) async {
+    final img.Image? capturedImage = img.decodeImage(await XFile(imagePath).readAsBytes());
+    final img.Image rotatedImage;
+
+    if (orientation == NativeDeviceOrientation.portraitDown) {
+      debugPrint("Portait Down");
+      rotatedImage = img.copyRotate(capturedImage!, 180);
+    } else if (orientation == NativeDeviceOrientation.landscapeLeft) {
+      debugPrint("Landscape left");
+      rotatedImage = img.copyRotate(capturedImage!, 270);
+    } else if (orientation == NativeDeviceOrientation.landscapeRight) {
+      debugPrint("LandscapeRight");
+      rotatedImage = img.copyRotate(capturedImage!, 90);
+    } else {
+      debugPrint("Portrait");
+      rotatedImage = capturedImage!;
+    }
+    await File(imagePath).writeAsBytes(img.encodeJpg(rotatedImage));
+    
     Map<POI, double> candidates = {};
     double acceptableScore = 0.4;
     /* Storing the device location into image's EXIF metadata to improve
