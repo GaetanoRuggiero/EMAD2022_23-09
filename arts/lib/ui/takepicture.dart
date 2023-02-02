@@ -47,7 +47,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
       enableAudio: false,
       widget.camera,
       // Define the resolution to use.
-      ResolutionPreset.high,
+      ResolutionPreset.max,
     );
 
 

@@ -68,6 +68,7 @@ dependencies:
   url_launcher: ^6.1.8
   confetti: ^0.7.0
   lottie: ^2.2.0
+  loading_animations: ^2.2.0
   permission_handler: ^10.2.0
   native_device_orientation: ^1.1.4
 

@@ -55,7 +55,7 @@ class _RegisterPageState extends State<RegisterPage> {
           value: iceCreamShop,
           child: Text(AppLocalizations.of(context)!.iceCreamShop)),
       DropdownMenuItem(
-          value: restourant,
+          value: restaurant,
           child: Text(AppLocalizations.of(context)!.restourant)),
       DropdownMenuItem(
           value: pizzeria,
@@ -369,7 +369,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         margin: const EdgeInsets.fromLTRB(20, 0, 5, 10),
                         child: _controllerCategory == bakery ? const Icon(Icons.bakery_dining, color: darkOrange, size: 22)
                             : _controllerCategory == iceCreamShop ? const Icon(Icons.icecream, color: darkOrange, size: 22)
-                            : _controllerCategory == restourant ? const Icon(Icons.restaurant, color: darkOrange, size: 22)
+                            : _controllerCategory == restaurant ? const Icon(Icons.restaurant, color: darkOrange, size: 22)
                             : _controllerCategory == pizzeria ? const Icon(Icons.local_pizza, color: darkOrange, size: 22)
                             : _controllerCategory == museum ? const Icon(Icons.museum, color: darkOrange, size: 22)
                             : _controllerCategory == theater ? const Icon(Icons.theater_comedy, color: darkOrange, size: 22)

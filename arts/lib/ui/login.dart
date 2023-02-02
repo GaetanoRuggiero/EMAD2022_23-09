@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:math';
+import 'dart:ui';
 import 'package:arts/ui/profile_partner.dart';
 import 'package:arts/ui/registration.dart';
 import 'package:arts/ui/styles.dart';
@@ -7,6 +9,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:loading_animations/loading_animations.dart';
 import 'package:provider/provider.dart';
 import '../api/user_api.dart';
 import '../exception/exceptions.dart';
@@ -24,11 +27,20 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  String imageNumber = "assets/background/background_${Random().nextInt(5)}.jpg";
+  int numberOfPhoto = 1;
+  String imageNumber = "assets/background/background_${Random().nextInt(1)}.jpg";
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration.zero, () async {
+      final manifestJson = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
+      final Iterable<String> images = json.decode(manifestJson).keys.where((String key) => key.startsWith('assets/background'));
+      setState(() {
+        numberOfPhoto = images.length;
+        imageNumber = "assets/background/background_${Random().nextInt(numberOfPhoto)}.jpg";
+      });
+    });
   }
 
   @override
@@ -37,91 +49,127 @@ class _LoginScreenState extends State<LoginScreen> {
       onTap: () {
         FocusScope.of(context).unfocus();
       },
-      child: Scaffold(
-          body: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height),
-              child: AnimatedContainer(
-                duration: const Duration(seconds: 2),
-                curve: Curves.easeInQuint,
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage(imageNumber),
-                        opacity: 0.2,
-                        fit: BoxFit.fill
+      child: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage(imageNumber),
+              fit: BoxFit.cover
+          ),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+              sigmaX: 4,
+              sigmaY: 4
+          ),
+          child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Stack(
+                children: [
+                  Opacity(
+                    opacity: 0.4,
+                    child: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      decoration: const BoxDecoration(
+                          gradient: RadialGradient(
+                              radius: 4,
+                              center: Alignment.topCenter,
+                              colors: [
+                                Colors.black,
+                                darkBlue
+                              ]
+                          )
+                      ),
                     ),
                   ),
-                  child: Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 20, top: 30),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(AppLocalizations.of(context)!.welcomeLog, style: const TextStyle(fontSize: 30, fontFamily: "JosefinSans")),
-                              const SizedBox(height: 20),
-                              Image.asset("assets/icon/icon_16-9.png", width: 260),
-                            ],
-                          ),
-                        ),
 
-                        const LoginForm(),
+                  SingleChildScrollView(
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Column(
+                          children: [
 
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            child: RichText(
-                                text: TextSpan(children: [
-                                  TextSpan(
-                                      text: AppLocalizations.of(context)!.notHaveAnAcc,
-                                      style: const TextStyle(color: Colors.blue, fontSize: 18, fontFamily: "JosefinSans"),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => const RegisterPage()));
-                                        })
-                                ])),
-                          ),
-                        ),
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 20, top: 30),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 20),
+                                  Image.asset("assets/icon/icon_big.png", width: 150),
+                                ],
+                              ),
+                            ),
 
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            child: Text(AppLocalizations.of(context)!.or,
-                                textAlign: TextAlign.center,
-                                style:
-                                const TextStyle(fontSize: 18, fontFamily: "JosefinSans")),
-                          ),
-                        ),
+                            Expanded(
+                              child: Container(
 
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            padding: const EdgeInsets.only(top: 10, bottom: 15),
-                            child: RichText(
-                                text: TextSpan(
-                                    text: AppLocalizations.of(context)!.logLater,
-                                    style: const TextStyle(fontSize: 18, color: Colors.blue, fontFamily: "JosefinSans"),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => const HomePage()));
-                                      })),
-                          ),
-                        ),
-                      ]),
-                ),
-              ),
-            ),
-          )),
+                                margin: const EdgeInsets.all(10),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(Radius.circular(40)),
+                                  child: Column(
+                                    children: [
+
+                                      const LoginForm(),
+
+                                      Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: RichText(
+                                            text: TextSpan(
+                                                style: const TextStyle(fontFamily: 'JosefinSans', fontWeight: FontWeight.bold, fontSize: 18),
+                                                children: [
+                                                  TextSpan(
+                                                      text: "${AppLocalizations.of(context)!.notHaveAnAcc} ",
+                                                      style: const TextStyle(color: Colors.white)),
+                                                  TextSpan(
+                                                      text: AppLocalizations.of(context)!.notHaveAnAcc_2,
+                                                      style: const TextStyle(color: Colors.lightBlueAccent),
+                                                      recognizer: TapGestureRecognizer()
+                                                        ..onTap = () {
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder: (context) => const RegisterPage()));
+                                                        })
+                                                ])),
+                                      ),
+
+                                      Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Text(AppLocalizations.of(context)!.or,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(fontFamily: "JosefinSans", color: Colors.white)),
+                                        ),
+                                      ),
+
+                                      Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: RichText(
+                                            text: TextSpan(
+                                                text: AppLocalizations.of(context)!.logLater,
+                                                style: const TextStyle(color: Colors.lightBlueAccent, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "JosefinSans"),
+                                                recognizer: TapGestureRecognizer()
+                                                  ..onTap = () {
+                                                    Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) => const HomePage()));
+                                                  })),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]),
+                    ),
+                  ),
+                ],
+              )),
+        ),
+      ),
     );
   }
 }
@@ -136,11 +184,25 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  Widget loadingOrText = const Text("");
   final _formKey = GlobalKey<FormState>();
   bool isPasswordVisible = false;
   final TextEditingController _controllerEmail = TextEditingController(),
       _controllerPass = TextEditingController();
   bool? _showLoginError = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    setState(() {
+      loadingOrText = (Text(AppLocalizations.of(context)!.login,
+          style: TextStyle(
+            color: Colors.white.withOpacity(.8),
+            fontSize: 18,
+            fontFamily: "JosefinSans",
+          )));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,67 +213,66 @@ class _LoginFormState extends State<LoginForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4),
-                  borderRadius: const BorderRadius.all(Radius.circular(10))
+
+            TextFormField(
+              controller: _controllerEmail,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                    borderSide: const BorderSide(color: Colors.grey)),
+                fillColor: Colors.black.withOpacity(0.8),
+                filled: true,
+                prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                labelText: AppLocalizations.of(context)!.emailExm_2,
+                labelStyle: const TextStyle(fontSize: 15, color: Colors.grey),
               ),
-              child: TextFormField(
-                controller: _controllerEmail,
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).iconTheme.color, size: 20),
-                    hintText: AppLocalizations.of(context)!.emailExm_2,
-                    hintStyle: const TextStyle(fontSize: 15, fontStyle: FontStyle.italic, fontFamily: "JosefinSans")),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context)!.mandatoryField;
-                  } else if (!UserUtils.validateEmail(value)) {
-                    return AppLocalizations.of(context)!.invalidEmail;
-                  } else {
-                    return null;
-                  }
-                },
-              ),
+              style: const TextStyle(color: Colors.white),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return AppLocalizations.of(context)!.mandatoryField;
+                } else if (!UserUtils.validateEmail(value)) {
+                  return AppLocalizations.of(context)!.invalidEmail;
+                } else {
+                  return null;
+                }
+              },
             ),
 
             const SizedBox(height: 10),
 
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4),
-                  borderRadius: const BorderRadius.all(Radius.circular(10))
-              ),
-              child: TextFormField(
-                controller: _controllerPass,
-                obscureText: isPasswordVisible ? false : true,
-                decoration: InputDecoration(
-                    suffixIconConstraints:
-                    const BoxConstraints(minWidth: 45, maxWidth: 46),
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isPasswordVisible = !isPasswordVisible;
-                        });
-                      },
-                      child: Icon(
-                        isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                        size: 22,
-                      ),
+            TextFormField(
+              controller: _controllerPass,
+              obscureText: isPasswordVisible ? false : true,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                    borderSide: const BorderSide(color: Colors.grey)),
+                  suffixIcon: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isPasswordVisible = !isPasswordVisible;
+                      });
+                    },
+                    child: Icon(
+                      isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      size: 22,
                     ),
-                    prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).iconTheme.color, size: 20),
-                    hintText: AppLocalizations.of(context)!.password,
-                    hintStyle: const TextStyle(fontSize: 15, fontStyle: FontStyle.italic, fontFamily: "JosefinSans")),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context)!.mandatoryField;
-                  } else {
-                    return null;
-                  }
-                },
-              ),
+                  ),
+                  fillColor: Colors.black.withOpacity(0.8),
+                  filled: true,
+                  prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                  labelText: AppLocalizations.of(context)!.password,
+                  labelStyle: const TextStyle(fontSize: 15, color: Colors.grey)),
+              style: const TextStyle(color: Colors.white),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return AppLocalizations.of(context)!.mandatoryField;
+                } else {
+                  return null;
+                }
+              },
             ),
 
             Consumer<UserProvider>(
@@ -220,6 +281,9 @@ class _LoginFormState extends State<LoginForm> {
                   onTap: () async {
                     // Validate returns true if the form is valid, or false otherwise.
                     if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        loadingOrText = LoadingJumpingLine.circle(size: 40, backgroundColor: Colors.white);
+                      });
                       String newToken = generateToken();
                       const storage = FlutterSecureStorage();
                       try {
@@ -271,7 +335,7 @@ class _LoginFormState extends State<LoginForm> {
                   },
                   child: Center(
                     child: Container(
-                      height: 60,
+                      height: 40,
                       width: double.infinity,
                       margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                       alignment: Alignment.center,
@@ -288,13 +352,7 @@ class _LoginFormState extends State<LoginForm> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(AppLocalizations.of(context)!.login,
-                              style: TextStyle(
-                                  color: Colors.white.withOpacity(.8),
-                                  fontSize: 20,
-                                  fontFamily: "JosefinSans",
-                                  fontWeight: FontWeight.bold)),
-                          Icon(Icons.arrow_forward_sharp, color: Colors.white30.withOpacity(0.8))
+                          loadingOrText
                         ],
                       ),
                     ),

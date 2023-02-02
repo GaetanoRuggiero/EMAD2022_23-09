@@ -1,3 +1,4 @@
+import 'package:arts/ui/styles.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,16 @@ class _InfoScreenState extends State<InfoScreen> with SingleTickerProviderStateM
 
   double _opacityImage = 1;
   double _opacityText = 0;
+
+  Color textColor() {
+    Color color = Theme.of(context).colorScheme.background;
+    if (color == const Color(0xfffffbff)) {
+      return darkBlue;
+    }
+    else {
+      return Colors.white;
+    }
+  }
 
   @override
   void initState() {
@@ -70,10 +81,10 @@ class _InfoScreenState extends State<InfoScreen> with SingleTickerProviderStateM
                   margin: const EdgeInsets.all(10),
                   width: 600,
                   child: RichText(text: TextSpan(
-                      style: const TextStyle(fontSize: 17, fontFamily: "JosefinSans"),
+                      style: TextStyle(fontSize: 17, fontFamily: "JosefinSans", color: textColor()),
                       children: [
                         TextSpan(text: AppLocalizations.of(context)!.appNameLowerCase,
-                            style: TextStyle(fontSize: 22, fontFamily: "DaVinci", color: Theme.of(context).iconTheme.color)),
+                            style: TextStyle(fontSize: 25, fontFamily: "DaVinci", color: Theme.of(context).iconTheme.color)),
                         TextSpan(text: " ${AppLocalizations.of(context)!.bornAsAProject}"),
                         TextSpan(text:" ${AppLocalizations.of(context)!.emad} ",
                             style: const TextStyle(shadows: <Shadow>[

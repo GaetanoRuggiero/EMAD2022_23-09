@@ -1,10 +1,14 @@
-import 'package:provider/provider.dart';
-import '../model/sidequest.dart';
+import 'dart:ui';
+import 'package:arts/main.dart';
+import 'package:arts/ui/singletourscreen.dart';
+import 'package:arts/ui/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../api/sidequest_api.dart';
 import '../model/POI.dart';
+import '../model/sidequest.dart';
 import '../utils/user_provider.dart';
 
 class SidequestScreen extends StatefulWidget {
@@ -17,6 +21,18 @@ class SidequestScreen extends StatefulWidget {
 class _SidequestScreenState extends State<SidequestScreen> {
 
   late Future _getSidequestFuture;
+  int _selectedIndex = 0;
+  final List _tabs = [
+    const AvailableSidequest(sidequestList: [], visitedPOIMap: {}),
+    const CompletedSidequest(sidequestList: [], visitedPOIMap: {}),
+    const ExpiredSidequest(sidequestList: [])
+  ];
+
+  void _onItemTapped (int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   void initState() {
@@ -46,50 +62,63 @@ class _SidequestScreenState extends State<SidequestScreen> {
                 }),
           ],
           title: Text(AppLocalizations.of(context)!.mission),
-          bottom: TabBar(
-            tabs: [
-              Tab(child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 5),
-                      child: Icon(Icons.directions_walk_outlined, size: 22),
-                    ),
-                    Text(AppLocalizations.of(context)!.available),
-                  ],
-                ),
-              )),
-              Tab(child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 2),
-                      child: Icon(Icons.done_outlined, size: 22),
-                    ),
-                    Text(AppLocalizations.of(context)!.completed),
-                  ],
-                ),
-              ),
-              ),
-              Tab(child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: Icon(Icons.block, size: 22),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: [
+            BottomNavigationBarItem(
+                icon: const Icon(Icons.directions_walk_outlined),
+                activeIcon: Container(
+                  height: 30,
+                  decoration: BoxDecoration(
+                      color: lightOrange,
+                      borderRadius: BorderRadius.circular(20)
                   ),
-                  Text(AppLocalizations.of(context)!.expired),
-                ],
-              )),
-            ],
-          ),
+                  padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
+                  margin: const EdgeInsets.only(bottom: 3),
+                  child: Icon(
+                    Icons.directions_walk_outlined,
+                    color: Theme.of(context).canvasColor,
+                  ),
+                ),
+                label: "Eventi"
+            ),
+            BottomNavigationBarItem(
+                icon: const Icon(Icons.check_outlined),
+                activeIcon: Container(
+                  height: 30,
+                  decoration: BoxDecoration(
+                      color: lightOrange,
+                      borderRadius: BorderRadius.circular(20)
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
+                  margin: const EdgeInsets.only(bottom: 3),
+                  child: Icon(
+                    Icons.check_outlined,
+                    color: Theme.of(context).canvasColor,
+                  ),
+                ),
+                label: "Completate"
+            ),
+            BottomNavigationBarItem(
+                icon: const Icon(Icons.block_outlined),
+                activeIcon: Container(
+                  height: 30,
+                  decoration: BoxDecoration(
+                      color: lightOrange,
+                      borderRadius: BorderRadius.circular(20)
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
+                  margin: const EdgeInsets.only(bottom: 3),
+                  child: Icon(
+                    Icons.block_outlined,
+                    color: Theme.of(context).canvasColor,
+                  ),
+                ),
+                label: "Scadute"
+            )
+          ],
         ),
         body: Consumer<UserProvider>(
             builder: (context, userProvider, child) {
@@ -132,19 +161,18 @@ class _SidequestScreenState extends State<SidequestScreen> {
                         }
                       }
 
-                      return TabBarView(
-                        children: [
-                          AvailableSidequest(
-                              sidequestList: availableSidequestList),
+                      _tabs[0] = AvailableSidequest(
+                          sidequestList: availableSidequestList,
+                          visitedPOIMap: visitedPOIMap);
 
-                          CompletedSidequest(
-                              sidequestList: completedSidequestList,
-                              visitedPOIMap: visitedPOIMap
-                          ),
+                      _tabs[1] = CompletedSidequest(
+                          sidequestList: completedSidequestList,
+                          visitedPOIMap: visitedPOIMap);
 
-                          ExpiredSidequest(sidequestList: expiredSidequestList)
-                        ],
-                      );
+
+                      _tabs[2]= ExpiredSidequest(sidequestList: expiredSidequestList);
+
+                      return SafeArea(child: _tabs[_selectedIndex]);
                     }
                     else {
                       return RefreshIndicator(
@@ -182,8 +210,10 @@ class _SidequestScreenState extends State<SidequestScreen> {
 
 
 class AvailableSidequest extends StatefulWidget {
-  const AvailableSidequest({Key? key, required this.sidequestList}) : super(key: key);
+  const AvailableSidequest({Key? key, required this.sidequestList, required this.visitedPOIMap}) : super(key: key);
   final List<Sidequest> sidequestList;
+  final Map<POI, String> visitedPOIMap;
+
 
   @override
   State<AvailableSidequest> createState() => _AvailableSidequestState();
@@ -192,6 +222,7 @@ class AvailableSidequest extends StatefulWidget {
 class _AvailableSidequestState extends State<AvailableSidequest> with AutomaticKeepAliveClientMixin {
 
   List<Sidequest>? _sidequestList;
+  Map<POI, String>? _visitedPOIMap;
 
   @override
   bool get wantKeepAlive => true;
@@ -200,6 +231,7 @@ class _AvailableSidequestState extends State<AvailableSidequest> with AutomaticK
   void initState() {
     super.initState();
     _sidequestList = widget.sidequestList;
+    _visitedPOIMap = widget.visitedPOIMap;
   }
 
   Future<void> updateEntry() {
@@ -208,7 +240,35 @@ class _AvailableSidequestState extends State<AvailableSidequest> with AutomaticK
     return Future.delayed(Duration.zero, () async {
       sidequestList = await getAllSidequest();
 
+
+
       if (sidequestList != null) {
+
+        for (var sidequest in sidequestList!) {
+          final startDate = DateTime.fromMillisecondsSinceEpoch(sidequest.startDate!.seconds! * 1000);
+          final endDate = DateTime.fromMillisecondsSinceEpoch(sidequest.endDate!.seconds! * 1000);
+
+          //Checking if the Sidequest is completed
+          if (_visitedPOIMap!.containsKey(sidequest.poi)) {
+            DateTime? lastVisited = DateTime.tryParse(_visitedPOIMap![sidequest.poi]!);
+
+            if ((lastVisited!.isAfter(startDate)) && (lastVisited.isBefore(endDate))) {
+              sidequestList!.remove(sidequest);
+            }
+          }
+        }
+
+        //check if it's expired
+        for (var sidequest in sidequestList!) {
+          final endDate = DateTime.fromMillisecondsSinceEpoch(sidequest.endDate!.seconds! * 1000);
+          var nowDate = DateTime.now().toLocal();
+
+          //Checking if the Sidequest is expired
+          if (nowDate.compareTo(endDate) > 0) {
+            sidequestList!.remove(sidequest);
+          }
+        }
+
         setState(() {
           _sidequestList = sidequestList;
         });
@@ -452,7 +512,6 @@ class _ExpiredSidequestState extends State<ExpiredSidequest> with AutomaticKeepA
           }
         }
 
-
         setState(() {
           _sidequestList = sidequestListUpdated;
         });
@@ -532,7 +591,7 @@ class _ExpiredSidequestState extends State<ExpiredSidequest> with AutomaticKeepA
 
 
 //This is the single Sidequest Card
-class SideQuestCard extends StatelessWidget {
+class SideQuestCard extends StatefulWidget {
 
   final bool? isExpired;
   final bool? isCompleted;
@@ -547,23 +606,43 @@ class SideQuestCard extends StatelessWidget {
   final Sidequest sidequest;
 
   @override
+  State<SideQuestCard> createState() => _SideQuestCardState();
+}
+
+class _SideQuestCardState extends State<SideQuestCard> with SingleTickerProviderStateMixin {
+
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     final deviceOrientation = MediaQuery.of(context).orientation;
-    final startDate = DateTime.fromMillisecondsSinceEpoch(sidequest.startDate!.seconds! * 1000);
-    final endDate = DateTime.fromMillisecondsSinceEpoch(sidequest.endDate!.seconds! * 1000);
+    final startDate = DateTime.fromMillisecondsSinceEpoch(widget.sidequest.startDate!.seconds! * 1000);
+    final endDate = DateTime.fromMillisecondsSinceEpoch(widget.sidequest.endDate!.seconds! * 1000);
     final formattedStartDate = DateFormat("dd/MM/yyyy").format(startDate);
     final formattedEndDate = DateFormat("dd/MM/yyyy").format(endDate);
 
     //set the color of the Card, green if completed, grey if expired, blue if available
     List<Color> colorsCheck() {
-      if (isCompleted != null && isCompleted!) {
+      if (widget.isCompleted != null && widget.isCompleted!) {
         return [
           Colors.black.withOpacity(0.0),
           const Color(0xff00994d),
         ];
       }
-      else if (isExpired != null && isExpired!) {
+      else if (widget.isExpired != null && widget.isExpired!) {
         return [
           Colors.black.withOpacity(0.0),
           Colors.grey.shade800,
@@ -579,7 +658,7 @@ class SideQuestCard extends StatelessWidget {
     Widget expiredOrCompleted() {
       Widget pos = Container();
 
-      if (isCompleted != null && isCompleted!) {
+      if (widget.isCompleted != null && widget.isCompleted!) {
         return Positioned(
           bottom: 5.0,
           right: 15.0,
@@ -587,7 +666,7 @@ class SideQuestCard extends StatelessWidget {
         );
       }
 
-      if (isExpired != null && isExpired!) {
+      if (widget.isExpired != null && widget.isExpired!) {
         return Positioned(
             bottom: 5.0,
             right: 15.0,
@@ -595,6 +674,32 @@ class SideQuestCard extends StatelessWidget {
         );
       }
       return pos;
+    }
+
+    //return a Red Sale Label build with the amount of the ticked with it's icon
+    Widget redSaleLabel(String discountAmount, IconData showedIcon) {
+      return Positioned(
+          top: 20.0,
+          right: 15.0,
+          child: Transform.rotate(
+            angle: 90.5,
+            child: CustomPaint(
+              painter: PriceTagPaint(),
+              child: Transform.rotate(
+                angle: 110,
+                child: Container(
+                    padding: const EdgeInsets.only(top: 7, bottom: 7, right: 7, left: 7),
+                    child: Row(children: [
+                      Text("$discountAmount%",style: const TextStyle(fontStyle: FontStyle.italic, fontFamily: 'JosefinSans')),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10.0),
+                        child: Icon(showedIcon, size: 20),
+                      )
+                    ],)),
+              ),
+            ),
+          )
+      );
     }
 
     //set the bottom text of the card, expired if the sidequest is expired,
@@ -606,29 +711,32 @@ class SideQuestCard extends StatelessWidget {
         child: Text("${AppLocalizations.of(context)!.sideQuestEventProgess} $formattedStartDate ${AppLocalizations.of(context)!.articleToThe} $formattedEndDate",
           style: const TextStyle(
               color: Colors.white,
+              fontFamily: 'JosefinSans',
               fontWeight: FontWeight.w600
           ),
         ),
       );
 
-      if (isExpired != null && isExpired!) {
+      if (widget.isExpired != null && widget.isExpired!) {
         return Positioned(
           bottom: 15,
           left: 20,
           child: Text("${AppLocalizations.of(context)!.expiredMission} $formattedEndDate",
             style: const TextStyle(
                 color: Colors.white,
+                fontFamily: 'JosefinSans',
                 fontWeight: FontWeight.w600
             ),
           ),
         );
       }
-      else if (isCompleted != null && isCompleted!) {
+      else if (widget.isCompleted != null && widget.isCompleted!) {
         return Positioned(
           bottom: 15,
           left: 20,
           child: Text(AppLocalizations.of(context)!.sideQuestEventCompleted,
             style: const TextStyle(
+                fontFamily: 'JosefinSans',
                 color: Colors.white,
                 fontWeight: FontWeight.w600
             ),
@@ -638,153 +746,199 @@ class SideQuestCard extends StatelessWidget {
       return pos;
     }
 
+    //set the icon based on the category of the sidequest
     Widget categoryReward() {
 
-      if ((sidequest.reward!.category!).compareTo("restaurant") == 0) {
-        return Positioned(
-            top: 15.0,
-            right: 15.0,
-            child: Row(
-              children: [
-                Icon(Icons.restaurant_outlined, color: Colors.white.withOpacity(0.4), size: 40),
-              ],
-            )
-        );
+      if ((widget.sidequest.reward!.category!).compareTo(restaurant) == 0) {
+        return redSaleLabel(widget.sidequest.reward!.discountAmount.toString(), Icons.restaurant_outlined);
       }
 
-      if ((sidequest.reward!.category!).compareTo("bakery") == 0) {
-        return Positioned(
-            top: 20.0,
-            right: 15.0,
-            child: Row(
-              children: [
-                Icon(Icons.bakery_dining_outlined, color: Colors.white.withOpacity(0.4), size: 40),
-              ],
-            )
-        );
+      if ((widget.sidequest.reward!.category!).compareTo(bakery) == 0) {
+        return redSaleLabel(widget.sidequest.reward!.discountAmount.toString(), Icons.bakery_dining_outlined);
       }
 
-      if ((sidequest.reward!.category!).compareTo("museum") == 0) {
-        return Positioned(
-            top: 20.0,
-            right: 15.0,
-            child: Row(
-              children: [
-                Icon(Icons.museum_outlined, color: Colors.white.withOpacity(0.4), size: 40),
-              ],
-            )
-        );
+      if ((widget.sidequest.reward!.category!).compareTo(museum) == 0) {
+        return redSaleLabel(widget.sidequest.reward!.discountAmount.toString(), Icons.museum_outlined);
       }
 
-      if ((sidequest.reward!.category!).compareTo("theater") == 0) {
-        return Positioned(
-            top: 20.0,
-            right: 15.0,
-            child: Row(
-              children: [
-                Icon(Icons.theater_comedy_outlined, color: Colors.white.withOpacity(0.4), size: 40),
-              ],
-            )
-        );
+      if ((widget.sidequest.reward!.category!).compareTo(theater) == 0) {
+        return redSaleLabel(widget.sidequest.reward!.discountAmount.toString(), Icons.theater_comedy_outlined);
       }
 
-      if ((sidequest.reward!.category!).compareTo("pizza") == 0) {
-        return Positioned(
-            top: 20.0,
-            right: 15.0,
-            child: Row(
-              children: [
-                Icon(Icons.local_pizza_outlined, color: Colors.white.withOpacity(0.4), size: 40),
-              ],
-            )
-        );
+      if ((widget.sidequest.reward!.category!).compareTo(pizzeria) == 0) {
+        return redSaleLabel(widget.sidequest.reward!.discountAmount.toString(), Icons.local_pizza_outlined);
       }
 
-      if ((sidequest.reward!.category!).compareTo("ice cream") == 0) {
-        return Positioned(
-            top: 20.0,
-            right: 15.0,
-            child: Row(
-              children: [
-                Icon(Icons.icecream_outlined, color: Colors.white.withOpacity(0.4), size: 40),
-              ],
-            )
-        );
+      if ((widget.sidequest.reward!.category!).compareTo(iceCreamShop) == 0) {
+        return redSaleLabel(widget.sidequest.reward!.discountAmount.toString(), Icons.icecream_outlined);
       }
 
-      if ((sidequest.reward!.category!).compareTo("sandwich") == 0) {
-        return Positioned(
-            top: 20.0,
-            right: 15.0,
-            child: Row(
-              children: [
-                Icon(Icons.lunch_dining_outlined, color: Colors.white.withOpacity(0.4), size: 40),
-              ],
-            )
-        );
+      if ((widget.sidequest.reward!.category!).compareTo(sandwich) == 0) {
+        return redSaleLabel(widget.sidequest.reward!.discountAmount.toString(), Icons.lunch_dining_outlined);
       }
 
       return Container();
     }
 
-    return Card(
-      margin: const EdgeInsets.only(right: 15, left: 15, top: 10, bottom: 10),
-      clipBehavior: Clip.antiAlias,
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    return SizedBox(
+      height: 180,
+      child: Card(
+        borderOnForeground: true,
+        margin: const EdgeInsets.only(right: 15, left: 15, top: 10, bottom: 10),
+        clipBehavior: Clip.antiAlias,
+        elevation: 30,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
-      child: Stack(
-        children: [
+        child: InkWell(
+          onTap: () {
+            showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaY: 5,
+                      sigmaX: 5
+                    ),
+                    child: AlertDialog(
+                      title: Column(
+                        children: [
+                          const Text("Stai per avviare un itinerario presso:\n", style: TextStyle(fontFamily: 'JosefinSans')),
+                          Text(widget.sidequest.poi!.name!, style: const TextStyle(color: lightOrange, fontFamily: 'JosefinSans')),
+                        ],
+                      ),
+                      actionsAlignment: MainAxisAlignment.center,
+                      content: Container(
+                          clipBehavior: Clip.antiAlias,
+                          decoration: const BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: lightOrange,
+                                blurRadius: 3,
+                                spreadRadius: 3
+                              ),
+                              ],
+                              shape: BoxShape.circle,
+                            color: Colors.red
+                          ),
+                          height: 230,
+                          width: 230,
+                          child: SizedBox(
+                            height: 100,
+                            width: 100,
+                            child: Image.asset("assets/markers/man_walking.gif",
+                              fit: BoxFit.scaleDown,
+                            ),
+                          )),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)
+                      ),
+                      actions: [
+                        TextButton(
+                            child: Text(AppLocalizations.of(context)!.startItinerary),
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SingleTourScreen(itinerary: [widget.sidequest.poi!])));
+                            }
+                        ),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(AppLocalizations.of(context)!.goBack))
+                      ],
+                    ),
+                  );
+                });
+          },
+          child: Stack(
+            children: [
 
-          Container(
-              margin: const EdgeInsets.only(left: 70.0),
-              height: 250.0,
-              width: double.infinity,
-              child: Image.asset(sidequest.poi!.imageURL!,
-                  fit: ( deviceOrientation == Orientation.portrait ? BoxFit.cover : BoxFit.fitWidth))
-          ),
-
-          Container(
-            height: 250,
-            width: double.infinity,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: const AlignmentDirectional(3.5, 0),
-                    end: const FractionalOffset(0.25, 0.25),
-                    colors: colorsCheck(),
-                    stops: const [
-                      0.0,
-                      1.0
-                    ])),
-          ),
-
-          expiredOrCompleted(),
-
-          categoryReward(),
-
-          Container(
-            width: 200,
-            margin: const EdgeInsets.all(20),
-            child:
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white,),
-                children: <TextSpan> [
-                  TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestGoToUpper} ")),
-                  TextSpan(text: "${sidequest.poi!.name!} ", style: TextStyle(color: Theme.of(context).iconTheme.color, fontStyle: FontStyle.italic)),
-                  TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestScan} ")),
-                  TextSpan(text: sidequest.reward!.type!),
-                  TextSpan(text: (" ${AppLocalizations.of(context)!.sideQuestGoToLower} ")),
-                  TextSpan(text: "${sidequest.reward!.placeEvent!}.", style: TextStyle(color: Theme.of(context).iconTheme.color, fontStyle: FontStyle.italic)),
-                ],
+              Container(
+                  margin: const EdgeInsets.only(left: 70.0),
+                  height: 250.0,
+                  width: double.infinity,
+                  child: Image.asset(widget.sidequest.poi!.imageURL!,
+                      fit: ( deviceOrientation == Orientation.portrait ? BoxFit.fitWidth : BoxFit.fitWidth))
               ),
-            ),
+
+              Container(
+                height: 250,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: const AlignmentDirectional(3.5, 0),
+                        end: const FractionalOffset(0.25, 0.25),
+                        colors: colorsCheck(),
+                        stops: const [
+                          0.0,
+                          1.0
+                        ])),
+              ),
+
+              expiredOrCompleted(),
+
+              categoryReward(),
+
+              Container(
+                width: 190,
+                margin: const EdgeInsets.all(20),
+                child:
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white, fontFamily: "JosefinSans"),
+                    children: <TextSpan> [
+                      TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestGoToUpper} ")),
+                      TextSpan(text: "${widget.sidequest.poi!.name!} ", style: TextStyle(color: Theme.of(context).iconTheme.color, fontStyle: FontStyle.italic)),
+                      TextSpan(text: ("${AppLocalizations.of(context)!.sideQuestScan} ")),
+                      TextSpan(text: widget.sidequest.reward!.type!),
+                      TextSpan(text: (" ${AppLocalizations.of(context)!.sideQuestGoToLower} ")),
+                      TextSpan(text: "${widget.sidequest.reward!.placeEvent!}.", style: TextStyle(color: Theme.of(context).iconTheme.color, fontStyle: FontStyle.italic)),
+                    ],
+                  ),
+                ),
+              ),
+
+              expiredOrCompletedBottomText(),
+
+            ],
           ),
-
-          expiredOrCompletedBottomText(),
-
-        ],
+        ),
       ),
     );
   }
+}
+
+class PriceTagPaint extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.red.shade600
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.fill;
+
+    Path path = Path();
+
+    path
+      ..moveTo(0, size.height * .5)
+      ..lineTo(size.width * .25, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(size.width * .25, size.height)
+      ..lineTo(0, size.height * .5)
+      ..close();
+    canvas.drawPath(path, paint);
+
+    //* Circle
+    canvas.drawCircle(
+      Offset(size.width * .13, size.height * .5),
+      size.height * .11,
+      paint..color = Colors.white,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

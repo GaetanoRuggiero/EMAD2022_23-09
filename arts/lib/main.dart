@@ -12,7 +12,7 @@ import './utils/settings_model.dart';
 
 late final CameraDescription camera;
 late SettingsModel settingsModel;
-const String bakery = "bakery", iceCreamShop = "ice Cream Shop", restourant = "restourant", pizzeria = "pizzeria",
+const String bakery = "bakery", iceCreamShop = "ice cream shop", restaurant = "restaurant", pizzeria = "pizzeria",
     museum = "museum", theater = "theater", sandwich = "sandwich shop", bar = "bar";
 
 

@@ -25,7 +25,7 @@
   "sideQuestGoToUpper": "Go to",
   "sideQuestScan": "and scan it to receive 1",
   "sideQuestGoToLower": "to be used at",
-  "sideQuestEventProgess": "Current event: from",
+  "sideQuestEventProgess": "from",
   "articleToThe": "to the",
   "sideQuestEventCompleted": "Event completed!",
   "emptyAvailableMission": "There are no sidequests to complete.",
@@ -85,7 +85,8 @@
   "welcomeLog": "Welcome to",
   "welcomeLog1": "your journey starts here",
   "welcomeLog2": "Happy to see you again",
-  "notHaveAnAcc": "Create new account",
+  "notHaveAnAcc": "Don't have an account?",
+  "notHaveAnAcc_2": "Sign up!",
   "or": "or",
   "logLater": "Skip this step",
   "emailExm": "e.g. janedoe@example.com",
@@ -231,5 +232,8 @@
   "thanksToUnsplash": "for images used in different screens",
   "johnsonMartin": "Johnson Martin",
   "thanksToJohnson": "for providing us with a 3D© model of the Eiffel Tower available on the Sketchfab.com platform at the following",
-  "link": "link"
+  "link": "link",
+
+  "goBack": "Go back"
+
 }

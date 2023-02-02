@@ -22,7 +22,7 @@ Future<List<Sidequest>?> getAllSidequest() async {
   List<Sidequest> allSidequestList = [];
   final response = await http
       .get(uri)
-      .timeout(const Duration(seconds: 4), onTimeout: () {
+      .timeout(const Duration(seconds: 10), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);
@@ -64,7 +64,7 @@ Future<List<Sidequest>> getAvailableSidequest() async {
   List<Sidequest> sidequestList = [];
   final response = await http
       .get(uri)
-      .timeout(const Duration(seconds: 4), onTimeout: () {
+      .timeout(const Duration(seconds: 10), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);

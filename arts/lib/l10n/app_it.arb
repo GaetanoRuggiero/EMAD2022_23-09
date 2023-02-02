@@ -25,7 +25,7 @@
   "sideQuestGoToUpper": "Recati presso",
   "sideQuestScan": "e scansionalo per ricevere 1",
   "sideQuestGoToLower": "da utilizzare presso",
-  "sideQuestEventProgess": "Evento in corso: dal",
+  "sideQuestEventProgess": "dal",
   "articleToThe": "al",
   "sideQuestEventCompleted": "Evento completato!",
   "emptyAvailableMission": "Non sono disponibili missioni da completare.",
@@ -84,7 +84,8 @@
   "welcomeLog": "Benvenuto in",
   "welcomeLog1": "il tuo viaggio inizia qui",
   "welcomeLog2": "Felice di rivederti",
-  "notHaveAnAcc": "Non hai un account? Registrati!",
+  "notHaveAnAcc": "Non hai un account?",
+  "notHaveAnAcc_2": "Registrati!",
   "or": "oppure",
   "logLater": "Entra senza account",
   "emailExm": "Es. mariorossi@esempio.it",
@@ -230,5 +231,7 @@
   "thanksToUnsplash": "per le immagini utilizzate in diverse schermate",
   "johnsonMartin": "Johnson Martin",
   "thanksToJohnson": "per averci fornito di un modello 3D© della Torre Eiffel disponibile sulla piattaforma Sketchfab.com al seguente",
-  "link": "link"
+  "link": "link",
+
+  "goBack": "Torna indietro"
 }

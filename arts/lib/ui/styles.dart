@@ -72,7 +72,8 @@ final ThemeData lightTheme = ThemeData(
   inputDecorationTheme: const InputDecorationTheme().copyWith(
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
     contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-    suffixIconColor: lightOrange
+    suffixIconColor: lightOrange,
+    prefixIconColor: lightOrange,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
     unselectedItemColor: Colors.blueGrey,
@@ -122,7 +123,8 @@ final ThemeData darkTheme = ThemeData(
   inputDecorationTheme: const InputDecorationTheme().copyWith(
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
       contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      suffixIconColor: lightOrange
+      suffixIconColor: lightOrange,
+      prefixIconColor: lightOrange,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
       unselectedItemColor: Colors.white54,

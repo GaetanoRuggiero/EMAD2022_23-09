@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:arts/model/sidequest.dart';
 import 'package:arts/utils/user_provider.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -312,25 +314,84 @@ class DetailedPOIScreen extends StatelessWidget {
   }
 }
 
-class SidequestCompletedDialog extends StatelessWidget {
+class SidequestCompletedDialog extends StatefulWidget {
   const SidequestCompletedDialog({Key? key, required this.reward})
       : super(key: key);
   final Reward reward;
 
   @override
+  State<SidequestCompletedDialog> createState() => _SidequestCompletedDialogState();
+}
+
+class _SidequestCompletedDialogState extends State<SidequestCompletedDialog> {
+
+  late ConfettiController _controllerBottomLeft;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllerBottomLeft = ConfettiController(duration: const Duration(seconds: 2));
+    _controllerBottomLeft.play();
+  }
+
+  List<Color> getListColors() {
+    List<Color> colorList = [];
+    for (int i = 0; i<100; i++) {
+      colorList.add(Color((Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1));
+    }
+    return colorList;
+  }
+
+  @override
+  void dispose() {
+    _controllerBottomLeft.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text("${AppLocalizations.of(context)!.missionCompleted}!"),
-      content: Text(
-          "${AppLocalizations.of(context)!.youHaveReceived} 1 ${reward.type} ${AppLocalizations.of(context)!.sideQuestGoToLower} ${reward.placeEvent}!"),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          child: const Text("Okay"),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        )
+    return Stack(
+      children: [
+
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: ConfettiWidget(
+              confettiController: _controllerBottomLeft,
+              blastDirection: pi * 2,
+              maxBlastForce: 20, // set a lower max blast force
+              minBlastForce: 3, // set a lower min blast force
+              emissionFrequency: 0.9,
+              colors: getListColors(),
+              shouldLoop: false,
+              numberOfParticles: 20, // a lot of particles at once
+              gravity: 0.2,
+              //strokeWidth: 1,
+              //strokeColor: Colors.white,
+              blastDirectionality: BlastDirectionality.explosive,
+              minimumSize: const Size(10, 10),
+              particleDrag: 0.020,
+              maximumSize: const Size(11, 11),
+            ),
+          ),
+        ),
+
+        AlertDialog(
+          title: Text("${AppLocalizations.of(context)!.missionCompleted}!"),
+          content: Text(
+              "${AppLocalizations.of(context)!.youHaveReceived} 1 ${widget.reward.type} ${AppLocalizations.of(context)!.sideQuestGoToLower} ${widget.reward.placeEvent}!"),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              child: const Text("Okay"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ),
       ],
     );
   }

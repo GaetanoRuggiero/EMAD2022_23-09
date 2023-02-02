@@ -189,7 +189,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
     List<String> foodCategories = [
       bakery,
       iceCreamShop,
-      restourant,
+      restaurant,
       pizzeria,
       sandwich,
       bar
@@ -209,7 +209,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
   String getControllerCategory(BuildContext context, String category) {
     return category == bakery ? AppLocalizations.of(context)!.bakery
         : category == iceCreamShop ? AppLocalizations.of(context)!.iceCreamShop
-        : category == restourant ? AppLocalizations.of(context)!.restourant
+        : category == restaurant ? AppLocalizations.of(context)!.restourant
         : category == pizzeria ? AppLocalizations.of(context)!.pizzeria
         : category == museum ? AppLocalizations.of(context)!.museum
         : category == theater ? AppLocalizations.of(context)!.theater
@@ -220,7 +220,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
   Icon getIcon(String category) {
     return  category == bakery ? const Icon(Icons.bakery_dining, color: darkOrange, size: 22)
         : category == iceCreamShop ? const Icon(Icons.icecream, color: darkOrange, size: 22)
-        : category == restourant ? const Icon(Icons.restaurant, color: darkOrange, size: 22)
+        : category == restaurant ? const Icon(Icons.restaurant, color: darkOrange, size: 22)
         : category == pizzeria ? const Icon(Icons.local_pizza, color: darkOrange, size: 22)
         : category == museum ? const Icon(Icons.museum, color: darkOrange, size: 22)
         : category == theater ? const Icon(Icons.theater_comedy, color: darkOrange, size: 22)
