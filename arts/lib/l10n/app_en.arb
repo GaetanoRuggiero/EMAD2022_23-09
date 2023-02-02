@@ -11,7 +11,8 @@
   "toVisitTabTitle": "To Visit",
   "searchTabTitle": "Search",
   "searchAmongAllPOI": "Search among all points of interest",
-  "searchHint": "Search by city name, e.g Naples",
+  "searchByCityHint": "Search by city, e.g Naples",
+  "searchByLandmarkHint": "Search by name, e.g Piazza del Plebiscito",
   "connectionError": "Could not establish connection with server. Please retry or check your Internet connection.",
   "resultsNotFound": "No results found for: ",
   "resultsFound": "Results found",
@@ -192,6 +193,7 @@
   "lastVisited": "Last time visited",
   "hourVisited": "at",
   "notVisitedYet": "Not visited yet",
+  "scrollForDetails": "Scroll for more details",
 
   "coupon": "Discount of",
   "ticketDiscount": "Discounted ticket of",

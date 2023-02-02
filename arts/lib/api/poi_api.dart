@@ -1,6 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import '../env/env.dart';
 import '../exception/exceptions.dart';
 import '../model/POI.dart';
@@ -18,7 +20,7 @@ Future<List<POI>> getPOIListByCity(String searchText) async {
   List<POI> filteredList = [];
   final response = await http
       .get(uri)
-      .timeout(const Duration(seconds: 4), onTimeout: () {
+      .timeout(const Duration(seconds: 10), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);
@@ -30,6 +32,7 @@ Future<List<POI>> getPOIListByCity(String searchText) async {
   if (response.statusCode == 200) {
     /*If the server did return a 200 OK response, parse the Json and decode
       its content with UTF-8 to allow accented characters to be shown correctly */
+    debugPrint("HTTP ${response.statusCode}: OK at: $uri");
     List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
     for (var x in jsonArray) {
       POI poi = POI.fromJson(x);
@@ -59,7 +62,7 @@ Future<List<POI>> getPOIListByNameKeywords(String searchText) async {
   List<POI> filteredList = [];
   final response = await http
       .get(uri)
-      .timeout(const Duration(seconds: 4), onTimeout: () {
+      .timeout(const Duration(seconds: 10), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);
@@ -71,6 +74,7 @@ Future<List<POI>> getPOIListByNameKeywords(String searchText) async {
   if (response.statusCode == 200) {
     /*If the server did return a 200 OK response, parse the Json and decode
       its content with UTF-8 to allow accented characters to be shown correctly */
+    debugPrint("HTTP ${response.statusCode}: OK at: $uri");
     List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
     for (var x in jsonArray) {
       POI poi = POI.fromJson(x);
@@ -100,7 +104,7 @@ Future<List<POI>> getPOIListByName(String searchText) async {
   List<POI> filteredList = [];
   final response = await http
       .get(uri)
-      .timeout(const Duration(seconds: 4), onTimeout: () {
+      .timeout(const Duration(seconds: 10), onTimeout: () {
     /* We force a 500 http response after timeout to simulate a
          connection error with the server. */
     return http.Response('Timeout', 500);
@@ -140,7 +144,7 @@ Future<POI> getPOIbyId(String id) async {
 
   final response = await http
   .get(uri)
-  .timeout(const Duration(seconds: 4), onTimeout: () {
+  .timeout(const Duration(seconds: 10), onTimeout: () {
     return http.Response('Timeout', 500);
   })
   .onError((error, stackTrace) {

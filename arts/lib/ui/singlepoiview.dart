@@ -1,119 +1,332 @@
+import 'dart:ui';
+
 import 'package:arts/model/sidequest.dart';
+import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
 import '../model/POI.dart';
 import '../model/reward.dart';
 
-class SinglePOIView extends StatelessWidget {
+class SinglePOIView extends StatefulWidget {
   const SinglePOIView({super.key, required this.poi, required this.sidequest});
   final POI poi;
   final Sidequest? sidequest;
 
   @override
+  State<SinglePOIView> createState() => _SinglePOIViewState();
+}
+
+class _SinglePOIViewState extends State<SinglePOIView> with TickerProviderStateMixin {
+  late Animation<double> _scrollDownOpacity, _imageOpacity, _blueOpacity, _textLeftPosition;
+  late AnimationController _scrollDownAnimationController, _opacityController;
+  bool _sidequestDialogShown = false;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    _opacityController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _imageOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(_opacityController);
+    _blueOpacity = Tween<double>(begin: 0.0, end: 0.4).animate(_opacityController);
+    _textLeftPosition = Tween<double>(begin: -300, end: 30).animate(_opacityController);
+    _opacityController.addListener(() {
+      setState(() {});
+    });
+
+    _scrollDownAnimationController = AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _scrollDownOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(_scrollDownAnimationController);
+    _scrollDownAnimationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _scrollDownAnimationController.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        _scrollDownAnimationController.forward();
+      }
+      setState(() {});
+    });
+    _opacityController.forward();
+    _scrollDownAnimationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _scrollDownAnimationController.dispose();
+    _opacityController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (sidequest != null) {
+    if (widget.sidequest != null && !_sidequestDialogShown) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        showDialog(context: context, builder: (context) => SidequestCompletedDialog(reward: sidequest!.reward!));
+        showDialog(
+          barrierColor: const Color(0x33000000),
+            context: context,
+            builder: (context) =>
+                SidequestCompletedDialog(reward: widget.sidequest!.reward!));
+
       });
+      _sidequestDialogShown = true;
     }
     return Scaffold(
-        appBar: AppBar(
-          title: Text(poi.name!),
-          actions: [IconButton(onPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          }, icon: const Icon(Icons.home))],
-        ),
-        body: Column(
+      body: Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        Locale currentLocale = Localizations.localeOf(context);
+        String name = widget.poi.name!;
+      if (currentLocale.languageCode == "en") {
+        name = widget.poi.nameEn!;
+      }
+        String? lastVisited;
+        String? dateVisited, hourVisited;
+        if (userProvider.visited[widget.poi] != null) {
+          lastVisited = lastVisited = userProvider.visited[widget.poi]!;
+          if (currentLocale.languageCode == "en") {
+            dateVisited = DateFormat('yyyy LLLL dd', currentLocale.toLanguageTag()).format(DateTime.parse(lastVisited));
+            hourVisited = DateFormat('h:mm a', currentLocale.toLanguageTag()).format(DateTime.parse(lastVisited));
+          } else {
+            dateVisited = DateFormat('dd LLLL yyyy', currentLocale.toLanguageTag()).format(DateTime.parse(lastVisited));
+            hourVisited = DateFormat('HH:mm', currentLocale.toLanguageTag()).format(DateTime.parse(lastVisited));
+          }
+        }
+        return Stack(
           children: [
-            Expanded(
+            AnimatedOpacity(
+                opacity: _imageOpacity.value,
+                duration: const Duration(seconds: 1),
+                curve: Curves.easeInOut,
+                child: SizedBox(
+                  height: double.infinity,
+                  child: Image.asset(widget.poi.imageURL!, fit: BoxFit.cover, alignment: Alignment.center),
+                )),
+            lastVisited == null ?
+            AnimatedOpacity(
+              opacity: _scrollDownOpacity.value,
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
+              child: Center(
+                child: Icon(
+                    Icons.question_mark,
+                    color: Colors.orangeAccent,
+                    shadows: const [],
+                    size: MediaQuery.of(context).size.width - 60),
+              ),
+            ) : Container(),
+            AnimatedOpacity(
+              opacity: _blueOpacity.value,
+              duration: const Duration(seconds: 1),
+              curve: Curves.easeInOut,
               child: Container(
-                height: 350.0,
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                child: Image.asset(poi.imageURL!, fit: BoxFit.fitHeight),
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                        radius: 3,
+                        center: Alignment.topCenter,
+                        colors: [
+                          Colors.black,
+                          Colors.blue.shade700,
+                        ]
+                    )
+                ),
               ),
             ),
-            poi.modelName != null ?
-              ElevatedButton.icon(
-                icon: const Icon(Icons.view_in_ar_outlined),
-                label: Text(AppLocalizations.of(context)!.view3dModel),
-                onPressed: () {}
+            Positioned(
+              top: 80,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height - 80,
+                child: SingleChildScrollView(
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: lastVisited != null ? MediaQuery.of(context).size.height - 80 : 300,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              AnimatedPositioned(
+                                  top: 0,
+                                  left: _textLeftPosition.value,
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeOut,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context).size.width - 100,
+                                        padding: const EdgeInsets.all(10),
+                                        child: Text(name,
+                                            style: const TextStyle(
+                                                shadows: [
+                                                  BoxShadow(color: Colors.black, offset: Offset(0.25, 1), blurRadius: 5)
+                                                ],
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white)),
+                                      ),
+                                      lastVisited != null
+                                          ? Container(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: RichText(
+                                              text: TextSpan(
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                        text: "${AppLocalizations.of(context)!.lastVisited}\n",
+                                                        style: const TextStyle(color: Colors.white)
+                                                    ),
+                                                    TextSpan(
+                                                        text: "$dateVisited ",
+                                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                                                    ),
+                                                    TextSpan(
+                                                        text: "${AppLocalizations.of(context)!.hourVisited} ",
+                                                        style: const TextStyle(color: Colors.white)
+                                                    ),
+                                                    TextSpan(
+                                                        text: hourVisited,
+                                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                                                    ),
+                                                  ]))
+                                      )
+                                          : Container(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: Text(AppLocalizations.of(context)!.notVisitedYet, style: const TextStyle(color: Colors.white, fontStyle: FontStyle.italic))
+                                      ),
+                                      lastVisited != null && widget.poi.modelName != null ?
+                                      ElevatedButton.icon(
+                                          icon: const Icon(FontAwesomeIcons.unity, color: Colors.white),
+                                          style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                                          label: Text(AppLocalizations.of(context)!.view3dModel, style: const TextStyle(color: Colors.white)),
+                                          onPressed: () {}
+                                      ) : Container(),
+                                    ],
+                                  )),
+                              lastVisited != null ? Positioned(
+                                bottom: 0,
+                                child: AnimatedOpacity(
+                                  opacity: _scrollDownOpacity.value,
+                                  duration: const Duration(seconds: 1),
+                                  child: Column(
+                                    children: [
+                                      Text(AppLocalizations.of(context)!.scrollForDetails, style: const TextStyle(color: Colors.white)),
+                                      const Icon(Icons.expand_more, color: Colors.white),
+                                    ],
+                                  ),
+                                ),
+                              ) : const SizedBox(width: 600, height: 400),
+                            ],
+                          ),
+                        ),
+                        lastVisited != null ?
+                        Expanded(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: MediaQuery.of(context).size.height - 80
+                            ),
+                            child: DetailedPOIScreen(poi: widget.poi))) : const Text("")
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              child: SafeArea(
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
               )
-            : const Text(""),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: Steps(poiHistory: poi.history!, poiTrivia: poi.trivia!)
-              ),
-            ),
+            )
           ],
-        )
-    );
+        );
+      },
+    ));
   }
 }
 
-class _Step {
-  _Step(this.title, this.body);
-
-  String title;
-  String body;
-}
-
-class Steps extends StatefulWidget {
-  final String poiHistory, poiTrivia;
-
-  const Steps({Key? key, required this.poiHistory, required this.poiTrivia}) : super(key: key);
-
-  @override
-  State<Steps> createState() => StepsState();
-}
-
-class StepsState extends State<Steps> {
+class DetailedPOIScreen extends StatelessWidget {
+  const DetailedPOIScreen({Key? key, required this.poi}) : super(key: key);
+  final POI poi;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        child: _renderSteps(),
+    String history = poi.history!;
+    String trivia = poi.trivia!;
+    if (Localizations.localeOf(context).languageCode == "en") {
+      history = poi.historyEn!;
+      trivia = poi.triviaEn!;
+    }
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: 5.0,
+          sigmaY: 5.0
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 0, 10, 5),
+                  child: Icon(FontAwesomeIcons.buildingColumns, size: 30, color: Colors.white),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 20, 0, 20),
+                  child: Text(AppLocalizations.of(context)!.history, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white)),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(history, style: const TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 0, 10, 5),
+                  child: Icon(FontAwesomeIcons.question, size: 30, color: Colors.white),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 20, 0, 20),
+                  child: Text(AppLocalizations.of(context)!.trivia, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white)),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(trivia, style: const TextStyle(fontSize: 18, color: Colors.white)),
+            )
+          ]
+        ),
       ),
-    );
-  }
-
-  Widget _renderSteps() {
-    final List<_Step> steps = [_Step(AppLocalizations.of(context)!.history, widget.poiHistory) ,_Step(AppLocalizations.of(context)!.trivia, widget.poiTrivia)];
-
-    return ExpansionPanelList.radio(
-      children: steps.map<ExpansionPanelRadio>((_Step step) {
-        return ExpansionPanelRadio(
-            canTapOnHeader: true,
-            //backgroundColor: Colors.grey.shade200,
-            headerBuilder: (BuildContext context, bool isExpanded) {
-              return ListTile(
-                title: Text(step.title),
-              );
-            },
-            body: Container(
-                //height: 135,
-                padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                child: Text(step.body)),
-            value: step.title);
-      }).toList(),
     );
   }
 }
 
 class SidequestCompletedDialog extends StatelessWidget {
-  const SidequestCompletedDialog({Key? key, required this.reward}) : super(key: key);
+  const SidequestCompletedDialog({Key? key, required this.reward})
+      : super(key: key);
   final Reward reward;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text("${AppLocalizations.of(context)!.missionCompleted}!"),
-      content: Text("${AppLocalizations.of(context)!.youHaveReceived} 1 ${reward.type} ${AppLocalizations.of(context)!.sideQuestGoToLower} ${reward.placeEvent}!"),
+      content: Text(
+          "${AppLocalizations.of(context)!.youHaveReceived} 1 ${reward.type} ${AppLocalizations.of(context)!.sideQuestGoToLower} ${reward.placeEvent}!"),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
         TextButton(
-          child: const Text("Ok"),
+          child: const Text("Okay"),
           onPressed: () {
             Navigator.pop(context);
           },

@@ -11,7 +11,8 @@
   "toVisitTabTitle": "Da visitare",
   "searchTabTitle": "Cerca",
   "searchAmongAllPOI": "Cerca tra tutti i punti d'interesse",
-  "searchHint": "Ricerca per città, es. Napoli",
+  "searchByCityHint": "Ricerca per città, es. Napoli",
+  "searchByLandmarkHint": "Ricerca per nome, es. Piazza del Plebiscito",
   "connectionError": "Impossibile connettersi al server. Controlla la tua connessione o riprova più tardi.",
   "resultsNotFound": "Nessun risultato per: ",
   "resultsFound": "Risultati trovati",
@@ -191,6 +192,7 @@
   "lastVisited": "Ultima visita il",
   "hourVisited": "alle ore",
   "notVisitedYet": "Non ancora visitato",
+  "scrollForDetails": "Scorri per maggiori dettagli",
 
   "coupon": "Sconto del",
   "ticketDiscount": "Biglietto scontato del",
