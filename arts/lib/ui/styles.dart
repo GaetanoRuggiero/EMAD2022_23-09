@@ -71,7 +71,7 @@ final ThemeData lightTheme = ThemeData(
   radioTheme: RadioThemeData(fillColor: MaterialStateProperty.resolveWith((states) => darkOrange)),
   inputDecorationTheme: const InputDecorationTheme().copyWith(
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-    contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+    contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
     suffixIconColor: lightOrange,
     prefixIconColor: lightOrange,
   ),
@@ -110,7 +110,8 @@ final ThemeData darkTheme = ThemeData(
       primary: darkOrange,
       secondary: darkOrange,
       tertiary: darkBlue,
-      error: Colors.red
+      error: Colors.red,
+
   ),
   textTheme: const TextTheme().copyWith(
     bodyLarge: const TextStyle(color: Colors.white),
@@ -121,10 +122,10 @@ final ThemeData darkTheme = ThemeData(
   ),
   radioTheme: RadioThemeData(fillColor: MaterialStateProperty.resolveWith((states) => darkOrange)),
   inputDecorationTheme: const InputDecorationTheme().copyWith(
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-      contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      suffixIconColor: lightOrange,
-      prefixIconColor: lightOrange,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+    contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+    suffixIconColor: lightOrange,
+    prefixIconColor: lightOrange,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
       unselectedItemColor: Colors.white54,

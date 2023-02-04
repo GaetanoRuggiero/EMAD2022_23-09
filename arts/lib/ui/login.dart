@@ -5,6 +5,7 @@ import 'package:arts/ui/profile_partner.dart';
 import 'package:arts/ui/registration.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/utils/user_provider.dart';
+import 'package:arts/utils/widget_utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -28,7 +29,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 
   int numberOfPhoto = 1;
-  String imageNumber = "assets/background/background_${Random().nextInt(1)}.jpg";
+  String imageNumber = "assets/background/background_0.jpg";
 
   @override
   void initState() {
@@ -45,12 +46,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double mobilesHeight = MediaQuery.of(context).size.height;
+    double mobilesWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Container(
-        height: MediaQuery.of(context).size.height,
+        height: mobilesHeight,
         decoration: BoxDecoration(
           image: DecorationImage(
               image: AssetImage(imageNumber),
@@ -84,29 +87,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  SingleChildScrollView(
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      child: Column(
-                          children: [
+                  SizedBox(
+                    height: mobilesHeight,
+                    child: Column(
+                        children: [
 
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 20, top: 30),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const SizedBox(height: 20),
-                                  Image.asset("assets/icon/icon_big.png", width: 150),
-                                ],
-                              ),
+                          Container(
+                            alignment: Alignment.center,
+                            margin: EdgeInsets.only(
+                                top: mobilesWidth/10,
+                                bottom: mobilesWidth/5
                             ),
+                            child: Image.asset(
+                                "assets/icon/icon_big.png",
+                                width: mobilesWidth/3 > 125 ? mobilesWidth/2 : mobilesWidth/3 ),
+                          ),
 
-                            Expanded(
-                              child: Container(
+                          Expanded(
+                            child: Container(
 
-                                margin: const EdgeInsets.all(10),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.all(Radius.circular(40)),
+                              margin: const EdgeInsets.all(10),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.all(Radius.circular(40)),
+                                child: SingleChildScrollView(
                                   child: Column(
                                     children: [
 
@@ -116,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         alignment: Alignment.bottomCenter,
                                         child: RichText(
                                             text: TextSpan(
-                                                style: const TextStyle(fontFamily: 'JosefinSans', fontWeight: FontWeight.bold, fontSize: 18),
+                                                style: const TextStyle(fontFamily: 'JosefinSans', fontSize: 18),
                                                 children: [
                                                   TextSpan(
                                                       text: "${AppLocalizations.of(context)!.notHaveAnAcc} ",
@@ -149,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         child: RichText(
                                             text: TextSpan(
                                                 text: AppLocalizations.of(context)!.logLater,
-                                                style: const TextStyle(color: Colors.lightBlueAccent, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "JosefinSans"),
+                                                style: const TextStyle(color: Colors.lightBlueAccent, fontSize: 18, fontFamily: "JosefinSans"),
                                                 recognizer: TapGestureRecognizer()
                                                   ..onTap = () {
                                                     Navigator.pushReplacement(
@@ -163,8 +166,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
-                          ]),
-                    ),
+                          ),
+                        ]),
                   ),
                 ],
               )),
@@ -184,23 +187,17 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  Widget loadingOrText = const Text("");
+  Widget _loadingOrText = textOrLoading("");
   final _formKey = GlobalKey<FormState>();
   bool isPasswordVisible = false;
   final TextEditingController _controllerEmail = TextEditingController(),
       _controllerPass = TextEditingController();
-  bool? _showLoginError = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     setState(() {
-      loadingOrText = (Text(AppLocalizations.of(context)!.login,
-          style: TextStyle(
-            color: Colors.white.withOpacity(.8),
-            fontSize: 18,
-            fontFamily: "JosefinSans",
-          )));
+      _loadingOrText = textOrLoading(AppLocalizations.of(context)!.login);
     });
   }
 
@@ -208,7 +205,8 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Padding(
+      child: Container(
+        margin: const EdgeInsets.only(top: 20),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,9 +220,8 @@ class _LoginFormState extends State<LoginForm> {
                     borderSide: const BorderSide(color: Colors.grey)),
                 fillColor: Colors.black.withOpacity(0.8),
                 filled: true,
-                prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                prefixIcon: const Icon(Icons.email_outlined),
                 labelText: AppLocalizations.of(context)!.emailExm_2,
-                labelStyle: const TextStyle(fontSize: 15, color: Colors.grey),
               ),
               style: const TextStyle(color: Colors.white),
               validator: (value) {
@@ -282,7 +279,7 @@ class _LoginFormState extends State<LoginForm> {
                     // Validate returns true if the form is valid, or false otherwise.
                     if (_formKey.currentState!.validate()) {
                       setState(() {
-                        loadingOrText = LoadingJumpingLine.circle(size: 40, backgroundColor: Colors.white);
+                        _loadingOrText = LoadingJumpingLine.circle(size: 40, backgroundColor: Colors.white);
                       });
                       String newToken = generateToken();
                       const storage = FlutterSecureStorage();
@@ -292,9 +289,16 @@ class _LoginFormState extends State<LoginForm> {
                             newToken);
                         if (user == null) {
                           //in this case user entered wrong credentials
+
                           setState(() {
-                            _showLoginError = true;
+                            _loadingOrText = textOrLoading(AppLocalizations.of(context)!.login);
                           });
+
+                          _controllerEmail.text = "";
+                          _controllerPass.text = "";
+
+                          if (!mounted) return;
+                          showSnackBar(context, Colors.red, AppLocalizations.of(context)!.loginFailed);
                         } else {
                           await storage.write(
                               key: UserUtils.tokenKey, value: newToken);
@@ -328,8 +332,13 @@ class _LoginFormState extends State<LoginForm> {
                       } on ConnectionErrorException catch(e) {
                         debugPrint(e.cause);
                         setState(() {
-                          _showLoginError = null;
+                          _loadingOrText = textOrLoading(AppLocalizations.of(context)!.login);
                         });
+
+                        _controllerEmail.text = "";
+                        _controllerPass.text = "";
+
+                        showSnackBar(context, Colors.red, AppLocalizations.of(context)!.connectionError);
                       }
                     }
                   },
@@ -352,39 +361,17 @@ class _LoginFormState extends State<LoginForm> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          loadingOrText
+                          _loadingOrText
                         ],
                       ),
                     ),
                   ),
                 );
               },
-            ),
-            setLoginOutput(_showLoginError),
+            )
           ],
         ),
       ),
     );
-  }
-
-  Widget setLoginOutput(bool? showLoginError) {
-    if (showLoginError == null || showLoginError == true) {
-      String text;
-      if (showLoginError == null) {
-        text = AppLocalizations.of(context)!.connectionError;
-      } else {
-        text = AppLocalizations.of(context)!.loginFailed;
-      }
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.all(10),
-        color: Colors.red,
-        child: Text(text,
-            textAlign: TextAlign.center, style: const TextStyle(fontSize: 20)),
-      );
-    } else {
-      return Container();
-    }
   }
 }

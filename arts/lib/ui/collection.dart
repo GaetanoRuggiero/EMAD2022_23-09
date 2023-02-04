@@ -1,5 +1,5 @@
 import 'package:arts/ui/styles.dart';
-import 'package:arts/utils/error_utils.dart';
+import 'package:arts/utils/widget_utils.dart';
 import 'package:arts/utils/user_provider.dart';
 import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';

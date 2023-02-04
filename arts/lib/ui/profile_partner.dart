@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../main.dart';
-import '../utils/error_utils.dart';
+import '../utils/widget_utils.dart';
 import 'editprofilescreen.dart';
 
 class ProfilePartner extends StatelessWidget {
@@ -170,21 +170,6 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
   late Color _colorSnackbar;
   bool _showConnectionError = false;
 
-  void showSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            backgroundColor: _colorSnackbar,
-            content: Text(_snackBarMessage),
-            action: SnackBarAction(
-              label: 'X',
-              onPressed: () {
-                // Click to close
-              },
-            )
-        )
-    );
-  }
-
   TextEditingController getControllerType(String category) {
     List<String> foodCategories = [
       bakery,
@@ -260,7 +245,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                   Form(
                     key: _formKey,
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 40),
+                      margin: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
                         children: [
                           Container(
@@ -271,14 +256,8 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                               children: [
                                 Expanded(
                                   child: TextFormField(
-                                      style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontSize: 15),
                                       decoration: InputDecoration(
-                                        prefixIcon: const Icon(
-                                          Icons.store,
-                                          color: darkOrange,
-                                          size: 22,
-                                        ),
-                                        border: const OutlineInputBorder(),
+                                        prefixIcon: const Icon(Icons.store),
                                         labelText: AppLocalizations.of(context)!.placeEvent,
                                       ),
                                       initialValue: userProvider.name,
@@ -305,10 +284,8 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                                    flex: 2,
                                   child: TextFormField(
                                       controller: _controllerExpiryDate,
-                                      style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontSize: 15),
                                       decoration: InputDecoration(
-                                        prefixIcon: const Icon(Icons.calendar_today, color: darkOrange, size: 22),
-                                        border: const OutlineInputBorder(),
+                                        prefixIcon: const Icon(Icons.calendar_today),
                                         labelText: AppLocalizations.of(context)!.expiryDate,
                                       ),
                                       readOnly: true,
@@ -347,10 +324,8 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                                         FilteringTextInputFormatter.digitsOnly
                                       ],
                                       controller: _controllerDiscountAmount,
-                                      style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontSize: 15),
                                       decoration: InputDecoration(
-                                        prefixIcon: const Icon(Icons.percent, color: darkOrange, size: 22),
-                                          border: const OutlineInputBorder(),
+                                        prefixIcon: const Icon(Icons.percent),
                                           labelText: AppLocalizations.of(context)!.discountAmount,
                                           hintText: AppLocalizations.of(context)!.valueDiscountAmount
                                       ),
@@ -378,10 +353,8 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                                 Expanded(
                                   child: TextFormField(
                                     readOnly: true,
-                                    style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontSize: 15),
                                     decoration: InputDecoration(
                                       prefixIcon: getIcon(userProvider.category),
-                                      border: const OutlineInputBorder(),
                                       labelText: AppLocalizations.of(context)!.category,
                                     ),
                                     initialValue: getControllerCategory(context, userProvider.category),
@@ -391,11 +364,9 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                                 Expanded(
                                   child: TextFormField(
                                     readOnly: true,
-                                    style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontSize: 15),
                                     decoration: InputDecoration(
-                                      prefixIcon: _controllerType.text == "ticket" ? const Icon(Icons.local_activity, color: darkOrange, size: 22)
-                                                  : const Icon(Icons.sell, color: darkOrange, size: 22),
-                                      border: const OutlineInputBorder(),
+                                      prefixIcon: _controllerType.text == "ticket" ? const Icon(Icons.local_activity)
+                                                  : const Icon(Icons.sell),
                                       labelText: AppLocalizations.of(context)!.type,
                                     ),
                                     initialValue: getControllerType(userProvider.category).text,
@@ -442,7 +413,8 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                                       if (!mounted) return;
                                       Navigator.pop(context);
                                     }
-                                    showSnackBar();
+                                    if (!mounted) return;
+                                    showSnackBar(context,_colorSnackbar,_snackBarMessage                                    );
                                   } on ConnectionErrorException catch(e) {
                                     debugPrint(e.cause);
                                     setState(() {

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import '../utils/error_utils.dart';
+import '../utils/widget_utils.dart';
 import './singletourscreen.dart';
 import './custom_itinerary.dart';
 import '../api/itinerary_api.dart';

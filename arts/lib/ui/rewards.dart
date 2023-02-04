@@ -1,7 +1,7 @@
 import 'package:arts/model/reward.dart';
 import 'package:arts/model/user.dart';
 import 'package:arts/ui/styles.dart';
-import 'package:arts/utils/error_utils.dart';
+import 'package:arts/utils/widget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../api/user_api.dart';
@@ -88,7 +88,7 @@ class _RewardsPageState extends State<RewardsPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.only(right: 0),
+                      padding: EdgeInsets.only(right: 2),
                       child: Icon(Icons.savings, size: 22),
                     ),
                     Text(AppLocalizations.of(context)!.available),
@@ -99,7 +99,7 @@ class _RewardsPageState extends State<RewardsPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.only(right: 1),
+                      padding: EdgeInsets.only(right: 2),
                       child: Icon(Icons.event_busy, size: 22),
                     ),
                     Text(expired),
@@ -269,6 +269,10 @@ class _AvailableCouponState extends State<AvailableCoupon> with AutomaticKeepAli
                       context)!.coupon;
                   return Container(
                     padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.lightBlue,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
                     child: Row(
                         children: [
                           Padding(
@@ -280,10 +284,10 @@ class _AvailableCouponState extends State<AvailableCoupon> with AutomaticKeepAli
                           Expanded(
                             child: InkWell(
                               onTap: () {
-                                Navigator.push(context, _fullscreenDialogRoute(
-                                    context, reward, _couponMap.values
-                                    .elementAt(index)
-                                    .qrUrl!));
+                                Navigator.push(
+                                    context,
+                                    _fullscreenDialogRoute(context, reward, _couponMap.values.elementAt(index).qrUrl!)
+                                );
                               },
                               child: Text("$rewardType ${reward
                                   .discountAmount}%"
@@ -572,20 +576,20 @@ class _FullScreenDialogCoupon extends StatelessWidget {
           ),
           Stack(
             children: [
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.all(15.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0)
-                  ),
-                  child: PrettyQr(
-                    image: const AssetImage('assets/icon/icon_big.png'),
-                    size: MediaQuery.of(context).size.width - 100,
-                    data: qrUrl,
-                    errorCorrectLevel: QrErrorCorrectLevel.M,
-                    roundEdges: true,
-                  ),
+              Container(
+                margin: const EdgeInsets.only(top: 100),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(15.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0)
+                ),
+                child: PrettyQr(
+                  image: const AssetImage('assets/icon/icon_big.png'),
+                  size: MediaQuery.of(context).size.width - 100,
+                  data: qrUrl,
+                  errorCorrectLevel: QrErrorCorrectLevel.M,
+                  roundEdges: true,
                 ),
               ),
             ],

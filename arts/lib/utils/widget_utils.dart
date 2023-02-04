@@ -47,3 +47,30 @@ RefreshIndicator showConnectionError(String errorMessage, Future<void> Function(
     ),
   );
 }
+
+Text textOrLoading(String plannedText) {
+  return Text(
+      plannedText,
+      style: TextStyle(
+        color: Colors.white.withOpacity(.8),
+        fontSize: 18,
+        fontFamily: "JosefinSans",
+      )
+  );
+}
+
+void showSnackBar(BuildContext context, Color backgroundColor, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 10),
+        backgroundColor: backgroundColor,
+        content: Text(message),
+        action: SnackBarAction(
+          label: AppLocalizations.of(context)!.close,
+          onPressed: () {
+            // Click to close
+          },
+        )
+      )
+  );
+}

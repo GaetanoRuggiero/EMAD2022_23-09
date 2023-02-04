@@ -2,6 +2,7 @@ import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../utils/widget_utils.dart';
 import './languagescreen.dart';
 import './login.dart';
 import '../api/user_api.dart';
@@ -21,22 +22,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ThemeMode _themeMode = settingsModel.themeMode;
   late String _snackBarMessage;
   late Color _colorSnackbar;
-
-  //snackBar of Success/Error logout
-  void showSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: _colorSnackbar,
-        content: Text(_snackBarMessage),
-        action: SnackBarAction(
-          label: 'X',
-          onPressed: () {
-            // Click to close
-          },
-        )
-      )
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +233,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     if (!mounted) return;
                                                     Navigator.pop(context);
                                                   }
-                                                  showSnackBar();
+                                                  if (!mounted) return;
+                                                  showSnackBar(context,_colorSnackbar,_snackBarMessage);
                                                 },
                                               ),
                                               TextButton(onPressed: () {Navigator.of(context).pop();}, child: const Text("No"))
