@@ -20,7 +20,7 @@ class LocationUtils {
               child: Text(AppLocalizations.of(context)!.turnOnLocation),
               onPressed: () {
                 Navigator.of(context).pop();
-                _openLocationSettings();
+                openLocationSettings();
               })
         ],
       );
@@ -42,14 +42,14 @@ class LocationUtils {
               child: Text(AppLocalizations.of(context)!.allowPermission),
               onPressed: () {
                 Navigator.of(context).pop();
-                _openAppSettings();
+                openAppSettings();
               })
         ],
       );
     });
   }
 
-  static void _openLocationSettings() async {
+  static void openLocationSettings() async {
     final opened = await geolocatorPlatform.openLocationSettings();
 
     if (opened) {
@@ -59,7 +59,7 @@ class LocationUtils {
     }
   }
 
-  static void _openAppSettings() async {
+  static void openAppSettings() async {
     final opened = await geolocatorPlatform.openAppSettings();
 
     if (opened) {
