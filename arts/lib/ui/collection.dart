@@ -37,12 +37,14 @@ class CollectionScreen extends StatefulWidget {
 
 class _CollectionScreenState extends State<CollectionScreen> {
   int _selectedIndex = 0;
-  final List _tabs = [const VisitedTabView(), const SearchTabView()];
+  final PageController _pageController = PageController(initialPage: 0);
+
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.ease);
   }
 
   @override
@@ -103,7 +105,18 @@ class _CollectionScreenState extends State<CollectionScreen> {
           ],
         ),
         body: SafeArea(
-          child: _tabs[_selectedIndex]
+          child: PageView(
+            controller: _pageController,
+            onPageChanged: (value) {
+              setState(() {
+                _selectedIndex = value;
+              });
+            },
+            children: const [
+              VisitedTabView(),
+              SearchTabView()
+            ],
+          )
         )
       ),
     );

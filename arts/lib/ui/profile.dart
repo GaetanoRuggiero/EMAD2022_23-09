@@ -45,12 +45,11 @@ class Profile extends StatelessWidget {
                             radius: 60,
                             lineWidth: 13.0,
                             animation: true,
-                            center: Text(level, style: TextStyle(fontSize: 40, color: Theme.of(context).backgroundColor, /*TODO: SET FONT fontFamily:*/ )),
+                            center: Text(level, style: const TextStyle(fontSize: 50,fontFamily: "JosefinSans" )),
                             percent: levelProgress*0.2,
                             circularStrokeCap: CircularStrokeCap.round,
-                            //TODO: GRADIENT OR DINAMIC COLOR? progressColor: levelProgress == firstStep ? Theme ,
                             footer: Padding(
-                              padding: const EdgeInsets.only(top: 10),
+                              padding: const EdgeInsets.only(top: 20),
                               child: Text("${userProvider.name} ${userProvider.surname}", style: const TextStyle(fontSize: 20)),
                             ),
                           ),
@@ -106,7 +105,7 @@ class Profile extends StatelessWidget {
                   ],
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5,vertical: 20),
+                  margin: const EdgeInsets.all(20),
                   child: Row(
                     children: const [
                       Expanded(
@@ -114,7 +113,7 @@ class Profile extends StatelessWidget {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text("Badge"),
+                        child: Text("Badge", style: TextStyle(fontSize: 20)),
                       ),
                       Expanded(
                         child: Divider()

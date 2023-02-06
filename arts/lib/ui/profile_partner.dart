@@ -95,50 +95,72 @@ class ProfilePartner extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        child: ElevatedButton(
-                          onPressed: userProvider.ongoingRewards <= 3 ? () {
-                            Navigator.push(context, _fullscreenDialogRoute(context));
+                      InkWell(
+                        onTap: userProvider.ongoingRewards <= 3 ? () {
+                          Navigator.push(context, _fullscreenDialogRoute(context));
                           }
                           : () {
                             showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text(AppLocalizations.of(context)!.rewardsLimitReached),
-                                    content: Expanded(child: Text(AppLocalizations.of(context)!.rewardsLimitReachedText)),
-                                    actions: [
-                                      TextButton(
-                                          child: const Text("OK"),
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          }
-                                      )
-                                    ],
-                                  );
-                                },
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text(AppLocalizations.of(context)!.rewardsLimitReached),
+                                  content: Expanded(child: Text(AppLocalizations.of(context)!.rewardsLimitReachedText)),
+                                  actions: [
+                                    TextButton(
+                                      child: const Text("OK"),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      }
+                                    )
+                                  ],
+                                );
+                              },
                             );
                           },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                    blurRadius: 4,
+                                    color: Colors.black12.withOpacity(.2),
+                                    offset: const Offset(2, 2))
+                              ],
+                              borderRadius: BorderRadius.circular(100),
+                              gradient: const LinearGradient(
+                                  colors: [lightOrange, darkOrange])
+                          ),
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
                           child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(FontAwesomeIcons.fileCirclePlus, size: 60),
+                            padding: EdgeInsets.all(20.0),
+                            child: Icon(FontAwesomeIcons.fileCirclePlus, size: 55, color: Colors.white,),
                           ),
                         ),
                       ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const CameraQRScreen()),
-                            );
-                          },
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                          builder: (context) => const CameraQRScreen()),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                    blurRadius: 4,
+                                    color: Colors.black12.withOpacity(.2),
+                                    offset: const Offset(2, 2))
+                              ],
+                              borderRadius: BorderRadius.circular(100),
+                              gradient: const LinearGradient(
+                                  colors: [lightOrange, darkOrange])
+                          ),
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
                           child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(Icons.qr_code_2_outlined, size: 60),
+                            padding: EdgeInsets.all(20.0),
+                            child: Icon(Icons.qr_code_2_outlined, size: 60, color: Colors.white, ),
                           ),
                         ),
                       )
@@ -229,27 +251,25 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
       },
       child: Scaffold(
           appBar: AppBar(
-            title: Text(AppLocalizations.of(context)!.addReward),
-            actions: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
-                  icon: const Icon(Icons.home))
-            ],
+            backgroundColor: Colors.transparent,
           ),
           body: Consumer<UserProvider>(
             builder: (context, userProvider, child) {
               return Column(
                 children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 30),
+                    child: Text(AppLocalizations.of(context)!.addReward, style: const TextStyle(fontSize: 25),),
+                  ),
                   Form(
                     key: _formKey,
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 30),
+                      padding: const EdgeInsets.only(top: 40),
                       child: Column(
                         children: [
                           Container(
-                            margin : const EdgeInsets.fromLTRB(0, 30, 0, 20),
+                            margin : const EdgeInsets.only(bottom: 20),
                             padding: const EdgeInsets.only(bottom: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -281,7 +301,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
-                                   flex: 2,
+                                   flex: 3,
                                   child: TextFormField(
                                       controller: _controllerExpiryDate,
                                       decoration: InputDecoration(
@@ -317,7 +337,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                                 ),
                                 const SizedBox(width: 20),
                                 Expanded(
-                                  flex: 1,
+                                  flex: 2,
                                   child: TextFormField(
                                       keyboardType: TextInputType.number,
                                       inputFormatters: [

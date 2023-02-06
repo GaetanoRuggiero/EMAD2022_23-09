@@ -60,13 +60,15 @@ Text textOrLoading(String plannedText) {
 }
 
 void showSnackBar(BuildContext context, Color backgroundColor, String message) {
+  String close = AppLocalizations.of(context)!.close.toUpperCase();
   ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 10),
         backgroundColor: backgroundColor,
         content: Text(message),
         action: SnackBarAction(
-          label: AppLocalizations.of(context)!.close,
+          label: close,
+          textColor: Colors.white,
           onPressed: () {
             // Click to close
           },

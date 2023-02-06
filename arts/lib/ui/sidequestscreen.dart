@@ -23,16 +23,13 @@ class _SidequestScreenState extends State<SidequestScreen> {
 
   late Future _getSidequestFuture;
   int _selectedIndex = 0;
-  final List _tabs = [
-    const AvailableSidequest(sidequestList: [], visitedPOIMap: {}),
-    const CompletedSidequest(sidequestList: [], visitedPOIMap: {}),
-    const ExpiredSidequest(sidequestList: [])
-  ];
+  final PageController _pageController = PageController(initialPage: 0);
 
-  void _onItemTapped (int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _onItemTapped(int index) {
+    _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.ease);
   }
 
   @override
@@ -162,18 +159,24 @@ class _SidequestScreenState extends State<SidequestScreen> {
                         }
                       }
 
-                      _tabs[0] = AvailableSidequest(
-                          sidequestList: availableSidequestList,
-                          visitedPOIMap: visitedPOIMap);
-
-                      _tabs[1] = CompletedSidequest(
-                          sidequestList: completedSidequestList,
-                          visitedPOIMap: visitedPOIMap);
-
-
-                      _tabs[2]= ExpiredSidequest(sidequestList: expiredSidequestList);
-
-                      return SafeArea(child: _tabs[_selectedIndex]);
+                      return SafeArea(
+                          child: PageView(
+                            controller: _pageController,
+                            onPageChanged: (value) {
+                              setState(() {
+                                _selectedIndex = value;
+                              });
+                            },
+                            children: [
+                              AvailableSidequest(
+                                  sidequestList: availableSidequestList,
+                                  visitedPOIMap: visitedPOIMap),
+                              CompletedSidequest(
+                                  sidequestList: completedSidequestList,
+                                  visitedPOIMap: visitedPOIMap),
+                              ExpiredSidequest(sidequestList: expiredSidequestList)
+                            ],
+                          ));
                     }
                     else {
                       return RefreshIndicator(
