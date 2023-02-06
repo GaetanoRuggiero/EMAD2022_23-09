@@ -35,6 +35,7 @@
   "thereAreNoExpiredMission": "There are no expired missions!",
   "thereAreNoCompletedMission": "There are no completed missions!",
   "available": "Available",
+  "events": "Events",
   "completed": "Completed",
   "expired": "Expired",
 
@@ -170,7 +171,7 @@
   "startItinerary": "Start itinerary",
   "customItineraryResults": "Here the points of interest found within",
   "customItineraryBlank": "Here will be shown the results based on the selected range",
-  "itinerarySidequestQuestion": "Do you want to start an itinerary to",
+  "itinerarySidequestQuestion": "You're about to start an itinerary at",
   "itineraryStart": "Start at:",
   "itineraryEnd": "End at:",
   "km": "km",

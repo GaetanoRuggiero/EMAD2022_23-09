@@ -35,6 +35,7 @@
   "thereAreNoExpiredMission": "Non ci sono missioni scadute!",
   "thereAreNoCompletedMission": "Non ci sono missioni completate!",
   "available": "Disponibili",
+  "events": "Eventi",
   "completed": "Completate",
   "expired": "Scadute",
 
@@ -170,7 +171,7 @@
   "customItineraryResults": "Ecco i punti di interessi vicini alla tua posizione nel raggio di",
   "customItineraryBlank": "Qui verranno mostrati i risultati in base al range da te selezionato",
   "itineraryStart": "Punto di inizio:",
-  "itinerarySidequestQuestion": "Vuoi avviare un itinerario presso",
+  "itinerarySidequestQuestion": "Stai per avviare un itinerario presso",
   "itineraryEnd": "Punto di fine:",
   "km": "km",
   "length": "Lunghezza",
