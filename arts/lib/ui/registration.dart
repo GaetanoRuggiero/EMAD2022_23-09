@@ -219,6 +219,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                               fillColor: Colors.black.withOpacity(0.7),
                                               prefixIcon: Icon(_isPartner ? Icons.store : Icons.person),
                                               labelText: _isPartner ? AppLocalizations.of(context)!.partnerName : AppLocalizations.of(context)!.name,
+                                              floatingLabelStyle: const TextStyle(color: lightOrange),
+                                              hintStyle: const TextStyle(color: Colors.white54),
                                             ),
                                             validator: (value) {
                                               if (value == null || value.isEmpty) {
@@ -246,6 +248,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                               fillColor: Colors.black.withOpacity(0.7),
                                               prefixIcon: const Icon(Icons.person),
                                               labelText: AppLocalizations.of(context)!.surname,
+                                              floatingLabelStyle: const TextStyle(color: lightOrange),
+                                              hintStyle: const TextStyle(color: Colors.white54),
                                             ),
                                             style: const TextStyle(color: Colors.white),
                                             validator: (value) {
@@ -274,6 +278,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                               fillColor: Colors.black.withOpacity(0.7),
                                               prefixIcon: const Icon(Icons.email),
                                               labelText: AppLocalizations.of(context)!.email,
+                                              floatingLabelStyle: const TextStyle(color: lightOrange),
+                                              hintStyle: const TextStyle(color: Colors.white54),
                                             ),
                                             style: const TextStyle(color: Colors.white),
                                             validator: (value) {
@@ -306,15 +312,17 @@ class _RegisterPageState extends State<RegisterPage> {
                                               filled: true,
                                               fillColor: Colors.black.withOpacity(0.7),
                                               prefixIcon: const Icon(Icons.lock),
-                                                suffixIcon: GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      isPasswordVisible = !isPasswordVisible;
-                                                    });
-                                                  },
-                                                  child: Icon(isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                                                ),
-                                                labelText: AppLocalizations.of(context)!.password
+                                              suffixIcon: GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    isPasswordVisible = !isPasswordVisible;
+                                                  });
+                                                },
+                                                child: Icon(isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                                              ),
+                                              labelText: AppLocalizations.of(context)!.password,
+                                              floatingLabelStyle: const TextStyle(color: lightOrange),
+                                              hintStyle: const TextStyle(color: Colors.white54),
                                             ),
                                             style: const TextStyle(color: Colors.white),
                                             validator: (value) {
@@ -355,7 +363,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                               },
                                               child: Icon(isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off),
                                             ),
-                                            labelText: AppLocalizations.of(context)!.passConf
+                                            labelText: AppLocalizations.of(context)!.passConf,
+                                            floatingLabelStyle: const TextStyle(color: lightOrange),
+                                            hintStyle: const TextStyle(color: Colors.white54),
                                           ),
                                           style: const TextStyle(color: Colors.white),
                                           validator: (value) {
@@ -406,6 +416,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                               contentPadding: const EdgeInsets.only(right: 7),
                                               filled: true,
                                               fillColor: Colors.black.withOpacity(0.7),
+                                              floatingLabelStyle: const TextStyle(color: lightOrange),
+                                              hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
                                             ),
                                             items: _dropdownItemsCategory,
                                             value: _controllerCategory,
@@ -449,7 +461,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                                 borderSide: const BorderSide(color: Colors.grey)),
                                             filled: true,
                                             fillColor: Colors.black.withOpacity(0.7),
-                                            prefixIcon: const Icon(Icons.home)
+                                            prefixIcon: const Icon(Icons.home),
+                                            floatingLabelStyle: const TextStyle(color: lightOrange),
+                                            hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
                                           ),
                                           hint: AppLocalizations.of(context)!.insertAddress,
                                           onSuggestionTap: (prediction) async {
@@ -517,80 +531,83 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                                 Consumer<UserProvider>(
                                   builder: (context, userProvider, child) {
-                                    return GestureDetector(
-                                      onTap: () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          String newToken = generateToken();
-                                          _controllerCategory ??= "";
-                                          if (_controllerAddress.text.isNotEmpty) {
-                                            List<Location> locations =
-                                                await locationFromAddress(
-                                                    _controllerAddress.text);
-                                            latitude = await getLatitude(locations);
-                                            longitude = await getLongitude(locations);
-                                          }
-                                          try {
-                                            bool? reg = await signUpUser(
-                                                _controllerName.text,
-                                                _controllerSurname.text,
-                                                _controllerEmail.text,
-                                                _controllerPass.text,
-                                                newToken,
-                                                _isPartner,
-                                              _controllerCategory!,
-                                                latitude,
-                                                longitude
-                                            );
-                                            if (reg) {
-                                              UserUtils.writeEmail(_controllerEmail.text);
-                                              UserUtils.writeToken(newToken);
-                                              userProvider.isLogged = true;
-                                              userProvider.name = _controllerName.text;
-                                              userProvider.isPartner = _isPartner;
-                                              if (userProvider.isPartner) {
-                                                userProvider.category = _controllerCategory!;
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(100),
+                                        onTap: () async {
+                                          if (_formKey.currentState!.validate()) {
+                                            String newToken = generateToken();
+                                            _controllerCategory ??= "";
+                                            if (_controllerAddress.text.isNotEmpty) {
+                                              List<Location> locations =
+                                                  await locationFromAddress(
+                                                      _controllerAddress.text);
+                                              latitude = await getLatitude(locations);
+                                              longitude = await getLongitude(locations);
+                                            }
+                                            try {
+                                              bool? reg = await signUpUser(
+                                                  _controllerName.text,
+                                                  _controllerSurname.text,
+                                                  _controllerEmail.text,
+                                                  _controllerPass.text,
+                                                  newToken,
+                                                  _isPartner,
+                                                _controllerCategory!,
+                                                  latitude,
+                                                  longitude
+                                              );
+                                              if (reg) {
+                                                UserUtils.writeEmail(_controllerEmail.text);
+                                                UserUtils.writeToken(newToken);
+                                                userProvider.isLogged = true;
+                                                userProvider.name = _controllerName.text;
+                                                userProvider.isPartner = _isPartner;
+                                                if (userProvider.isPartner) {
+                                                  userProvider.category = _controllerCategory!;
+                                                  if (!mounted) return;
+                                                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                                      builder: (context) => const ProfilePartner()), (Route route) => false);
+                                                  return;
+                                                }
+                                                userProvider.surname = _controllerSurname.text;
                                                 if (!mounted) return;
                                                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-                                                    builder: (context) => const ProfilePartner()), (Route route) => false);
-                                                return;
+                                                    builder: (context) => const HomePage()), (Route route) => false);
+                                              } else {
+                                                setState(() {
+                                                  _showRegError = true;
+                                                });
                                               }
-                                              userProvider.surname = _controllerSurname.text;
-                                              if (!mounted) return;
-                                              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-                                                  builder: (context) => const HomePage()), (Route route) => false);
-                                            } else {
+                                            } on ConnectionErrorException catch(e) {
+                                              debugPrint(e.cause);
                                               setState(() {
-                                                _showRegError = true;
+                                                _showRegError = null;
                                               });
                                             }
-                                          } on ConnectionErrorException catch(e) {
-                                            debugPrint(e.cause);
-                                            setState(() {
-                                              _showRegError = null;
-                                            });
                                           }
-                                        }
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        width: double.infinity,
-                                        margin: const EdgeInsets.symmetric(horizontal: 30),
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  blurRadius: 4,
-                                                  color: Colors.black12.withOpacity(.2),
-                                                  offset: const Offset(2, 2))
-                                            ],
-                                            borderRadius: BorderRadius.circular(100),
-                                            gradient: const LinearGradient(
-                                                colors: [lightOrange, darkOrange])),
-                                        child: Text(AppLocalizations.of(context)!.signUp,
-                                            style: TextStyle(
-                                                color: Colors.white.withOpacity(.8),
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold)),
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          width: double.infinity,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    blurRadius: 4,
+                                                    color: Colors.black12.withOpacity(.2),
+                                                    offset: const Offset(2, 2))
+                                              ],
+                                              borderRadius: BorderRadius.circular(100),
+                                              gradient: const LinearGradient(
+                                                  colors: [lightOrange, darkOrange])),
+                                          child: Text(AppLocalizations.of(context)!.signUp,
+                                              style: TextStyle(
+                                                  color: Colors.white.withOpacity(.8),
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
                                       ),
                                     );
                                   },

@@ -222,6 +222,8 @@ class _LoginFormState extends State<LoginForm> {
                 filled: true,
                 prefixIcon: const Icon(Icons.email_outlined),
                 labelText: AppLocalizations.of(context)!.emailExm_2,
+                floatingLabelStyle: const TextStyle(color: lightOrange),
+                hintStyle: const TextStyle(color: Colors.white54),
               ),
               style: const TextStyle(color: Colors.white),
               validator: (value) {
@@ -242,8 +244,9 @@ class _LoginFormState extends State<LoginForm> {
               obscureText: isPasswordVisible ? false : true,
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: const BorderSide(color: Colors.grey)),
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: const BorderSide(color: Colors.grey)
+                ),
                   suffixIcon: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -257,11 +260,13 @@ class _LoginFormState extends State<LoginForm> {
                       size: 22,
                     ),
                   ),
-                  fillColor: Colors.black.withOpacity(0.8),
-                  filled: true,
-                  prefixIcon: const Icon(Icons.lock_outline, size: 20),
-                  labelText: AppLocalizations.of(context)!.password,
-                  labelStyle: const TextStyle(fontSize: 15, color: Colors.grey)),
+                fillColor: Colors.black.withOpacity(0.8),
+                filled: true,
+                prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                labelText: AppLocalizations.of(context)!.password,
+                floatingLabelStyle: const TextStyle(color: lightOrange),
+                hintStyle: const TextStyle(color: Colors.white54),
+              ),
               style: const TextStyle(color: Colors.white),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -274,22 +279,66 @@ class _LoginFormState extends State<LoginForm> {
 
             Consumer<UserProvider>(
               builder: (context, userProvider, child) {
-                return GestureDetector(
-                  onTap: () async {
-                    // Validate returns true if the form is valid, or false otherwise.
-                    if (_formKey.currentState!.validate()) {
-                      setState(() {
-                        _loadingOrText = LoadingJumpingLine.circle(size: 40, backgroundColor: Colors.white);
-                      });
-                      String newToken = generateToken();
-                      const storage = FlutterSecureStorage();
-                      try {
-                        User? user = await loginUser(
-                            _controllerEmail.text, _controllerPass.text,
-                            newToken);
-                        if (user == null) {
-                          //in this case user entered wrong credentials
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(100),
+                    onTap: () async {
+                      // Validate returns true if the form is valid, or false otherwise.
+                      if (_formKey.currentState!.validate()) {
+                        setState(() {
+                          _loadingOrText = LoadingJumpingLine.circle(size: 40, backgroundColor: Colors.white);
+                        });
+                        String newToken = generateToken();
+                        const storage = FlutterSecureStorage();
+                        try {
+                          User? user = await loginUser(
+                              _controllerEmail.text, _controllerPass.text,
+                              newToken);
+                          if (user == null) {
+                            //in this case user entered wrong credentials
 
+                            setState(() {
+                              _loadingOrText = textOrLoading(AppLocalizations.of(context)!.login);
+                            });
+
+                            _controllerEmail.text = "";
+                            _controllerPass.text = "";
+
+                            if (!mounted) return;
+                            showSnackBar(context, Colors.red, AppLocalizations.of(context)!.loginFailed);
+                          } else {
+                            await storage.write(
+                                key: UserUtils.tokenKey, value: newToken);
+                            await storage.write(
+                                key: UserUtils.emailKey,
+                                value: _controllerEmail.text);
+                            userProvider.isLogged = true;
+                            userProvider.isPartner = user.partner!;
+                            userProvider.name = user.name!;
+                            if (!userProvider.isPartner) {
+                              Map<POI, String> visited = await getVisitedPOI(
+                                  _controllerEmail.text, newToken);
+                              userProvider.surname = user.surname!;
+                              userProvider.visited = visited;
+                              if (!mounted) return;
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const HomePage()));
+                            } else {
+                              userProvider.ongoingRewards = await countReward(_controllerEmail.text);
+                              userProvider.rewardsAdded = user.rewardsAdded!;
+                              userProvider.category = user.category!;
+                              if (!mounted) return;
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const ProfilePartner()));
+                            }
+                          }
+                        } on ConnectionErrorException catch(e) {
+                          debugPrint(e.cause);
                           setState(() {
                             _loadingOrText = textOrLoading(AppLocalizations.of(context)!.login);
                           });
@@ -297,72 +346,31 @@ class _LoginFormState extends State<LoginForm> {
                           _controllerEmail.text = "";
                           _controllerPass.text = "";
 
-                          if (!mounted) return;
-                          showSnackBar(context, Colors.red, AppLocalizations.of(context)!.loginFailed);
-                        } else {
-                          await storage.write(
-                              key: UserUtils.tokenKey, value: newToken);
-                          await storage.write(
-                              key: UserUtils.emailKey,
-                              value: _controllerEmail.text);
-                          userProvider.isLogged = true;
-                          userProvider.isPartner = user.partner!;
-                          userProvider.name = user.name!;
-                          if (!userProvider.isPartner) {
-                            Map<POI, String> visited = await getVisitedPOI(
-                                _controllerEmail.text, newToken);
-                            userProvider.surname = user.surname!;
-                            userProvider.visited = visited;
-                            if (!mounted) return;
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const HomePage()));
-                          } else {
-                            userProvider.ongoingRewards = await countReward(_controllerEmail.text);
-                            userProvider.rewardsAdded = user.rewardsAdded!;
-                            userProvider.category = user.category!;
-                            if (!mounted) return;
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const ProfilePartner()));
-                          }
+                          showSnackBar(context, Colors.red, AppLocalizations.of(context)!.connectionError);
                         }
-                      } on ConnectionErrorException catch(e) {
-                        debugPrint(e.cause);
-                        setState(() {
-                          _loadingOrText = textOrLoading(AppLocalizations.of(context)!.login);
-                        });
-
-                        _controllerEmail.text = "";
-                        _controllerPass.text = "";
-
-                        showSnackBar(context, Colors.red, AppLocalizations.of(context)!.connectionError);
                       }
-                    }
-                  },
-                  child: Center(
-                    child: Container(
-                      height: 40,
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                blurRadius: 4,
-                                color: Colors.black12.withOpacity(.2),
-                                offset: const Offset(2, 2))
+                    },
+                    child: Center(
+                      child: Container(
+                        height: 40,
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  blurRadius: 4,
+                                  color: Colors.black12.withOpacity(.2),
+                                  offset: const Offset(2, 2))
+                            ],
+                            borderRadius: BorderRadius.circular(100),
+                            gradient: const LinearGradient(
+                                colors: [lightOrange, darkOrange])),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _loadingOrText
                           ],
-                          borderRadius: BorderRadius.circular(100),
-                          gradient: const LinearGradient(
-                              colors: [lightOrange, darkOrange])),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _loadingOrText
-                        ],
+                        ),
                       ),
                     ),
                   ),
