@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+
 import '../main.dart';
 import '../utils/settings_model.dart';
 
@@ -20,7 +21,6 @@ class _LanguageScreenState extends State<LanguageScreen> {
       builder: (context, settingsNotifier, child) {
         return Scaffold(
           appBar: AppBar(
-            centerTitle: true,
             title: Text(AppLocalizations.of(context)!.selectLanguage),
             actions: [
               IconButton(

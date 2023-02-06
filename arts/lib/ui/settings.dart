@@ -27,7 +27,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: Text(AppLocalizations.of(context)!.settings),
         actions: [
           IconButton(
@@ -71,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         },
                         child: SettingsTile(
-                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
+                          rightIcon: Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                           leftIcon: Icons.translate_outlined,
                           title: AppLocalizations.of(context)!.language),
                       ),
@@ -84,7 +83,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                 title: Text(AppLocalizations.of(context)!.chooseTheTheme),
                                 content: StatefulBuilder(
                                   builder: (context, setState) {
@@ -147,7 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: SettingsTile(
                           leftIcon: Icons.palette_outlined,
                           title: AppLocalizations.of(context)!.theme,
-                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
+                          rightIcon: Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                         ),
                       )
                     ]
@@ -206,7 +204,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                             title: Text(AppLocalizations.of(context)!.logout),
                                             actions: [
                                               TextButton(
@@ -254,7 +251,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   );
                                 },
                                 child: SettingsTile(
-                                    rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
+                                    rightIcon: Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                                     leftIcon: Icons.logout_outlined,
                                     title: AppLocalizations.of(context)!.logout
                                 ),
@@ -269,7 +266,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     );
                                   },
                                   child: SettingsTile(
-                                      rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
+                                      rightIcon: Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                                       leftIcon: Icons.login_outlined,
                                       title: AppLocalizations.of(context)!.redirectLog
                                   )
@@ -306,7 +303,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           MaterialPageRoute(builder: (context) => const InfoScreen()),
                         );},
                         child: SettingsTile(
-                          rightIcon:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.displayLarge?.color),
+                          rightIcon:  Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                           leftIcon: Icons.info_outlined,
                           title: AppLocalizations.of(context)!.infoAndRecognitions
                         ),
