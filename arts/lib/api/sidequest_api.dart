@@ -37,12 +37,18 @@ Future<List<Sidequest>?> getAllSidequest() async {
     List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
     for (var x in jsonArray) {
       SidequestDatabase sidequestDatabase = SidequestDatabase.fromJson(x);
-      POI poi = await getPOIbyId(sidequestDatabase.poi!.substring(sidequestDatabase.poi!.indexOf("/")+1));
-      Reward reward = await getRewardById(sidequestDatabase.reward!.substring(sidequestDatabase.reward!.indexOf("/")+1));
-      StartDate? startDate =  sidequestDatabase.startDate;
-      StartDate? endDate =  sidequestDatabase.endDate;
-      Sidequest sidequest = Sidequest(poi: poi, reward: reward, endDate: endDate, startDate: startDate);
-      allSidequestList.add(sidequest);
+      var poiAndReward = await Future.wait([
+        getPOIbyId(sidequestDatabase.poi!.substring(sidequestDatabase.poi!.indexOf("/")+1)),
+        getRewardById(sidequestDatabase.reward!.substring(sidequestDatabase.reward!.indexOf("/")+1))
+      ]);
+      if (poiAndReward[0] is POI && poiAndReward[1] is Reward) {
+         POI poi = poiAndReward[0] as POI;
+         Reward reward = poiAndReward[1] as Reward;
+        StartDate? startDate =  sidequestDatabase.startDate;
+        StartDate? endDate =  sidequestDatabase.endDate;
+        Sidequest sidequest = Sidequest(poi: poi, reward: reward, endDate: endDate, startDate: startDate);
+        allSidequestList.add(sidequest);
+      }
     }
   } else if (response.statusCode == 500) {
     return null;
@@ -79,12 +85,18 @@ Future<List<Sidequest>> getAvailableSidequest() async {
     List jsonArray = jsonDecode(utf8.decode(response.bodyBytes));
     for (var x in jsonArray) {
       SidequestDatabase sidequestDatabase = SidequestDatabase.fromJson(x);
-      POI poi = await getPOIbyId(sidequestDatabase.poi!.substring(sidequestDatabase.poi!.indexOf("/")+1));
-      Reward reward = await getRewardById(sidequestDatabase.reward!.substring(sidequestDatabase.reward!.indexOf("/")+1));
-      StartDate? startDate =  sidequestDatabase.startDate;
-      StartDate? endDate =  sidequestDatabase.endDate;
-      Sidequest sidequest = Sidequest(poi: poi, reward: reward, endDate: endDate, startDate: startDate);
-      sidequestList.add(sidequest);
+      var poiAndReward = await Future.wait([
+        getPOIbyId(sidequestDatabase.poi!.substring(sidequestDatabase.poi!.indexOf("/")+1)),
+        getRewardById(sidequestDatabase.reward!.substring(sidequestDatabase.reward!.indexOf("/")+1))
+      ]);
+      if (poiAndReward[0] is POI && poiAndReward[1] is Reward) {
+        POI poi = poiAndReward[0] as POI;
+        Reward reward = poiAndReward[1] as Reward;
+        StartDate? startDate =  sidequestDatabase.startDate;
+        StartDate? endDate =  sidequestDatabase.endDate;
+        Sidequest sidequest = Sidequest(poi: poi, reward: reward, endDate: endDate, startDate: startDate);
+        sidequestList.add(sidequest);
+      }
     }
   } else if (response.statusCode == 500) {
     throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");

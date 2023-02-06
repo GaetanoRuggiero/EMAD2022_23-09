@@ -71,6 +71,7 @@ dependencies:
   loading_animations: ^2.2.0
   permission_handler: ^10.2.0
   native_device_orientation: ^1.1.4
+  visibility_detector: ^0.3.3
 
 flutter_icons:
   android: true
@@ -107,10 +108,12 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/animated/
     - assets/icon/
     - assets/poi_images/
     - assets/markers/
     - assets/background/
+    - assets/map_styles/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

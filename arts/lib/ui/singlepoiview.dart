@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:arts/model/sidequest.dart';
+import 'package:arts/ui/styles.dart';
 import 'package:arts/utils/user_provider.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../model/POI.dart';
 import '../model/reward.dart';
@@ -25,6 +27,7 @@ class SinglePOIView extends StatefulWidget {
 class _SinglePOIViewState extends State<SinglePOIView> with TickerProviderStateMixin {
   late Animation<double> _scrollDownOpacity, _imageOpacity, _blueOpacity, _textLeftPosition;
   late AnimationController _scrollDownAnimationController, _opacityController;
+  bool _isScrollDownVisible = true;
   bool _sidequestDialogShown = false;
 
 
@@ -36,22 +39,22 @@ class _SinglePOIViewState extends State<SinglePOIView> with TickerProviderStateM
     _imageOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(_opacityController);
     _blueOpacity = Tween<double>(begin: 0.0, end: 0.4).animate(_opacityController);
     _textLeftPosition = Tween<double>(begin: -300, end: 30).animate(_opacityController);
+    _opacityController.forward();
     _opacityController.addListener(() {
       setState(() {});
     });
 
     _scrollDownAnimationController = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _scrollDownOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(_scrollDownAnimationController);
+    _scrollDownAnimationController.forward();
     _scrollDownAnimationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
+      if (status == AnimationStatus.completed && _isScrollDownVisible) {
         _scrollDownAnimationController.reverse();
-      } else if (status == AnimationStatus.dismissed) {
+      } else if (status == AnimationStatus.dismissed && _isScrollDownVisible) {
         _scrollDownAnimationController.forward();
       }
       setState(() {});
     });
-    _opacityController.forward();
-    _scrollDownAnimationController.forward();
   }
 
   @override
@@ -66,7 +69,7 @@ class _SinglePOIViewState extends State<SinglePOIView> with TickerProviderStateM
     if (widget.sidequest != null && !_sidequestDialogShown) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         showDialog(
-          barrierColor: const Color(0x33000000),
+          barrierColor: const Color(0x22000000),
             context: context,
             builder: (context) =>
                 SidequestCompletedDialog(reward: widget.sidequest!.reward!));
@@ -209,14 +212,31 @@ class _SinglePOIViewState extends State<SinglePOIView> with TickerProviderStateM
                                   )),
                               lastVisited != null ? Positioned(
                                 bottom: 0,
-                                child: AnimatedOpacity(
-                                  opacity: _scrollDownOpacity.value,
-                                  duration: const Duration(seconds: 1),
-                                  child: Column(
-                                    children: [
-                                      Text(AppLocalizations.of(context)!.scrollForDetails, style: const TextStyle(color: Colors.white)),
-                                      const Icon(Icons.expand_more, color: Colors.white),
-                                    ],
+                                child: VisibilityDetector(
+                                  key: const Key('scroll-down-widget'),
+                                  onVisibilityChanged: (visibilityInfo) {
+                                    double visiblePercentage = visibilityInfo.visibleFraction * 100;
+                                    if (visiblePercentage < 1.0) {
+                                      if (_scrollDownAnimationController.isAnimating) {
+                                        _isScrollDownVisible = false;
+                                        _scrollDownAnimationController.reset();
+                                      }
+                                    } else {
+                                      if (!_scrollDownAnimationController.isAnimating) {
+                                        _isScrollDownVisible = true;
+                                        _scrollDownAnimationController.forward();
+                                      }
+                                    }
+                                  },
+                                  child: AnimatedOpacity(
+                                    opacity: _scrollDownOpacity.value,
+                                    duration: const Duration(seconds: 1),
+                                    child: Column(
+                                      children: [
+                                        Text(AppLocalizations.of(context)!.scrollForDetails, style: const TextStyle(color: Colors.white)),
+                                        const Icon(Icons.expand_more, color: Colors.white),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ) : const SizedBox(width: 600, height: 400),
@@ -325,64 +345,100 @@ class SidequestCompletedDialog extends StatefulWidget {
 
 class _SidequestCompletedDialogState extends State<SidequestCompletedDialog> {
 
-  late ConfettiController _controllerBottomLeft;
+  late ConfettiController _controllerTopLeft;
+  late ConfettiController _controllerTopRight;
 
   @override
   void initState() {
     super.initState();
-    _controllerBottomLeft = ConfettiController(duration: const Duration(seconds: 2));
-    _controllerBottomLeft.play();
+    _controllerTopLeft = ConfettiController(duration: const Duration(seconds: 2));
+    _controllerTopRight = ConfettiController(duration: const Duration(seconds: 2));
+    _controllerTopLeft.play();
+    _controllerTopRight.play();
   }
 
   List<Color> getListColors() {
     List<Color> colorList = [];
     for (int i = 0; i<100; i++) {
-      colorList.add(Color((Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1));
+      colorList.add(Color((Random().nextDouble() * 0xFFFFFFFF).toInt()));
     }
     return colorList;
   }
 
   @override
   void dispose() {
-    _controllerBottomLeft.dispose();
+    _controllerTopLeft.dispose();
+    _controllerTopRight.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: Alignment.center,
       children: [
 
         SizedBox(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: ConfettiWidget(
-              confettiController: _controllerBottomLeft,
-              blastDirection: pi * 2,
-              maxBlastForce: 20, // set a lower max blast force
-              minBlastForce: 3, // set a lower min blast force
-              emissionFrequency: 0.9,
-              colors: getListColors(),
-              shouldLoop: false,
-              numberOfParticles: 20, // a lot of particles at once
-              gravity: 0.2,
-              //strokeWidth: 1,
-              //strokeColor: Colors.white,
-              blastDirectionality: BlastDirectionality.explosive,
-              minimumSize: const Size(10, 10),
-              particleDrag: 0.020,
-              maximumSize: const Size(11, 11),
-            ),
+        ),
+
+        Positioned(
+          top: -50,
+          left: 0,
+          child: ConfettiWidget(
+            confettiController: _controllerTopLeft,
+            maxBlastForce: 20, // set a lower max blast force
+            minBlastForce: 5, // set a lower min blast force
+            emissionFrequency: 1.0,
+            colors: getListColors(),
+            shouldLoop: false,
+            numberOfParticles: 20, // a lot of particles at once
+            gravity: 0.4,
+            blastDirectionality: BlastDirectionality.explosive,
+            minimumSize: const Size(10, 10),
+            particleDrag: 0.02,
+            maximumSize: const Size(11, 11),
           ),
         ),
 
-        AlertDialog(
-          title: Text("${AppLocalizations.of(context)!.missionCompleted}!"),
-          content: Text(
-              "${AppLocalizations.of(context)!.youHaveReceived} 1 ${widget.reward.type} ${AppLocalizations.of(context)!.sideQuestGoToLower} ${widget.reward.placeEvent}!"),
-          actionsAlignment: MainAxisAlignment.center,
+        Positioned(
+          top: -50,
+          right: 0,
+          child: ConfettiWidget(
+            confettiController: _controllerTopRight,
+            maxBlastForce: 40, // set a lower max blast force
+            minBlastForce: 3, // set a lower min blast force
+            emissionFrequency: 1.0,
+            colors: getListColors(),
+            shouldLoop: false,
+            numberOfParticles: 20, // a lot of particles at once
+            gravity: 0.4,
+            blastDirectionality: BlastDirectionality.explosive,
+            minimumSize: const Size(10, 10),
+            particleDrag: 0.02,
+            maximumSize: const Size(11, 11),
+          ),
+        ),
+
+        TopIconDialog(
+          icon: Container(
+            width: 55,
+            height: 55,
+            clipBehavior: Clip.antiAlias,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle
+            ),
+            child: Image.asset('assets/icon/party.png', fit: BoxFit.cover)),
+          title: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text("${AppLocalizations.of(context)!.missionCompleted}!", textAlign: TextAlign.center, style: const TextStyle(color: darkOrange, fontSize: 18)),
+          ),
+          content: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Text(
+                "${AppLocalizations.of(context)!.youHaveReceived} 1 ${widget.reward.type} ${AppLocalizations.of(context)!.sideQuestGoToLower} ${widget.reward.placeEvent}!", textAlign: TextAlign.center),
+          ),
           actions: [
             TextButton(
               child: const Text("Okay"),

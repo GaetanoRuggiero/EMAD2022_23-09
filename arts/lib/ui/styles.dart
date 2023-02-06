@@ -133,10 +133,11 @@ final ThemeData darkTheme = ThemeData(
   ),
 );
 
-class LoginRequiredDialog extends StatelessWidget {
-  const LoginRequiredDialog({Key? key, required this.title, required this.content, required this.actions}) : super(key: key);
-  final String title;
-  final String content;
+class TopIconDialog extends StatelessWidget {
+  const TopIconDialog({Key? key, required this.title, required this.content, required this.icon, required this.actions}) : super(key: key);
+  final Widget title;
+  final Widget content;
+  final Widget icon;
   final List<Widget> actions;
 
   Widget dialogContent(BuildContext context) {
@@ -160,20 +161,11 @@ class LoginRequiredDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 20.0),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18), textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
-                  child: Text(content, textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: actions,
-                  ),
+                title,
+                content,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: actions,
                 )
               ],
             ),
@@ -183,7 +175,7 @@ class LoginRequiredDialog extends StatelessWidget {
             child: CircleAvatar(
               backgroundColor: Theme.of(context).dialogBackgroundColor,
               radius: 33.0,
-              child: Icon(Icons.info, size: 60, color: Theme.of(context).textTheme.bodyLarge!.color),
+              child: icon,
             ),
           ),
         ],

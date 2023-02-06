@@ -825,7 +825,7 @@ class _SideQuestCardState extends State<SideQuestCard> with SingleTickerProvider
                           child: SizedBox(
                             height: 100,
                             width: 100,
-                            child: Image.asset("assets/markers/man_walking.gif",
+                            child: Image.asset("assets/animated/man_walking.gif",
                               fit: BoxFit.scaleDown,
                             ),
                           )),
