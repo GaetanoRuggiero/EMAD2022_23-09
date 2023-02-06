@@ -212,7 +212,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    switchThemeAnimationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    switchThemeAnimationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     switchThemeAnimation = Tween<double>(begin: 0.0, end: MediaQuery.of(context).size.longestSide * 2)
         .animate(CurvedAnimation(parent: switchThemeAnimationController, curve: Curves.easeInOut));
     switchThemeAnimationController.addStatusListener((status) {
@@ -309,6 +309,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       .listen((Position? position) {
         if (position != null) {
           _currentPosition = position;
+          _mapController.animateCamera(CameraUpdate.newCameraPosition(
+              CameraPosition(
+                  target: LatLng(position.latitude, position.longitude),
+                  zoom: 18.0
+              )
+          ));
         }
         debugPrint(position == null ? 'Unknown' : 'Homepage: Location updated successfully.');
       });
@@ -361,7 +367,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _isMapDark ? const Color(0xff242f3e) : Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Consumer2<UserProvider, SettingsModel>(
           builder: (context, userProvider, settingsModel, child) {
@@ -403,14 +408,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Icon(Icons.location_off, size: 80),
-                              Text(AppLocalizations.of(context)!.deviceLocationNotAvailable),
+                              Text("${AppLocalizations.of(context)!.deviceLocationNotAvailable}.",
+                                style: TextStyle(color: _isMapDark ? Colors.white : Theme.of(context).textTheme.bodyLarge!.color),),
                               Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: ElevatedButton(
-                                    onPressed: () {
-                                      _handlePermission();
-                                    },
-                                    child: Text(AppLocalizations.of(context)!.turnOnLocation)
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))
+                                  ),
+                                  onPressed: () {
+                                    _handlePermission();
+                                  },
+                                  child: Text(AppLocalizations.of(context)!.turnOnLocation)
                                 ),
                               ),
                             ],
@@ -539,13 +548,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     }
                   }),
                 ),
-                IgnorePointer(
-                  child: Container(
-                    color: Colors.black.withOpacity(menuOpacityAnimation.value),
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                  ),
-                ),
                 Positioned(
                   top: 80.0,
                   left: -25.0,
@@ -598,6 +600,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             );
                           }),
                     ],
+                  ),
+                ),
+                IgnorePointer(
+                  ignoring: !isMenuOpened,
+                  child: Container(
+                    color: Colors.black.withOpacity(menuOpacityAnimation.value),
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
                   ),
                 ),
                 Positioned(
