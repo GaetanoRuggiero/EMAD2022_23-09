@@ -1,4 +1,5 @@
 import 'package:arts/exception/exceptions.dart';
+import 'package:arts/ui/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geolocator/geolocator.dart';
@@ -70,6 +71,10 @@ class _CustomItineraryDialogState extends State<CustomItineraryDialog> {
 
   Future<Position?> _getCurrentPosition() async {
     if (_locationServiceEnabled && _locationPermissionGranted) {
+      Position? position = await LocationUtils.geolocatorPlatform.getLastKnownPosition();
+      if (position != null) {
+        return position;
+      }
       return await LocationUtils.geolocatorPlatform.getCurrentPosition();
     }
     return null;
@@ -100,7 +105,10 @@ class _CustomItineraryDialogState extends State<CustomItineraryDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(10, (index) => Text("${index+1}"))
+                children: List.generate(10, (index) => Padding(
+                  padding: const EdgeInsets.only(left: 5.0),
+                  child: Text("${index+1}"),
+                ))
               ),
             ),
             Slider(
@@ -118,30 +126,44 @@ class _CustomItineraryDialogState extends State<CustomItineraryDialog> {
                   _currentSliderValue = value;
                 });
               }),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.search),
-              label: Text(AppLocalizations.of(context)!.startSearch),
-              onPressed: () async {
-                await _checkLocationEnabled();
-                if (!_locationServiceEnabled) {
-                  if (!mounted) return;
-                  LocationUtils.showLocationDisabledDialog(context);
-                  return;
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                    blurRadius: 4,
+                    color: Colors.black12.withOpacity(.2),
+                    offset: const Offset(2, 2))
+              ],
+              gradient: const LinearGradient(
+                  colors: [lightOrange, darkOrange]),
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              child: TextButton.icon(
+                icon: const Icon(Icons.search, color: Colors.white,),
+                label: Text(AppLocalizations.of(context)!.startSearch, style: const TextStyle(color: Colors.white)),
+                onPressed: () async {
+                  await _checkLocationEnabled();
+                  if (!_locationServiceEnabled) {
+                    if (!mounted) return;
+                    LocationUtils.showLocationDisabledDialog(context);
+                    return;
+                  }
+                  await _checkPermissionGranted();
+                  if (!_locationPermissionGranted) {
+                    if (!mounted) return;
+                    LocationUtils.showPermissionDeniedDialog(context);
+                    return;
+                  }
+                  Position? currentPosition = await _getCurrentPosition();
+                  if (currentPosition != null) {
+                    setState(() {
+                      _selectedPoiMap = {};
+                      _searchInRangeFuture = searchInRange(currentPosition.latitude, currentPosition.longitude, _currentSliderValue);
+                    });
+                  }
                 }
-                await _checkPermissionGranted();
-                if (!_locationPermissionGranted) {
-                  if (!mounted) return;
-                  LocationUtils.showPermissionDeniedDialog(context);
-                  return;
-                }
-                Position? currentPosition = await _getCurrentPosition();
-                if (currentPosition != null) {
-                  setState(() {
-                    _selectedPoiMap = {};
-                    _searchInRangeFuture = searchInRange(currentPosition.latitude, currentPosition.longitude, _currentSliderValue);
-                  });
-                }
-              }
+              ),
             ),
             Expanded(
               child: FutureBuilder(
@@ -150,6 +172,12 @@ class _CustomItineraryDialogState extends State<CustomItineraryDialog> {
                   if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasData) {
                       Map<POI, double> inRangeMap = snapshot.data!;
+                      if (inRangeMap.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text("${AppLocalizations.of(context)!.noPOINearby}."),
+                        );
+                      }
                       inRangeMap.forEach((poi, distance) {
                         _selectedPoiMap.update(poi, (value) => value, ifAbsent: () => false);
                       });
@@ -157,10 +185,14 @@ class _CustomItineraryDialogState extends State<CustomItineraryDialog> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(20.0),
-                            child: Text("${AppLocalizations.of(context)!.customItineraryResults} ${_currentSliderValue.round().toString()} km"),
+                            child: Text("${AppLocalizations.of(context)!.customItineraryResults} ${_currentSliderValue.round().toString()} km:"),
                           ),
                           Expanded(
-                            child: ListView(
+                            child: GridView.count(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 8,
+                                padding: const EdgeInsets.all(8.0),
                                 children: _selectedPoiMap.keys.map((poi) {
                                   String distanceText = "";
                                   double distance = inRangeMap[poi]!;
@@ -171,31 +203,44 @@ class _CustomItineraryDialogState extends State<CustomItineraryDialog> {
                                   else {
                                     distanceText = "${distance.round()} m";
                                   }
-                                  return CheckboxListTile(
-                                    title: Text("${poi.name}"),
-                                    subtitle: Text("${AppLocalizations.of(context)!.distance} $distanceText"),
-                                    value: _selectedPoiMap[poi],
-                                    onChanged: (bool? value) {
-                                      debugPrint(value.toString());
-                                      setState(() {
-                                        _selectedPoiMap[poi] = value!;
-                                      });
-                                    }
+                                  return _CustomGridTile(
+                                      poi: poi,
+                                      distance: distanceText,
+                                      value: _selectedPoiMap[poi],
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedPoiMap[poi] = !_selectedPoiMap[poi]!;
+                                        });
+                                      }
                                   );
                                 }).toList(),
                             )
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: ElevatedButton.icon(
-                              icon: const Icon(Icons.near_me),
-                              label: Text(AppLocalizations.of(context)!.startItinerary),
-                              onPressed: () {
-                                List<POI> selectedPoi = _selectedPoiMap.entries.where((element) => element.value).map((e) => e.key).toList();
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => SingleTourScreen(itinerary: selectedPoi)));
-                              }),
+                            padding: const EdgeInsets.all(15.0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      blurRadius: 4,
+                                      color: Colors.black12.withOpacity(.2),
+                                      offset: const Offset(2, 2))
+                                ],
+                                gradient: const LinearGradient(
+                                    colors: [lightOrange, darkOrange]),
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                              child: TextButton.icon(
+                                icon: const Icon(Icons.near_me, color: Colors.white),
+                                label: Text(AppLocalizations.of(context)!.startItinerary, style: const TextStyle(color: Colors.white),),
+                                onPressed: () {
+                                  List<POI> selectedPoi = _selectedPoiMap.entries.where((element) => element.value).map((e) => e.key).toList();
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => SingleTourScreen(itinerary: selectedPoi)));
+                                }),
+                            ),
                           )
                         ],
                       );
@@ -222,6 +267,9 @@ class _CustomItineraryDialogState extends State<CustomItineraryDialog> {
     Map<POI, double> exactDistanceMap = {};
     try {
       inRangeList = await getPOIByRange(latitude, longitude, range);
+      if (inRangeList.isEmpty) {
+        return exactDistanceMap;
+      }
       List<LatLng> coordinates = [];
       for (var poi in inRangeList) {
         coordinates.add(LatLng(poi.latitude!, poi.longitude!));
@@ -241,5 +289,64 @@ class _CustomItineraryDialogState extends State<CustomItineraryDialog> {
       return Future.error(e);
     }
     return exactDistanceMap;
+  }
+}
+
+class _CustomGridTile extends StatelessWidget {
+  const _CustomGridTile({Key? key, required this.poi, required this.distance, required this.value, required this.onTap}) : super(key: key);
+  final POI poi;
+  final String distance;
+  final bool? value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget image = Material(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        clipBehavior: Clip.antiAlias,
+        child: Image.asset(poi.imageURL!, fit: BoxFit.cover));
+
+    return InkWell(
+      splashColor: Colors.transparent,
+      onTap: onTap,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          GridTile(
+            footer: Material(
+              color: Colors.transparent,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                constraints: const BoxConstraints(
+                  minHeight: 65
+                ),
+                color: Colors.black54,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(poi.name!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
+                    Text(distance, textAlign: TextAlign.start, style: const TextStyle(color: Colors.white70, fontSize: 14),),
+                  ]
+                ),
+              ),
+            ),
+            child: image,
+          ),
+          (value != null && value!) ?
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.blue.shade900.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(20)
+            ),
+            child: Icon(Icons.check_circle, size: 80, color: Colors.white.withOpacity(0.7),)
+          ) : const Text("")
+        ],
+      ),
+    );
   }
 }

@@ -178,6 +178,7 @@
   "distance": "Distanza",
   "emptyItinerary": "Non sono disponibili itinerari da seguire.",
   "nextStep": "Prossima tappa",
+  "skip": "Salta",
   "poiNearby": "Sei nei pressi di un punto di interesse!",
   "congratulations": "Congratulazioni",
   "destinationReached": "Hai raggiunto l'ultima tappa del percorso!",
