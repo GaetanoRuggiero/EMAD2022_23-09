@@ -263,7 +263,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                   children: [
                     Container(
                       margin: EdgeInsets.symmetric(vertical: mobilesWidth/3 > 125 ? mobilesWidth/6 : mobilesWidth/9),
-                      child: Text(AppLocalizations.of(context)!.addReward, style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold),),
+                      child: Text(AppLocalizations.of(context)!.addReward, style: TextStyle(fontSize: mobilesWidth/3 > 125 ? 35 : 25, fontWeight: FontWeight.bold),),
                     ),
                     Form(
                       key: _formKey,
