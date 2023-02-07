@@ -105,7 +105,7 @@
   "profile": "Profilo",
   "profilePartner": "Profilo Partner",
   "redirectLog": "Accedi",
-  "rewards": "Premi",
+  "rewards": "Ricompense",
   "seasonMex": "La stagione termina il",
   "seasonRewardMex": "Terminando gli obiettivi potrai ricevere le seguenti ricompense",
   "numberVisitedPoi": "Hai visitato",
@@ -138,6 +138,8 @@
   "addedSidequestSucc": "Aggiunta missione con successo!",
   "rewardsLimitReached": "Raggiunto limite ricompense",
   "rewardsLimitReachedText": "Hai già raggiunto il numero massimo di missioni che puoi creare. Aspetta che una scada per crearne una nuova.",
+  "congratsPartner": "Hai aggiunto",
+  "reward": "ricompensa",
 
   "cameraPermissionsError": "Impossibile accedere alla camera. Assicurati di aver concesso i permessi nelle impostazioni dell'app.",
   "cameraPermissionDialogTitle": "Permessi fotocamera non concessi",
@@ -212,6 +214,7 @@
   "disconnected": "Sei stato disconnesso",
   "mustLoginAgain": "Devi effettuare nuovamente l'accesso",
 
+  "scanQR": "Scansiona il QR",
   "frameQR": "Inquadra il QR.",
   "qrPositiveMessage": "QR valido",
   "qrNegativeMessage": "QR non valido",

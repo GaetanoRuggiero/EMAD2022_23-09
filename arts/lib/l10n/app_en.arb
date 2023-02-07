@@ -139,6 +139,8 @@
   "addedSidequestSucc": "Added sidequest successfully!",
   "rewardsLimitReached": "Reward limit reached",
   "rewardsLimitReachedText": "You have already reached the maximum number of missions you can create. Wait until one expires to create a new one.",
+  "congratsPartner": "You have added",
+  "reward": "ricompensa",
 
   "cameraPermissionsError": "Could't access to camera. Check if you have granted permissions in the application's settings.",
   "cameraPermissionDialogTitle": "Camera permission denied",
@@ -213,6 +215,7 @@
   "disconnected": "You got disconnected",
   "mustLoginAgain": "You have to log in again",
 
+  "scanQR": "Scan the QR",
   "frameQR": "Frame the QR.",
   "qrPositiveMessage": "QR valid",
   "qrNegativeMessage": "QR not valid",
