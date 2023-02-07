@@ -1,20 +1,25 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math' as math;
+
 import 'package:arts/exception/exceptions.dart';
 import 'package:arts/main.dart';
 import 'package:arts/model/google_routes_response.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/takepicture.dart';
+import 'package:arts/utils/settings_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+
 import '../api/itinerary_api.dart';
 import '../model/POI.dart';
 import '../model/google_routes_matrix.dart';
+import '../utils/location_utils.dart';
 
 class SingleTourScreen extends StatefulWidget {
   final List<POI> itinerary;
@@ -24,8 +29,11 @@ class SingleTourScreen extends StatefulWidget {
   State<SingleTourScreen> createState() => _SingleTourScreenState();
 }
 
-class _SingleTourScreenState extends State<SingleTourScreen> {
+class _SingleTourScreenState extends State<SingleTourScreen> with SingleTickerProviderStateMixin {
   GoogleMapController? _mapController;
+  late String _darkMapStyle;
+  late String _lightMapStyle;
+  bool _isMapDark = false;
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
@@ -41,6 +49,9 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   POI? _stepReached;
   bool _itineraryCompleted = false;
   bool _showLocationError = false;
+
+  late AnimationController switchThemeAnimationController;
+  late Animation<double> switchThemeAnimation;
 
   Future<bool> _handlePermission() async {
     LocationPermission permission;
@@ -59,14 +70,16 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
     if (permission == LocationPermission.denied) {
       permission = await _geolocatorPlatform.requestPermission();
       if (permission == LocationPermission.denied) {
-        showPermissionDeniedDialog();
+        if (!mounted) return false;
+        LocationUtils.showPermissionDeniedDialog(context);
         return false;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
-      showPermissionDeniedDialog();
+      if (!mounted) return false;
+      LocationUtils.showPermissionDeniedDialog(context);
       return false;
     }
 
@@ -85,89 +98,24 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
     return await _geolocatorPlatform.getCurrentPosition();
   }
 
-  void _openLocationSettings() async {
-    final opened = await _geolocatorPlatform.openLocationSettings();
+  Future _loadMapStyles() async {
+    _darkMapStyle  = await rootBundle.loadString('assets/map_styles/dark.json');
+    _lightMapStyle = await rootBundle.loadString('assets/map_styles/light.json');
+  }
 
-    if (opened) {
-      debugPrint("Opened Location Settings");
-    } else {
-      debugPrint("Error opening Location Settings");
+  _changeMapTheme() async {
+    if (_mapController != null) {
+      if (_isMapDark) {
+        _mapController!.setMapStyle(_lightMapStyle);
+      } else {
+        _mapController!.setMapStyle(_darkMapStyle);
+      }
     }
-  }
-
-  void _openAppSettings() async {
-    final opened = await _geolocatorPlatform.openAppSettings();
-
-    if (opened) {
-      debugPrint("Opened Application Settings");
-    } else {
-      debugPrint("Error opening Location Settings");
-    }
-  }
-
-  void showLocationDisabledDialog() {
-    showDialog(context: context, builder: (_) {
-      return AlertDialog(
-        title: Text(AppLocalizations.of(context)!.locationOffDialogTitle),
-        content: Text(AppLocalizations.of(context)!.locationOffDialogContent),
-        actions: [
-          TextButton(
-              child: Text(AppLocalizations.of(context)!.noThanks),
-              onPressed: () {
-                Navigator.of(context).pop();
-              }),
-          TextButton(
-              child: Text(AppLocalizations.of(context)!.turnOnLocation),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _openLocationSettings();
-              })
-        ],
-      );
-    });
-  }
-
-  void showPermissionDeniedDialog() {
-    showDialog(context: context, builder: (_) {
-      return AlertDialog(
-        title: Text(AppLocalizations.of(context)!.locationPermissionDialogTitle),
-        content: Text(AppLocalizations.of(context)!.locationPermissionDialogContent),
-        actions: [
-          TextButton(
-              child: Text(AppLocalizations.of(context)!.noThanks),
-              onPressed: () {
-                Navigator.of(context).pop();
-              }),
-          TextButton(
-              child: Text(AppLocalizations.of(context)!.allowPermission),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _openAppSettings();
-              })
-        ],
-      );
-    });
-  }
-
-  void _onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-    var mapStyle = [{
-      "featureType": "poi",
-      "elementType": "labels",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
-    }];
-    _mapController!.setMapStyle(jsonEncode(mapStyle));
-    _drawPolylines();
-    _drawMarkers();
   }
 
   void _drawMarkers() async {
 
-    BitmapDescriptor nextMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_next.png");
+    BitmapDescriptor nextMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_next_alternative.png");
     BitmapDescriptor toVisitMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_tovisit.png");
     BitmapDescriptor visitedMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/markers/marker_visited.png");
     BitmapDescriptor markerType;
@@ -269,7 +217,6 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
       });
       return;
     }
-
     List<POI> path = List.from(_currentItineraryPath);
     List<LatLng> coordinates = [];
     Set<Polyline> polylines = {};
@@ -332,7 +279,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
                 PatternItem.dot
               ],
               width: 10,
-              color: Colors.blue,
+              color: Colors.blueAccent,
               zIndex: 5
             )
           );
@@ -365,23 +312,34 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   }
 
   void showDestinationReachedDialog() {
-    showDialog(barrierColor: const Color(0x01000000), context: context, builder: (context) {
-      return AlertDialog(
-        title: Text(AppLocalizations.of(context)!.poiNearby),
-        actionsAlignment: MainAxisAlignment.spaceBetween,
-        icon: const Icon(Icons.flag, size: 25.0),
+    showDialog(barrierColor: const Color(0x33000000), context: context, builder: (context) {
+      return TopIconDialog(
+        title: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(AppLocalizations.of(context)!.poiNearby, textAlign: TextAlign.center),
+        ),
+        icon: Container(
+          width: 55,
+          height: 55,
+          decoration: const BoxDecoration(
+            color: Colors.green,
+            shape: BoxShape.circle
+          ),
+          child: const Icon(Icons.flag, color: Colors.white)
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text("${_stepReached!.name}", style: const TextStyle(color: darkOrange, fontWeight: FontWeight.bold)),
             ),
-            Text(AppLocalizations.of(context)!.takeAPictureAddToCollection),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Text(AppLocalizations.of(context)!.takeAPictureAddToCollection, textAlign: TextAlign.center),
+            ),
           ],
-        ),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15)
         ),
         actions: [
           TextButton.icon(
@@ -407,19 +365,29 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   }
 
   void showItineraryCompletedDialog() {
-    showDialog(barrierColor: const Color(0x01000000), context: context, builder: (context) {
-      return AlertDialog(
-        title: Text("${AppLocalizations.of(context)!.congratulations}!"),
-        actionsAlignment: MainAxisAlignment.center,
-        icon: const Icon(Icons.sports_score, size: 25.0),
+    showDialog(barrierColor: const Color(0x33000000), context: context, builder: (context) {
+      return TopIconDialog(
+        title: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text("${AppLocalizations.of(context)!.congratulations}!", textAlign: TextAlign.center, style: const TextStyle(color: lightOrange, fontWeight: FontWeight.bold),),
+        ),
+        icon: Container(
+          width: 55,
+          height: 55,
+          decoration: const BoxDecoration(
+              color: Colors.deepOrange,
+              shape: BoxShape.circle
+          ),
+          child: const Icon(Icons.sports_score, color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(AppLocalizations.of(context)!.destinationReached),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Text(AppLocalizations.of(context)!.destinationReached, textAlign: TextAlign.center,),
+            ),
           ],
-        ),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15)
         ),
         actions: [
           TextButton(
@@ -436,6 +404,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   @override
   void initState() {
     super.initState();
+    _loadMapStyles();
 
     Future.delayed(Duration.zero, () async {
       Position? position = await _getCurrentPosition();
@@ -546,11 +515,31 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    switchThemeAnimationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    switchThemeAnimation = Tween<double>(begin: 0.0, end: MediaQuery.of(context).size.longestSide * 2)
+        .animate(CurvedAnimation(parent: switchThemeAnimationController, curve: Curves.easeInOut));
+    switchThemeAnimationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        switchThemeAnimationController.reset();
+        setState(() {
+          _isMapDark = !_isMapDark;
+        });
+      }
+    });
+    switchThemeAnimationController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   void dispose() {
     super.dispose();
     if (_mapController != null) {
       _mapController!.dispose();
     }
+    switchThemeAnimationController.dispose();
     if (_positionStreamSubscription != null) {
       _positionStreamSubscription!.cancel();
       _positionStreamSubscription = null;
@@ -565,20 +554,26 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
   Widget build(BuildContext context) {
     if (_showLocationError) {
       return Scaffold(
+        backgroundColor: _isMapDark ? const Color(0xff242f3e) : Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.location_off, size: 80),
-                Text(AppLocalizations.of(context)!.deviceLocationNotAvailable),
+                Text("${AppLocalizations.of(context)!.deviceLocationNotAvailable}.",
+                  style: TextStyle(color: _isMapDark ? Colors.white : Theme.of(context).textTheme.bodyLarge!.color)),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))
+                    ),
                     onPressed: () async {
                       bool hasPermissions = await _handlePermission();
                       if (!hasPermissions) {
-                        showLocationDisabledDialog();
+                        if (!mounted) return;
+                        LocationUtils.showLocationDisabledDialog(context);
                       }
                     },
                     child: Text(AppLocalizations.of(context)!.turnOnLocation)
@@ -609,58 +604,151 @@ class _SingleTourScreenState extends State<SingleTourScreen> {
       );
     }
     return Scaffold(
+      backgroundColor: _isMapDark ? const Color(0xff242f3e) : Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Stack(
-          children: [
-            GoogleMap(
-              markers: _markers,
-              polylines: _polylines,
-              mapToolbarEnabled: false,
-              zoomControlsEnabled: false,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: false,
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-                zoom: 18.0
-              )
-            ),
-            Positioned(
-              top: 0,
-              width: MediaQuery.of(context).size.width,
-              height: 100,
-              child: Card(
-                margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                color: Theme.of(context).colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)
+        child: Consumer<SettingsModel>(
+          builder: (context, value, child) {
+            return Stack(
+              children: [
+                GoogleMap(
+                    markers: _markers,
+                    polylines: _polylines,
+                    mapToolbarEnabled: false,
+                    zoomControlsEnabled: false,
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: false,
+                    onMapCreated: (controller) {
+                      _mapController = controller;
+
+                      final theme = settingsModel.themeMode;
+                      if (theme == ThemeMode.dark) {
+                        _isMapDark = true;
+                        _mapController!.setMapStyle(_darkMapStyle);
+                      } else {
+                        _isMapDark = false;
+                        _mapController!.setMapStyle(_lightMapStyle);
+                      }
+                      _drawPolylines();
+                      _drawMarkers();
+                    },
+                    initialCameraPosition: CameraPosition(
+                        target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                        zoom: 18.0
+                    )
                 ),
-                child: NavigationDirections(
-                  legs: _legs,
-                  nextStep: _nextStep,
-                  stepReached: _stepReached,
-                  goToNextStep: _goToNextStep,
-                  itineraryCompleted: _itineraryCompleted,
-                )
-              ),
-            ),
-          ],
+                OverflowBox(
+                  maxHeight: MediaQuery.of(context).size.longestSide * 2,
+                  maxWidth: MediaQuery.of(context).size.longestSide * 2,
+                  child: Container(
+                    width: switchThemeAnimation.value,
+                    height: switchThemeAnimation.value,
+                    decoration: BoxDecoration(
+                        color: _isMapDark ? Colors.white : const Color(0xff242f3e),
+                        shape: BoxShape.circle
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  width: MediaQuery.of(context).size.width,
+                  height: 100,
+                  child: Container(
+                      margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          radius: 10,
+                          center: Alignment.bottomCenter,
+                          colors: [
+                            darkBlue,
+                            Colors.blue.shade700,
+                            Colors.blue.shade900,
+                          ]
+                        ),
+                        borderRadius: BorderRadius.circular(10.0)
+                      ),
+                      child: NavigationDirections(
+                        legs: _legs,
+                        nextStep: _nextStep,
+                        stepReached: _stepReached,
+                        goToNextStep: _goToNextStep,
+                        itineraryCompleted: _itineraryCompleted,
+                      )
+                  ),
+                ),
+                Positioned(
+                  top: 120,
+                  right: 15,
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.grey.shade700, width: 0.3),
+                        boxShadow: const [BoxShadow(color: Colors.grey, blurRadius: 1, spreadRadius: 1)]
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () async {
+                        if (switchThemeAnimationController.isDismissed) {
+                          switchThemeAnimationController.forward();
+                        }
+                        Future.delayed(const Duration(milliseconds: 300), () async {
+                          _changeMapTheme();
+                        });
+                      },
+                      icon: _isMapDark ? const Icon(Icons.sunny, color: Colors.orangeAccent) : const Icon(Icons.dark_mode, color: Colors.black),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 180,
+                  right: 15,
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.grey.shade700, width: 0.3),
+                        boxShadow: const [BoxShadow(color: Colors.grey, blurRadius: 1, spreadRadius: 1)]
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: Icon(Icons.my_location_rounded, color: Colors.blue.shade700),
+                      onPressed: _goToMyPosition
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      onPressed: _goToMyPosition,
-      label: Text(AppLocalizations.of(context)!.myLocation, style: const TextStyle(color: Colors.white)),
-      icon: const Icon(Icons.my_location))
+      backgroundColor: darkOrange,
+      onPressed: () {
+        Navigator.push(
+          context, MaterialPageRoute(builder: (context) => TakePictureScreen(camera: camera, latitude: _currentPosition!.latitude, longitude: _currentPosition!.longitude))
+        );
+      },
+      label: Text(AppLocalizations.of(context)!.takePicutre),
+      icon: const Icon(Icons.camera, color: Colors.white))
     );
   }
 
   void _goToNextStep() {
-    if (_currentItineraryPath.isNotEmpty && _stepReached != null) {
+    if (_currentItineraryPath.isNotEmpty) {
       setState(() {
-        _currentItineraryPath.remove(_stepReached!);
+        _currentItineraryPath.removeAt(0);
         _nextStep = null;
         _stepReached = null;
+        if (_currentItineraryPath.isEmpty) {
+          _itineraryCompleted = true;
+          showItineraryCompletedDialog();
+        }
         _drawMarkers();
         _drawPolylines();
       });
@@ -707,18 +795,18 @@ class NavigationDirections extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.sports_score, size: 40),
-                  Expanded(child: Text(textAlign: TextAlign.center, AppLocalizations.of(context)!.destinationReached, style: const TextStyle(fontWeight: FontWeight.bold))),
+                  const Icon(Icons.sports_score, size: 40, color: Colors.white),
+                  Expanded(child: Text(textAlign: TextAlign.center, AppLocalizations.of(context)!.destinationReached, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
                 ],
               ),
             ),
           ),
           Expanded(
             child: TextButton.icon(
-                icon: const Icon(Icons.home),
+                icon: const Icon(Icons.home, color: lightOrange,),
                 onPressed: () { Navigator.of(context).popUntil((route) => route.isFirst); },
-                label: Text(AppLocalizations.of(context)!.backToHomepage),
-                style: TextButton.styleFrom(foregroundColor: lightOrange)),
+                label: Text(AppLocalizations.of(context)!.backToHomepage, style: const TextStyle(color: Colors.white),),
+            ),
           )
         ],
       );
@@ -733,19 +821,19 @@ class NavigationDirections extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Icon(Icons.flag, size: 40),
+                const Icon(Icons.flag, size: 35, color: Colors.white),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("${stepReached!.name}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
                 ),
-                Center(child: Text("${stepReached!.name}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
               ],
             ),
           ),
           TextButton.icon(
-            icon: const Icon(Icons.skip_next),
+            icon: const Icon(Icons.skip_next, color: lightOrange,),
             onPressed: goToNextStep,
             label: Text(AppLocalizations.of(context)!.nextStep),
-            style: TextButton.styleFrom(foregroundColor: lightOrange))
+            style: TextButton.styleFrom(foregroundColor: Colors.white))
         ],
       );
     }
@@ -756,31 +844,44 @@ class NavigationDirections extends StatelessWidget {
       if (legs![0].distanceMeters! >= 1000) {
         distance = "${(legs![0].distanceMeters!.toDouble() / 1000).toStringAsFixed(1)} km";
       }
-      return Row(
+      return Stack(
+        alignment: Alignment.center,
         children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(AppLocalizations.of(context)!.nextStep, style: const TextStyle(color: Colors.white)),
-                  Text("${nextStep!.name}", style: const TextStyle(fontSize: 16)),
-                  Text("${AppLocalizations.of(context)!.distance}: $distance", style: const TextStyle(color: Colors.white))
-                ],
-              ),
+          Positioned(
+            top: 15,
+            child: Text(AppLocalizations.of(context)!.nextStep, style: const TextStyle(color: Colors.white)),
+          ),
+          Positioned(
+            top: 40,
+            child: Text("${nextStep!.name}", style: const TextStyle(fontSize: 18, color: Colors.white))),
+          Positioned(
+            right: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Transform.rotate(angle: math.pi * 3/2, child: const Icon(FontAwesomeIcons.shoePrints, color: lightOrange, size: 20)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(distance, style: const TextStyle(color: Colors.white)),
+                ),
+              ],
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Transform.rotate(angle: 270 * math.pi / 180, child: const Icon(FontAwesomeIcons.shoePrints)),
+          Positioned(
+            left: 20,
+            child: InkWell(
+              onTap: goToNextStep,
+              child: Column(
+                children: [
+                  const Icon(Icons.skip_next, color: lightOrange,),
+                  Text(AppLocalizations.of(context)!.skip, style: const TextStyle(color: Colors.white)),
+                ],
               ),
-            ],
-          ),
+            )
+          )
         ],
       );
     }

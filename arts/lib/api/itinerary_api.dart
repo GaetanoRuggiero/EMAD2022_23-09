@@ -181,6 +181,7 @@ Future<List<GoogleRoutesMatrix>> getRouteMatrix(List<LatLng> originsCoordinates,
     throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   }
   else {
+    debugPrint(response.body);
     throw Exception("Failure! Couldn't make the call to Google Routes API.");
   }
 }
