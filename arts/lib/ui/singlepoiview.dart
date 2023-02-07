@@ -179,6 +179,7 @@ class _SinglePOIViewState extends State<SinglePOIView> with TickerProviderStateM
                                           padding: const EdgeInsets.all(10.0),
                                           child: RichText(
                                               text: TextSpan(
+                                                style: const TextStyle(fontFamily: 'JosefinSans'),
                                                   children: <TextSpan>[
                                                     TextSpan(
                                                         text: "${AppLocalizations.of(context)!.lastVisited}\n",
@@ -208,7 +209,7 @@ class _SinglePOIViewState extends State<SinglePOIView> with TickerProviderStateM
                                           style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
                                           label: Text(AppLocalizations.of(context)!.view3dModel, style: const TextStyle(color: Colors.white)),
                                           onPressed: () {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => UnitySceneScreen(poiName: poi.name!, modelName: poi.modelName!)));
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => UnitySceneScreen(poiName: widget.poi.name!, modelName: widget.poi.modelName!)));
                                           }
                                       ) : Container(),
                                     ],

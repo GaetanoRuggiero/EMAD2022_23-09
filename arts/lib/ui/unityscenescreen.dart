@@ -30,15 +30,13 @@ class _UnitySceneScreenState extends State<UnitySceneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.poiName),
-      ),
       body: Stack(
+        alignment: Alignment.center,
         children: [
           UnityWidget(
             onUnityCreated: _onUnityCreated,
             onUnityMessage: onUnityMessage,
-            fullscreen: false
+            fullscreen: true
           ),
           PointerInterceptor(
             child: GestureDetector(
