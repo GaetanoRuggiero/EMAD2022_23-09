@@ -210,6 +210,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
     } else if (foodCategories.contains(category)) {
       _controllerType.text = coupon;
     }
+    debugPrint(category);
     return _controllerType;
   }
 
@@ -245,6 +246,8 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
 
   @override
   Widget build(BuildContext context) {
+    double mobilesHeight = MediaQuery.of(context).size.height;
+    double mobilesWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -255,224 +258,227 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
           ),
           body: Consumer<UserProvider>(
             builder: (context, userProvider, child) {
-              return Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 30),
-                    child: Text(AppLocalizations.of(context)!.addReward, style: const TextStyle(fontSize: 25),),
-                  ),
-                  Form(
-                    key: _formKey,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 30),
-                      padding: const EdgeInsets.only(top: 40),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin : const EdgeInsets.only(bottom: 20),
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                      decoration: InputDecoration(
-                                        prefixIcon: const Icon(Icons.store),
-                                        labelText: AppLocalizations.of(context)!.placeEvent,
-                                      ),
-                                      initialValue: userProvider.name,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return AppLocalizations.of(context)!.mandatoryField;
-                                        } else {
-                                          _controllerPlaceEvents.text = value;
-                                          return null;
-                                        }
-                                      }
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 20),
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                   flex: 3,
-                                  child: TextFormField(
-                                      controller: _controllerExpiryDate,
-                                      decoration: InputDecoration(
-                                        prefixIcon: const Icon(Icons.calendar_today),
-                                        labelText: AppLocalizations.of(context)!.expiryDate,
-                                      ),
-                                      readOnly: true,
-                                      onTap: () async {
-                                        int futureYear = DateTime.now().year + 47;
-                                        DateTime? pickedDate = await showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime.now(), //get today's date
-                                            firstDate:DateTime.now(),
-                                            lastDate: DateTime(futureYear)
-                                        );
-                                        if (pickedDate != null ) {
-                                          String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                          setState(() {
-                                            _controllerExpiryDate.text = formattedDate; //set foratted date to TextField value.
-                                          });
-                                        } else {
-                                          debugPrint("Date is not selected");
-                                        }
-                                      },
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return AppLocalizations.of(context)!.mandatoryField;
-                                        } else {
-                                          return null;
-                                        }
-                                      }
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  flex: 2,
-                                  child: TextFormField(
-                                      keyboardType: TextInputType.number,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
-                                      controller: _controllerDiscountAmount,
-                                      decoration: InputDecoration(
-                                        prefixIcon: const Icon(Icons.percent),
-                                          labelText: AppLocalizations.of(context)!.discountAmount,
-                                          hintText: AppLocalizations.of(context)!.valueDiscountAmount
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return AppLocalizations.of(context)!.mandatoryField;
-                                        } else {
-                                          int valueParsed = int.parse(value);
-                                          if (valueParsed > 0 && valueParsed<= 100) {
-                                            return null;
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: mobilesWidth/3 > 125 ? mobilesWidth/6 : mobilesWidth/9),
+                      child: Text(AppLocalizations.of(context)!.addReward, style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold),),
+                    ),
+                    Form(
+                      key: _formKey,
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: mobilesHeight/40),
+                        padding: EdgeInsets.only(top: mobilesWidth/3 > 125 ? mobilesWidth/10 : mobilesWidth/9),
+                        child: Column(
+                          children: [
+                            Container(
+                              margin : const EdgeInsets.only(bottom: 20),
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                        decoration: InputDecoration(
+                                          prefixIcon: const Icon(Icons.store),
+                                          labelText: AppLocalizations.of(context)!.placeEvent,
+                                        ),
+                                        initialValue: userProvider.name,
+                                        //style: const TextStyle(color: Colors.blueGrey),
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return AppLocalizations.of(context)!.mandatoryField;
                                           } else {
-                                            return AppLocalizations.of(context)!.properValue;
+                                            _controllerPlaceEvents.text = value;
+                                            return null;
                                           }
                                         }
-                                      }
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 40),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      prefixIcon: getIcon(userProvider.category),
-                                      labelText: AppLocalizations.of(context)!.category,
                                     ),
-                                    initialValue: getControllerCategory(context, userProvider.category),
                                   ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: TextFormField(
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      prefixIcon: _controllerType.text == "ticket" ? const Icon(Icons.local_activity)
-                                                  : const Icon(Icons.sell),
-                                      labelText: AppLocalizations.of(context)!.type,
-                                    ),
-                                    initialValue: getControllerType(userProvider.category).text,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              if (_formKey.currentState!.validate()) {
-                                String? email = await UserUtils.readEmail();
-                                String? token = await UserUtils.readToken();
-                                if (email == null && token == null){
-                                  WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                                    showDisconnectedDialog(context);
-                                  });
-                                } else {
-                                  try {
-                                    int? discountAmount = int.parse(_controllerDiscountAmount.text);
-                                    String? expiryDate = DateTime.parse(_controllerExpiryDate.text).toIso8601String();
-                                    Reward reward = Reward(
-                                        category: userProvider.category, discountAmount: discountAmount, expiryDate: expiryDate,
-                                        placeEvent: _controllerPlaceEvents.text, type: _controllerType.text, email: email
-                                    );
-                                    bool addedSidequest = await addSidequest(reward, email!, token!);
-                                    if (addedSidequest) {
-                                      userProvider.incrementRewardCount();
-                                      setState(() {
-                                        _snackBarMessage = AppLocalizations.of(context)!.addedSidequestSucc;
-                                        _colorSnackbar = Colors.green;
-                                      });
-                                      if (!mounted) return;
-                                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-                                          builder: (context) => const ProfilePartner()), (Route route) => false);
-                                    } else {
-                                      setState(() {
-                                        _snackBarMessage = AppLocalizations.of(context)!.addedSidequestFailed;
-                                        _colorSnackbar = Colors.red;
-                                      });
-                                      setState(() {
-                                        _showConnectionError = false;
-                                      });
-                                      if (!mounted) return;
-                                      Navigator.pop(context);
-                                    }
-                                    if (!mounted) return;
-                                    showSnackBar(context,_colorSnackbar,_snackBarMessage                                    );
-                                  } on ConnectionErrorException catch(e) {
-                                    debugPrint(e.cause);
-                                    setState(() {
-                                      _showConnectionError = true;
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 20),
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                     flex: 3,
+                                    child: TextFormField(
+                                        controller: _controllerExpiryDate,
+                                        decoration: InputDecoration(
+                                          prefixIcon: const Icon(Icons.calendar_today),
+                                          labelText: AppLocalizations.of(context)!.expiryDate,
+                                        ),
+                                        readOnly: true,
+                                        onTap: () async {
+                                          int futureYear = DateTime.now().year + 47;
+                                          DateTime? pickedDate = await showDatePicker(
+                                              context: context,
+                                              initialDate: DateTime.now(), //get today's date
+                                              firstDate:DateTime.now(),
+                                              lastDate: DateTime(futureYear)
+                                          );
+                                          if (pickedDate != null ) {
+                                            String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                            setState(() {
+                                              _controllerExpiryDate.text = formattedDate; //set foratted date to TextField value.
+                                            });
+                                          } else {
+                                            debugPrint("Date is not selected");
+                                          }
+                                        },
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return AppLocalizations.of(context)!.mandatoryField;
+                                          } else {
+                                            return null;
+                                          }
+                                        }
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    flex: 2,
+                                    child: TextFormField(
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        controller: _controllerDiscountAmount,
+                                        decoration: InputDecoration(
+                                          prefixIcon: const Icon(Icons.percent),
+                                            labelText: AppLocalizations.of(context)!.discountAmount,
+                                            hintText: AppLocalizations.of(context)!.valueDiscountAmount
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return AppLocalizations.of(context)!.mandatoryField;
+                                          } else {
+                                            int valueParsed = int.parse(value);
+                                            if (valueParsed > 0 && valueParsed<= 100) {
+                                              return null;
+                                            } else {
+                                              return AppLocalizations.of(context)!.properValue;
+                                            }
+                                          }
+                                        }
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(bottom: mobilesWidth/6),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      readOnly: true,
+                                      decoration: InputDecoration(
+                                        prefixIcon: getIcon(userProvider.category),
+                                        labelText: AppLocalizations.of(context)!.category,
+                                      ),
+                                      initialValue: getControllerCategory(context, userProvider.category),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: TextFormField(
+                                      readOnly: true,
+                                      decoration: InputDecoration(
+                                        prefixIcon: _controllerType.text == "ticket" ? const Icon(Icons.local_activity)
+                                                    : const Icon(Icons.sell),
+                                        labelText: AppLocalizations.of(context)!.type,
+                                      ),
+                                      initialValue: getControllerType(userProvider.category).text,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  String? email = await UserUtils.readEmail();
+                                  String? token = await UserUtils.readToken();
+                                  if (email == null && token == null){
+                                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                                      showDisconnectedDialog(context);
                                     });
+                                  } else {
+                                    try {
+                                      int? discountAmount = int.parse(_controllerDiscountAmount.text);
+                                      String? expiryDate = DateTime.parse(_controllerExpiryDate.text).toIso8601String();
+                                      Reward reward = Reward(
+                                          category: userProvider.category, discountAmount: discountAmount, expiryDate: expiryDate,
+                                          placeEvent: _controllerPlaceEvents.text, type: _controllerType.text, email: email
+                                      );
+                                      bool addedSidequest = await addSidequest(reward, email!, token!);
+                                      if (addedSidequest) {
+                                        userProvider.incrementRewardCount();
+                                        setState(() {
+                                          _snackBarMessage = AppLocalizations.of(context)!.addedSidequestSucc;
+                                          _colorSnackbar = Colors.green;
+                                        });
+                                        if (!mounted) return;
+                                        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+                                            builder: (context) => const ProfilePartner()), (Route route) => false);
+                                      } else {
+                                        setState(() {
+                                          _snackBarMessage = AppLocalizations.of(context)!.addedSidequestFailed;
+                                          _colorSnackbar = Colors.red;
+                                        });
+                                        setState(() {
+                                          _showConnectionError = false;
+                                        });
+                                        if (!mounted) return;
+                                        Navigator.pop(context);
+                                      }
+                                      if (!mounted) return;
+                                      showSnackBar(context,_colorSnackbar,_snackBarMessage                                    );
+                                    } on ConnectionErrorException catch(e) {
+                                      debugPrint(e.cause);
+                                      setState(() {
+                                        _showConnectionError = true;
+                                      });
+                                    }
                                   }
                                 }
-                              }
-                            },
-                            child: Container(
-                              height: 60,
-                              width: double.infinity,
-                              margin: const EdgeInsets.only(bottom: 20),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                        blurRadius: 4,
-                                        color: Colors.black12.withOpacity(.2),
-                                        offset: const Offset(2, 2))
-                                  ],
-                                  borderRadius: BorderRadius.circular(100),
-                                  gradient: const LinearGradient(
-                                      colors: [lightOrange, darkOrange])
+                              },
+                              child: Container(
+                                height: 60,
+                                width: double.infinity,
+                                margin: EdgeInsets.only(bottom: mobilesWidth/8),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 4,
+                                          color: Colors.black12.withOpacity(.2),
+                                          offset: const Offset(2, 2))
+                                    ],
+                                    borderRadius: BorderRadius.circular(100),
+                                    gradient: const LinearGradient(
+                                        colors: [lightOrange, darkOrange])
+                                ),
+                                child: Text(AppLocalizations.of(context)!.addReward,
+                                    style: TextStyle(
+                                        color: Colors.white.withOpacity(.8),
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.bold)),
                               ),
-                              child: Text(AppLocalizations.of(context)!.addReward,
-                                  style: TextStyle(
-                                      color: Colors.white.withOpacity(.8),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold)),
                             ),
-                          ),
-                          _showConnectionError ? showConnectionError(AppLocalizations.of(context)!.connectionError, () => refreshTab()) : Container()
-                        ],
+                            _showConnectionError ? showConnectionError(AppLocalizations.of(context)!.connectionError, () => refreshTab()) : Container()
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             }
           ),

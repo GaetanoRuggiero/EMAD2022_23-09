@@ -57,7 +57,7 @@ Future<User?> loginUser(String email, String password, String token) async {
       its content with UTF-8 to allow accented characters to be shown correctly */
 
     if (response.body.isNotEmpty) {
-      User user = User.fromJson(jsonDecode(response.body));
+      User user = User.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
       debugPrint("Logged successfully");
       return user;
     }
@@ -142,7 +142,7 @@ Future<User?> checkTokenValidity(String email, String token) async {
       its content with UTF-8 to allow accented characters to be shown correctly */
 
     if (response.body.isNotEmpty) {
-      User user = User.fromJson(jsonDecode(response.body));
+      User user = User.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
       return user;
     }
   } else if (response.statusCode == 500) {

@@ -121,7 +121,7 @@
   "placeEvent": "Esercizio Commerciale",
   "category": "Categoria",
   "discountAmount": "Sconto",
-  "expiryDate": "Data di scadenza",
+  "expiryDate": "Data limite",
   "type": "Tipologia",
   "valueDiscountAmount": "Valore",
   "bakery": "Pasticceria",
