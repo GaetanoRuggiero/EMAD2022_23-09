@@ -1,18 +1,32 @@
 import 'package:arts/ui/styles.dart';
+import 'package:arts/utils/widget_utils.dart';
 import 'package:arts/utils/user_provider.dart';
 import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../exception/exceptions.dart';
+
 import './singlepoiview.dart';
-import '../utils/debouncer.dart';
 import '../api/poi_api.dart';
 import '../api/user_api.dart';
+import '../exception/exceptions.dart';
 import '../model/POI.dart';
+import '../utils/debouncer.dart';
 
 enum SearchFilter { city, name }
+
+const thumbnailName = "thumbnail.jpg";
+
+String getCountryEmoji(String country) {
+  String emoji = '❔';
+  switch (country) {
+    case 'Italia' : return '🇮🇹';
+    case 'Francia' : return '🇫🇷';
+    case 'Germania': return '🇩🇪';
+    case 'Regno Unito' : return '🇬🇧';
+    default: return emoji;
+  }
+}
 
 class CollectionScreen extends StatefulWidget {
   const CollectionScreen({Key? key}) : super(key: key);
@@ -22,75 +36,88 @@ class CollectionScreen extends StatefulWidget {
 }
 
 class _CollectionScreenState extends State<CollectionScreen> {
+  int _selectedIndex = 0;
+  final PageController _pageController = PageController(initialPage: 0);
+
+
+  void _onItemTapped(int index) {
+    _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.ease);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            actions: [
-              IconButton(
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          shadowColor: Colors.transparent,
+          actions: [
+            IconButton(
                 icon: const Icon(Icons.home_rounded),
                 onPressed: () {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 }),
-            ],
-            title: Text(AppLocalizations.of(context)!.collectionTitle),
-            bottom: TabBar(
-              tabs: [
-                Tab(child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 5),
-                      child: Icon(FontAwesomeIcons.bookBookmark, size: 22),
-                    ),
-                    Text(AppLocalizations.of(context)!.visitedTabTitle),
-                  ],
-                )),
-                Tab(child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 5),
-                      child: Icon(FontAwesomeIcons.book, size: 22),
-                    ),
-                    Text(AppLocalizations.of(context)!.toVisitTabTitle),
-                  ],
-                )),
-                Tab(child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 5),
-                      child: Icon(Icons.search, size: 22),
-                    ),
-                    Text(AppLocalizations.of(context)!.searchTabTitle),
-                  ],
-                )),
-              ],
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.collections),
+              activeIcon: Container(
+                height: 30,
+                decoration: BoxDecoration(
+                  color: lightOrange,
+                  borderRadius: BorderRadius.circular(20)
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
+                margin: const EdgeInsets.only(bottom: 3),
+                child: Icon(
+                  Icons.collections,
+                  color: Theme.of(context).canvasColor,
+                ),
+              ),
+              label: AppLocalizations.of(context)!.collectionBottomBarTitle,
             ),
-          ),
-          body: const TabBarView(
-            children: [
-              // Visited - First tab
+            BottomNavigationBarItem(
+                icon: const Icon(Icons.search),
+                activeIcon: Container(
+                  height: 30,
+                  decoration: BoxDecoration(
+                      color: lightOrange,
+                      borderRadius: BorderRadius.circular(20)
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
+                  margin: const EdgeInsets.only(bottom: 3),
+                  child: Icon(
+                    Icons.search,
+                    color: Theme.of(context).canvasColor,
+                  ),
+                ),
+                label: AppLocalizations.of(context)!.searchTabTitle
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: PageView(
+            controller: _pageController,
+            onPageChanged: (value) {
+              setState(() {
+                _selectedIndex = value;
+              });
+            },
+            children: const [
               VisitedTabView(),
-              // To Visit - Second tab
-              ToVisitTabView(),
-              // Search - Third tab
               SearchTabView()
             ],
-          ),
-        ),
+          )
+        )
       ),
     );
   }
@@ -159,23 +186,50 @@ class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAlive
                   // Showing visited POI in a grid
                   return RefreshIndicator(
                     onRefresh: refreshTab,
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      padding: const EdgeInsets.all(10),
-                      childAspectRatio: 1,
-                      children: userProvider.visited.keys.map((poi) {
-                        return InkWell(
-                          child: _GridPOIItem(poi: poi),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi)),
-                            );
-                          },
-                        );
-                      }).toList()
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
+                          child: Text(AppLocalizations.of(context)!.collectionTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            itemBuilder: (context, index) {
+                              POI poi = userProvider.visited.keys.elementAt(index);
+                              String name = poi.name!;
+                              String thumbnailURL = poi.imageURL!
+                                  .replaceRange(poi.imageURL!.lastIndexOf('_') + 1, null, thumbnailName);
+                              if (Localizations.localeOf(context).languageCode == "en") {
+                                name = poi.nameEn!;
+                              }
+                              return ListTile(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi, sidequest: null)),
+                                  );
+                                },
+                                title: Text(name),
+                                subtitle: Text("${poi.city}, ${poi.region}"),
+                                leading: Container(
+                                  width: 60,
+                                  height: 60,
+                                  clipBehavior: Clip.antiAlias,
+                                  decoration: const BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(color: darkOrange, blurRadius: 0, spreadRadius: 2)
+                                    ],
+                                    shape: BoxShape.circle
+                                  ),
+                                  child: Image.asset(thumbnailURL, fit: BoxFit.cover)),
+                                trailing: Text(getCountryEmoji(poi.country!)),
+                              );
+                            },
+                            itemCount: userProvider.visited.length,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -196,27 +250,7 @@ class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAlive
               }
               else {
                 // Connection with server has failed (or timed out)
-                return RefreshIndicator(
-                  onRefresh: refreshTab,
-                  child: Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.error_outline, size: 64.0, color: Color(0xFFE68532)),
-                              Text(textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 18, color: Color(0xFFE68532)),
-                                  AppLocalizations.of(context)!.connectionError
-                              ),
-                            ],
-                          ),
-                        ),
-                        ListView(), //Pull to refresh needs at least a scrollable list to work
-                      ]
-                  ),
-                );
+                return showConnectionError(AppLocalizations.of(context)!.connectionError, () => refreshTab());
               }
             }
             else {
@@ -245,26 +279,6 @@ class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAlive
   }
 }
 
-class ToVisitTabView extends StatefulWidget {
-  const ToVisitTabView({Key? key}) : super(key: key);
-
-  @override
-  State<ToVisitTabView> createState() => _ToVisitTabViewState();
-}
-
-class _ToVisitTabViewState extends State<ToVisitTabView> {
-  @override
-  Widget build(BuildContext context) {
-    return GridView.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        padding: const EdgeInsets.all(10),
-        childAspectRatio: 1,
-        children: const []);
-  }
-}
-
 class SearchTabView extends StatefulWidget {
   const SearchTabView({Key? key}) : super(key: key);
 
@@ -275,15 +289,16 @@ class SearchTabView extends StatefulWidget {
 class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveClientMixin<SearchTabView> {
   final _searchTextController = TextEditingController();
   String _searchText = '';
-  SearchFilter? _searchFilter = SearchFilter.city;
+  SearchFilter? _searchFilter = SearchFilter.name;
+  int _filterSelected = 0;
   late List<POI> _filteredList = [];
   bool _showError = false;
   bool _showLoading = true;
   bool _noResultsFound = false;
   bool _showCancelButton = false;
-  final _debouncer = Debouncer(milliseconds: 500);
+  final _debouncer = Debouncer(milliseconds: 400);
 
-  Widget showGridSearchResults() {
+  Widget showListSearchResults(BuildContext context) {
     if (_searchText.isEmpty) {
       return Container();
     }
@@ -305,52 +320,45 @@ class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveCl
       return Center(child: Text(style: const TextStyle(fontSize: 20), "${AppLocalizations.of(context)!.resultsNotFound}\"$_searchText\""));
     }
 
-    /* Show results in a grid */
-    return GridView.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 20,
-        crossAxisSpacing: 20,
-        padding: const EdgeInsets.all(20),
-        childAspectRatio: 1,
-        children: _filteredList.map((poi) {
-          return InkWell(
-            child: _GridPOIItem(poi: poi),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SinglePOIView(poi: poi)),
-              );
-            },
-          );
-        }).toList());
-  }
-
-  Widget radioButtonFilter() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(AppLocalizations.of(context)!.city),
-        Radio<SearchFilter>(
-          value: SearchFilter.city,
-          groupValue: _searchFilter,
-          onChanged: (SearchFilter? value) {
-            setState(() {
-              _searchFilter = value;
-            });
+    /* Show results in a listview */
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            POI poi = _filteredList[index];
+            String name = poi.name!;
+            String thumbnailURL = poi.imageURL!
+                .replaceRange(poi.imageURL!.lastIndexOf('_') + 1, null, thumbnailName);
+            if (Localizations.localeOf(context).languageCode == "en") {
+              name = poi.nameEn!;
+            }
+            return ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi, sidequest: null)),
+                );
+              },
+              title: Text(name),
+              subtitle: Text("${poi.city}, ${poi.region}"),
+              leading: Container(
+                  width: 60,
+                  height: 60,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                      boxShadow: userProvider.visited.containsKey(poi) ? [const BoxShadow(color: darkOrange, blurRadius: 1, spreadRadius: 2)] : [],
+                      shape: BoxShape.circle
+                  ),
+                  child: userProvider.visited.containsKey(poi)
+                  ? Image.asset(thumbnailURL, fit: BoxFit.cover)
+                  : Image.asset(thumbnailURL, color: Colors.grey, colorBlendMode: BlendMode.color, fit: BoxFit.cover)
+              ),
+              trailing: Text(getCountryEmoji(poi.country!)),
+            );
           },
-        ),
-        Text(AppLocalizations.of(context)!.poiName),
-        Radio<SearchFilter>(
-          value: SearchFilter.name,
-          groupValue: _searchFilter,
-          onChanged: (SearchFilter? value) {
-            setState(() {
-              _searchFilter = value;
-            });
-          },
-        ),
-      ],
+          itemCount: _filteredList.length,
+        );
+      },
     );
   }
 
@@ -378,10 +386,15 @@ class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveCl
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(children: [
-      Center(child: radioButtonFilter()),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
+        child: Text(AppLocalizations.of(context)!.searchAmongAllPOI, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+      ),
       Container(
-        padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+        margin: const EdgeInsets.fromLTRB(20, 5, 20, 5),
         child: TextField(
           controller: _searchTextController,
           onChanged: (String text) {
@@ -416,7 +429,9 @@ class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveCl
                   setState(() {
                     _showLoading = false;
                     _showError = true;
+                    _filteredList = [];
                   });
+                  return;
                 }
                 if (newFilteredList.isNotEmpty) {
                   /* Server responded successfully, we turn off all the flags. */
@@ -435,6 +450,7 @@ class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveCl
                     _noResultsFound = true;
                     _showLoading = false;
                     _showError = false;
+                    _filteredList = [];
                   });
                 }
               }
@@ -446,84 +462,80 @@ class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveCl
             });
           },
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.zero,
-            fillColor: Theme.of(context).dialogBackgroundColor,
-            filled: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-            hintText: AppLocalizations.of(context)!.searchHint,
+            labelText: _filterSelected == 0 ? AppLocalizations.of(context)!.searchByLandmarkHint : AppLocalizations.of(context)!.searchByCityHint,
             prefixIcon: const Icon(Icons.search, color: darkOrange),
             suffixIcon: _showCancelButton
                 ? IconButton(
-                    icon: const Icon(Icons.cancel),
+                    icon: const Icon(Icons.clear),
                     onPressed: () {
                       resetSearchUI();
                     },)
-                : null
+                : null,
           ),
-          style: const TextStyle(fontSize: 18),
         ),
       ),
+      Center(
+        child: Wrap(
+          children: [
+            ChoiceChip(
+              labelPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              label: Container(
+                constraints: const BoxConstraints(
+                  minWidth: 60
+                ),
+                child: Text(AppLocalizations.of(context)!.poiName, style: TextStyle(color: _filterSelected == 0 ? Colors.white : Colors.orangeAccent))),
+              avatar: Icon(Icons.now_wallpaper_outlined, shadows: const [], color: _filterSelected == 0 ? Colors.white : Colors.orangeAccent),
+              backgroundColor: Colors.transparent,
+              selectedColor: Colors.orange,
+              selected: _filterSelected == 0,
+              onSelected: (value) {
+                setState(() {
+                  _filterSelected = 0;
+                  _searchFilter = SearchFilter.name;
+                  _filteredList = [];
+                  _searchText = '';
+                  _showCancelButton = false;
+                  _searchTextController.clear();
+                });
+              },
+            ),
+            const SizedBox(width: 8),
+            ChoiceChip(
+              labelPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              label: Container(
+                constraints: const BoxConstraints(
+                    minWidth: 60
+                ),
+                child: Text(AppLocalizations.of(context)!.city, style: TextStyle(color: _filterSelected == 1 ? Colors.white : Colors.orangeAccent))),
+              avatar: Icon(Icons.location_city, shadows: const [], color: _filterSelected == 1 ? Colors.white : Colors.orangeAccent),
+              backgroundColor: Colors.transparent,
+              selectedColor: Colors.orange,
+              selected: _filterSelected == 1,
+              onSelected: (value) {
+                setState(() {
+                  _filterSelected = 1;
+                  _searchFilter = SearchFilter.city;
+                  _filteredList = [];
+                  _searchText = '';
+                  _showCancelButton = false;
+                  _searchTextController.clear();
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+      _filteredList.isNotEmpty ?
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 0, 5),
+        child: Text("${AppLocalizations.of(context)!.resultsFound}: ${_filteredList.length}", style: const TextStyle(fontSize: 18)),
+      ) : const Text(""),
       Expanded(
-          child: showGridSearchResults()
-          )
+        child: Padding(
+          padding: const EdgeInsets.only(top: 5.0),
+          child: showListSearchResults(context),
+        )
+      )
     ]);
-  }
-}
-
-/// Allow the text size to shrink to fit in the space
-class _GridTitleText extends StatelessWidget {
-  const _GridTitleText(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: AlignmentDirectional.centerStart,
-      child: Text(text),
-    );
-  }
-}
-
-class _GridPOIItem extends StatelessWidget {
-  static const thumbnailName = "thumbnail.jpg";
-
-  const _GridPOIItem({
-    Key? key,
-    required this.poi,
-  }) : super(key: key);
-
-  final POI poi;
-
-  @override
-  Widget build(BuildContext context) {
-    /* Example:
-     - assets/poi_images/0_0.jpg is replaced with
-     - assets/poi_images/0_thumbnail.jpg */
-    String thumbnailURL = poi.imageURL!
-        .replaceRange(poi.imageURL!.lastIndexOf('_') + 1, null, thumbnailName);
-
-    final Widget image = Material(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        clipBehavior: Clip.antiAlias,
-        child: Image.asset(thumbnailURL, fit: BoxFit.cover));
-
-    return GridTile(
-      footer: Material(
-        color: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: GridTileBar(
-          backgroundColor: Colors.black45,
-          title: _GridTitleText(poi.name!),
-          subtitle: _GridTitleText(poi.city!),
-        ),
-      ),
-      child: image,
-    );
   }
 }

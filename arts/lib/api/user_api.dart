@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:arts/api/poi_api.dart';
+import 'package:arts/api/rewards_api.dart';
+import 'package:arts/model/reward.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -55,7 +57,7 @@ Future<User?> loginUser(String email, String password, String token) async {
       its content with UTF-8 to allow accented characters to be shown correctly */
 
     if (response.body.isNotEmpty) {
-      User user = User.fromJson(jsonDecode(response.body));
+      User user = User.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
       debugPrint("Logged successfully");
       return user;
     }
@@ -68,7 +70,9 @@ Future<User?> loginUser(String email, String password, String token) async {
   return null;
 }
 
-Future<bool?> signUpUser(String name, String surname, String email, String password, String token) async {
+Future<bool> signUpUser(String name, String surname, String email, String password,
+    String token, bool isPartner, String category, double latitude, double longitude) async {
+
   Uri uri = Uri(
       scheme: 'http',
       host: Env.serverIP,
@@ -77,7 +81,9 @@ Future<bool?> signUpUser(String name, String surname, String email, String passw
 
   String hashedPassword = hashPassword(password);
 
-  final body = {'name': name, 'surname': surname, 'email': email, 'password': hashedPassword, 'token': token};
+  final body = {'name': name, 'surname': surname, 'email': email, 'password': hashedPassword,
+                'token': token, 'partner': isPartner, 'category': category, 'latitude': latitude,
+                'longitude': longitude};
 
   final headers = <String, String> {
     "Content-Type": "application/json; charset=utf-8"
@@ -104,15 +110,14 @@ Future<bool?> signUpUser(String name, String surname, String email, String passw
       return true;
     }
   } else if (response.statusCode == 500) {
-    debugPrint("Server did not respond at: $uri");
-    return null;
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   } else {
     throw Exception('Fatal Error');
   }
   return false;
 }
 
-Future<User?> checkIfLogged(String email, String token) async {
+Future<User?> checkTokenValidity(String email, String token) async {
   Uri uri = Uri(
       scheme: 'http', host: Env.serverIP, port: Env.serverPort, path: 'users/checkTokenValidity');
   debugPrint("Calling $uri");
@@ -137,7 +142,7 @@ Future<User?> checkIfLogged(String email, String token) async {
       its content with UTF-8 to allow accented characters to be shown correctly */
 
     if (response.body.isNotEmpty) {
-      User user = User.fromJson(jsonDecode(response.body));
+      User user = User.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
       return user;
     }
   } else if (response.statusCode == 500) {
@@ -178,7 +183,7 @@ Future<bool> deleteToken(String email, String token) async {
     debugPrint("Server did not respond at: $uri");
     return false;
   } else {
-    throw Exception('Could not delete token validity');
+    throw Exception('Could not delete token');
   }
   return false;
 }
@@ -222,11 +227,327 @@ Future<Map<POI, String>> getVisitedPOI(String email, String token) async {
   } else if (response.statusCode == 500) {
     throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   } else {
-    throw Exception('Failed to load POI');
+    throw Exception('Failed to make HTTP request.');
   }
   return visitedPOIMap;
 }
 
+Future<bool> updateVisitedPOI(String email, String token, String poiId, String lastVisited) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: '/users/updateVisited',
+      queryParameters: {'poi_id': poiId, 'last_visited': lastVisited}
+  );
+  debugPrint("Calling $uri");
+
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    return response.body.isNotEmpty;
+
+  } else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  } else {
+    throw Exception('Failed to make HTTP request.');
+  }
+}
+
+Future<bool> changePassword(String email, String oldPassword, String newPassword, String token) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: 'users/changePassword');
+
+  String hashedOldPassword = hashPassword(oldPassword);
+  String hashedNewPassword = hashPassword(newPassword);
+
+  final body = {'email': email, 'oldPassword': hashedOldPassword, 'newPassword': hashedNewPassword, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+
+  debugPrint("Calling $uri");
+
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    /*If the server did return a 200 OK response, parse the Json and decode
+      its content with UTF-8 to allow accented characters to be shown correctly */
+    bool changedPassword =  jsonDecode(response.body);
+    if (changedPassword) {
+      debugPrint("Password changed successfully");
+      return true;
+    }
+  } else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  } else {
+    throw Exception('Failed');
+  }
+  debugPrint("Wrong credentials for: email: $email and password: $oldPassword");
+  return false;
+}
+
+Future<Map<Reward, Coupon>?> getCoupon(String email, String token) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: '/users/getCoupon'
+  );
+  debugPrint("Calling $uri");
+
+  Map<Reward, Coupon> couponMap = {};
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      List jsonArray = jsonDecode(response.body);
+      for (var x in jsonArray) {
+        Coupon coupon = Coupon.fromJson(x);
+        try {
+          Reward reward = await getRewardById(coupon.rewardId!);
+          couponMap.putIfAbsent(reward, () => coupon);
+        } on ConnectionErrorException catch(e) {
+          debugPrint(e.cause);
+        }
+      }
+      return couponMap;
+    }
+  } else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  } else {
+    throw Exception('Failed to load POI');
+  }
+  return null;
+}
+
+Future<String> getIdUser(String email) async{
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: 'users/idUser',
+      queryParameters: {'email' : email}
+  );
+
+  debugPrint("Calling $uri");
+
+  final response = await http
+      .get(uri)
+      .timeout(const Duration(seconds: 4), onTimeout: () {
+    return http.Response('Timeout', 500);
+  })
+      .onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    String idUser = response.body;
+    return idUser;
+  }
+  else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  }
+  else {
+    throw Exception('Failed to load POI');
+  }
+}
+
+Future<bool> scanQr(String qrUrl, String email, String token) async{
+  Uri uri = Uri.parse(qrUrl);
+
+  if (uri.host == "localhost") {
+    uri = Uri(
+        scheme: 'http',
+        host: Env.serverIP,
+        port: Env.serverPort,
+        path: uri.path,
+        queryParameters: uri.queryParameters
+    );
+  } else {
+    throw QrException("Qr has not been genereted by artS application");
+  }
+
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    return http.Response('Timeout', 500);
+  })
+      .onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    bool scanned = jsonDecode(response.body);
+    if (scanned) {
+      debugPrint("QR scanned successfully ");
+      return true;
+    }
+  }
+  else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  }
+  else {
+    throw Exception('Failed to load POI');
+  }
+  debugPrint("Wrong QR");
+  return false;
+}
+
+Future<Coupon?> giveSidequestCoupon(String email, String token, String rewardId) async  {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: '/users/giveSidequestCoupon',
+      queryParameters: {'reward_id': rewardId}
+  );
+  debugPrint("Calling $uri");
+
+  final body = {'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+  await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      return Coupon.fromJson(jsonDecode(response.body));
+    } else {
+      return null;
+    }
+  } else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  } else {
+    throw Exception('Failed to make HTTP request.');
+  }
+}
+
+Future<bool> addSidequest(Reward reward, String email, String token) async {
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: '/users/addSidequestByPartner',
+  );
+
+  debugPrint("Calling $uri");
+
+  final body = {'reward': reward, 'email': email, 'token': token};
+
+  final headers = <String, String> {
+    "Content-Type": "application/json; charset=utf-8"
+  };
+  final response =
+      await http.post(uri, headers: headers, body:jsonEncode(body)).timeout(const Duration(seconds: 4), onTimeout: () {
+    /* We force a 500 http response after timeout to simulate a
+         connection error with the server. */
+    return http.Response('Timeout', 500);
+  }).onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    bool added = jsonDecode(response.body);
+    if (added) {
+      debugPrint("Reward added successfully");
+      return true;
+    }
+  } else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  } else {
+    throw Exception('Failed to make HTTP request.');
+  }
+  debugPrint(response.body);
+  return false;
+}
+
+Future<int> countReward(String email) async{
+  Uri uri = Uri(
+      scheme: 'http',
+      host: Env.serverIP,
+      port: Env.serverPort,
+      path: 'users/countReward',
+      queryParameters: {'email' : email}
+  );
+
+  debugPrint("Calling $uri");
+
+  final response = await http
+      .get(uri)
+      .timeout(const Duration(seconds: 4), onTimeout: () {
+    return http.Response('Timeout', 500);
+  })
+      .onError((error, stackTrace) {
+    debugPrint(error.toString());
+    return http.Response('Server unreachable', 500);
+  });
+
+  if (response.statusCode == 200) {
+    int count = jsonDecode(response.body);
+    return count;
+  }
+  else if (response.statusCode == 500) {
+    throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
+  }
+  else {
+    throw Exception('Failed to count reward');
+  }
+}
 
 
 

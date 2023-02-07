@@ -39,13 +39,13 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-  camera: ^0.10.1
+  camera: ^0.10.3
   path_provider: ^2.0.11
   path: ^1.8.2
   font_awesome_flutter: ^10.3.0
   google_maps_flutter: ^2.2.3
-  google_maps_flutter_android: ^2.4.0
-  google_maps_flutter_platform_interface: ^2.2.4
+  google_maps_flutter_android: ^2.4.3
+  google_maps_flutter_platform_interface: ^2.2.5
   google_polyline_algorithm: ^3.1.0
   http: ^0.13.5
   flutter_launcher_icons: ^0.11.0
@@ -60,7 +60,19 @@ dependencies:
   carousel_slider: ^4.2.1
   smooth_page_indicator: ^1.0.0+2
   flutter_unity_widget: ^2022.2.0
-  url_launcher: ^6.1.7
+  pretty_qr_code: ^2.0.3
+  percent_indicator: ^4.0.1
+  mobile_scanner: ^2.1.0
+  flutter_google_places_sdk: ^0.3.2+6
+  searchfield: ^0.7.4
+  geocoding: ^2.0.5
+  url_launcher: ^6.1.8
+  confetti: ^0.7.0
+  lottie: ^2.2.0
+  loading_animations: ^2.2.0
+  permission_handler: ^10.2.0
+  native_device_orientation: ^1.1.4
+  visibility_detector: ^0.3.3
 
 flutter_icons:
   android: true
@@ -97,8 +109,12 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/animated/
     - assets/icon/
     - assets/poi_images/
+    - assets/markers/
+    - assets/background/
+    - assets/map_styles/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
@@ -108,3 +124,6 @@ flutter:
     - family: DaVinci
       fonts:
         - asset: assets/fonts/DaVinci.ttf
+    - family: JosefinSans
+      fonts:
+        - asset: assets/fonts/JosefinSans-Regular.ttf

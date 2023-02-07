@@ -5,11 +5,12 @@ import '../model/POI.dart';
 import '../model/user.dart';
 
 class UserUtils {
+  static const storage = FlutterSecureStorage();
   static const String tokenKey = "authToken";
   static const String emailKey = "email";
 
   static Future<User?> isLogged (String email, String token) async {
-    User? user = await checkIfLogged(email, token);
+    User? user = await checkTokenValidity(email, token);
     return user;
   }
 
@@ -26,27 +27,32 @@ class UserUtils {
   }
 
   static deleteEmailAndToken() async {
-    const storage = FlutterSecureStorage();
     await storage.delete(key: UserUtils.tokenKey);
     await storage.delete(key: UserUtils.emailKey);
   }
 
   static Future<String?> readEmail() async {
-    const storage = FlutterSecureStorage();
     return await storage.read(key: emailKey);
   }
 
   static Future<String?> readToken() async {
-    const storage = FlutterSecureStorage();
     return await storage.read(key: tokenKey);
   }
 
-  static Future<Map<String, int>> getBadgePerRegion(Map<POI,String> visitedPoi) async {
+  static void writeToken(String token) async {
+    await storage.write(key: UserUtils.tokenKey, value: token);
+  }
+
+  static void writeEmail(String email) async {
+    await storage.write(key: UserUtils.emailKey, value: email);
+  }
+
+  static Map<String, int> getBadgePerCountry(Map<POI,String> visitedPoi) {
     Map<String, int> badgeMap = {};
     visitedPoi.forEach((poi, timestamp) {
-      badgeMap.update(poi.region!, (value) => value + 1, ifAbsent: () => 0);
+      badgeMap.update(poi.country!, (value) => value + 1, ifAbsent: () => 1);
     });
-    return badgeMap;
+    return Map.fromEntries(badgeMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
   }
 
 }

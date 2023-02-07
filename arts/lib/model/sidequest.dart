@@ -40,6 +40,11 @@ class Sidequest {
     }
     return data;
   }
+
+  @override
+  String toString() {
+    return 'Sidequest{startDate: $startDate, endDate: $endDate, poi: ${poi!.name}, reward: ${reward!.placeEvent}}';
+  }
 }
 
 class StartDate {

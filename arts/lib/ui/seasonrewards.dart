@@ -26,17 +26,15 @@ class _SeasonRewardsPageState extends State<SeasonRewardsPage> {
           children: [
             Container(
               margin: const EdgeInsets.all(20),
-
-
-            child: Card(
+              child: Card(
                 elevation: 0,
-                shape: const RoundedRectangleBorder(
+                shape: RoundedRectangleBorder(
                   side: BorderSide(
-                    color: Colors.black,
+                    color: Theme.of(context).dividerColor,
                   ),
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
                 ),
-                 child: Container(margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),child: Text(style: TextStyle(fontSize: 18),
+                 child: Container(margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),child: Text(style: const TextStyle(fontSize: 18),
                      AppLocalizations.of(context)!.seasonRewardMex)))),
             const Expanded(child: SeasonRewardsCard()),
           ],
@@ -52,14 +50,14 @@ class SeasonRewardsCard extends StatelessWidget {
     final List<String> entries = <String>['1', '2', '3', '4', '5'];
     return Center(
       child: Container(
-        margin: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
+        margin: const EdgeInsets.all(20),
         padding: const EdgeInsets.all(20),
-        //constraints: const BoxConstraints.expand(),
         decoration: BoxDecoration(
-          border: Border.all(),
+          border: Border.all(color: Theme.of(context).dividerColor),
           borderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
         child: ListView.builder(
+          shrinkWrap: true,
             itemCount: entries.length,
             itemBuilder: (context, index) {
               return Container(

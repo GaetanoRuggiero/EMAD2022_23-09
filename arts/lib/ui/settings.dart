@@ -2,12 +2,14 @@ import 'package:arts/utils/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../utils/widget_utils.dart';
 import './languagescreen.dart';
 import './login.dart';
 import '../api/user_api.dart';
 import '../main.dart';
 import '../utils/user_utils.dart';
 import '../utils/settings_model.dart';
+import 'infoscreen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -21,27 +23,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late String _snackBarMessage;
   late Color _colorSnackbar;
 
-  //snackBar of Success/Error logout
-  void showSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: _colorSnackbar,
-        content: Text(_snackBarMessage),
-        action: SnackBarAction(
-          label: 'X',
-          onPressed: () {
-            // Click to close
-          },
-        )
-      )
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: Text(AppLocalizations.of(context)!.settings),
         actions: [
           IconButton(
@@ -56,6 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: SafeArea(
           child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
@@ -84,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         },
                         child: SettingsTile(
-                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                          rightIcon: Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                           leftIcon: Icons.translate_outlined,
                           title: AppLocalizations.of(context)!.language),
                       ),
@@ -97,7 +83,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                 title: Text(AppLocalizations.of(context)!.chooseTheTheme),
                                 content: StatefulBuilder(
                                   builder: (context, setState) {
@@ -160,14 +145,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: SettingsTile(
                           leftIcon: Icons.palette_outlined,
                           title: AppLocalizations.of(context)!.theme,
-                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                          rightIcon: Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                         ),
                       )
                     ]
                   )
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -189,13 +174,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       const SizedBox(height: 10),
 
-                      InkWell(
-                        onTap: () {},
-                        child: SettingsTile(
-                          rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
-                          leftIcon: Icons.account_circle_outlined,
-                          title: AppLocalizations.of(context)!.infoAccount
+                      SettingsTile(
+                        rightIcon: Consumer<UserProvider>(
+                          builder: (context, userProvider, child) {
+                            return Switch(
+                              value: userProvider.isDeveloperModeOn,
+                              onChanged: (bool value) {
+                                debugPrint("[App Settings] Developer mode: $value");
+                                setState(() {
+                                  userProvider.isDeveloperModeOn = value;
+                                });
+                              },
+                            );
+                          },
                         ),
+                        leftIcon: Icons.code,
+                        title: AppLocalizations.of(context)!.developerMode
                       ),
 
                       const SizedBox(height: 10),
@@ -210,7 +204,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                             title: Text(AppLocalizations.of(context)!.logout),
                                             actions: [
                                               TextButton(
@@ -225,9 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       _colorSnackbar = Colors.green;
                                                     });
                                                     UserUtils.deleteEmailAndToken();
-                                                    userProvider.isLogged = false;
-                                                    userProvider.name = "";
-                                                    userProvider.surname = "";
+                                                    userProvider.logout();
                                                     if (!mounted) return;
                                                     Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
                                                         builder: (context) => const LoginScreen()), (Route route) => false);
@@ -239,7 +230,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     if (!mounted) return;
                                                     Navigator.pop(context);
                                                   }
-                                                  showSnackBar();
+                                                  if (!mounted) return;
+                                                  showSnackBar(context,_colorSnackbar,_snackBarMessage);
                                                 },
                                               ),
                                               TextButton(onPressed: () {Navigator.of(context).pop();}, child: const Text("No"))
@@ -259,7 +251,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   );
                                 },
                                 child: SettingsTile(
-                                    rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                    rightIcon: Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                                     leftIcon: Icons.logout_outlined,
                                     title: AppLocalizations.of(context)!.logout
                                 ),
@@ -274,7 +266,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     );
                                   },
                                   child: SettingsTile(
-                                      rightIcon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                                      rightIcon: Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                                       leftIcon: Icons.login_outlined,
                                       title: AppLocalizations.of(context)!.redirectLog
                                   )
@@ -287,7 +279,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   )
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -306,9 +298,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 10),
 
                       InkWell(
-                        onTap: () {},
+                        onTap: () {Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const InfoScreen()),
+                        );},
                         child: SettingsTile(
-                          rightIcon:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).textTheme.headline1?.color),
+                          rightIcon:  Icon(Icons.navigate_next, color: Theme.of(context).textTheme.bodyLarge!.color),
                           leftIcon: Icons.info_outlined,
                           title: AppLocalizations.of(context)!.infoAndRecognitions
                         ),

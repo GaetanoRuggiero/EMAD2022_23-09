@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:arts/api/user_api.dart';
 import 'package:arts/model/user.dart';
+import 'package:arts/ui/profile_partner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   late Future<User?> _startingScreenFuture;
   late Map<POI, String> _visitedPOI;
+  late int _ongoingMision;
 
   Future<User?> initializeUser() async {
     try {
@@ -29,7 +31,14 @@ class _SplashScreenState extends State<SplashScreen> {
       if (email != null && token != null) {
         User? user = await UserUtils.isLogged(email, token);
         if (user != null) {
-          _visitedPOI = await getVisitedPOI(email, token);
+          if (!user.partner!) {
+            _visitedPOI = await getVisitedPOI(email, token);
+          } else {
+            int ongoingMission = await countReward(email);
+            setState(() {
+              _ongoingMision = ongoingMission;
+            });
+          }
         }
         return user;
       } else {
@@ -70,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: Column(
                       mainAxisAlignment:  MainAxisAlignment.center,
                       children: [
-                        Text(AppLocalizations.of(context)!.connectionError, textAlign: TextAlign.center, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyText1?.color)),
+                        Text(AppLocalizations.of(context)!.connectionError, textAlign: TextAlign.center, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyLarge?.color)),
                         const Icon(
                           Icons.error_outline_outlined,
                           color: Colors.red,
@@ -91,22 +100,38 @@ class _SplashScreenState extends State<SplashScreen> {
                     });
                   } else {
                     userProvider.isLogged = true;
+                    userProvider.isPartner = user.partner!;
                     userProvider.name = user.name!;
-                    userProvider.surname = user.surname!;
-                    userProvider.visited = _visitedPOI;
-                    Future.delayed(const Duration(seconds: 2), () {
-                      Future.microtask(() {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HomePage())
-                        );
+                    if (!userProvider.isPartner) {
+                      userProvider.surname = user.surname!;
+                      userProvider.visited = _visitedPOI;
+                      Future.delayed(const Duration(seconds: 2), () {
+                        Future.microtask(() {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomePage())
+                          );
+                        });
                       });
-                    });
+                    } else {
+                      userProvider.ongoingRewards = _ongoingMision;
+                      userProvider.rewardsAdded = user.rewardsAdded!;
+                      userProvider.category = user.category!;
+                      Future.delayed(const Duration(seconds: 2), () {
+                        Future.microtask(() {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ProfilePartner())
+                          );
+                        });
+                      });
+                    }
                     return Center(
                       child: Column(
                         mainAxisAlignment:  MainAxisAlignment.center,
                         children: [
-                          Text(AppLocalizations.of(context)!.welcomeLog2, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyText1?.color)),
+                          Text(AppLocalizations.of(context)!.welcomeLog2, style: TextStyle(fontSize: 30, color: Theme.of(context).textTheme.bodyLarge?.color)),
                           const Icon(
                             Icons.check_circle_outline,
                             color: Colors.green,

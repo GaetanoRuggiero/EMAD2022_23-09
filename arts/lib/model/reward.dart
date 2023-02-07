@@ -1,55 +1,55 @@
 class Reward {
+  String? id;
   int? discountAmount;
-  ExpiryDate? expiryDate;
+  String? expiryDate;
   String? placeEvent;
-  String? poster;
   String? type;
+  String? category;
+  String? email;
 
   Reward(
-      {this.discountAmount,
+      {
+        this.id,
+        this.discountAmount,
         this.expiryDate,
         this.placeEvent,
-        this.poster,
-        this.type});
+        this.type,
+        this.category,
+        this.email
+      });
 
   Reward.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     discountAmount = json['discount_amount'];
-    expiryDate = json['expiry_date'] != null
-        ? ExpiryDate.fromJson(json['expiry_date'])
-        : null;
+    expiryDate = json['expiry_date'];
     placeEvent = json['place_event'];
-    poster = json['poster'];
     type = json['type'];
+    category = json['category'];
+    email = json['email'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
     data['discount_amount'] = discountAmount;
-    if (expiryDate != null) {
-      data['expiry_date'] = expiryDate!.toJson();
-    }
+    data['expiry_date'] = expiryDate;
     data['place_event'] = placeEvent;
-    data['poster'] = poster;
     data['type'] = type;
+    data['category'] = category;
+    data['email'] = email;
     return data;
   }
-}
 
-class ExpiryDate {
-  int? seconds;
-  int? nanos;
-
-  ExpiryDate({this.seconds, this.nanos});
-
-  ExpiryDate.fromJson(Map<String, dynamic> json) {
-    seconds = json['seconds'];
-    nanos = json['nanos'];
+  @override
+  String toString() {
+    return 'Reward {id: $id, discountAmount: $discountAmount, expiryDate: $expiryDate, placeEvent: $placeEvent, type: $type, category: $category, email: $email}';
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['seconds'] = seconds;
-    data['nanos'] = nanos;
-    return data;
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Reward && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
