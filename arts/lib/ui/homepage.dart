@@ -602,12 +602,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
-                IgnorePointer(
-                  ignoring: !isMenuOpened,
-                  child: Container(
-                    color: Colors.black.withOpacity(menuOpacityAnimation.value),
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
+                GestureDetector(
+                  onTap: () {
+                    if (animationController.isCompleted && isMenuOpened) {
+                      setState(() {
+                        isMenuOpened = false;
+                      });
+                      animationController.reverse();
+                    }
+                  },
+                  child: IgnorePointer(
+                    ignoring: !isMenuOpened,
+                    child: Container(
+                      color: Colors.black.withOpacity(menuOpacityAnimation.value),
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                    ),
                   ),
                 ),
                 Positioned(
