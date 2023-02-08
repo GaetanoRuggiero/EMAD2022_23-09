@@ -51,7 +51,7 @@ class ProfilePartner extends StatelessWidget {
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
         return FutureBuilder(
-          future: getImagePalette(const AssetImage("assets/partner_images/bakery.png")),
+          future: getImagePalette(const AssetImage("assets/partner_images/ice_cream_shop.png")),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return Container(
@@ -83,7 +83,7 @@ class ProfilePartner extends StatelessWidget {
                                   SizedBox(
                                       width: mobilesWidth,
                                       height: 300,
-                                      child: Image.asset("assets/partner_images/bakery.png",
+                                      child: Image.asset("assets/partner_images/ice_cream_shop.png",
                                         fit: BoxFit.fitHeight,
                                       ),
                                   ),

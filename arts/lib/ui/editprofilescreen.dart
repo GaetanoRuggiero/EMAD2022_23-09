@@ -1,5 +1,6 @@
 import 'package:arts/api/user_api.dart';
 import 'package:arts/ui/styles.dart';
+import 'package:arts/utils/widget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../exception/exceptions.dart';
@@ -20,28 +21,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _controllerNewPass = TextEditingController(),
       _controllerPassVal = TextEditingController();
   String errorPassword = "";
-  bool _showConnectionError = false;
   late String _snackBarMessage;
   late Color _colorSnackbar;
 
-  //snackBar of Success/Error change password
-  void showSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            backgroundColor: _colorSnackbar,
-            content: Text(_snackBarMessage),
-            action: SnackBarAction(
-              label: AppLocalizations.of(context)!.close.toUpperCase(),
-              onPressed: () {
-                // Click to close
-              },
-            )
-        )
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    double mobilesHeight = MediaQuery.of(context).size.height;
+    double mobilesWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -60,165 +46,112 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: SingleChildScrollView(
             child: Form(
               key: _formKey,
-              child: Column(
-                children: [
-                  Center(
-                    child: Container(
-                        margin: const EdgeInsets.all(20),
-                        child: Text(
-                            textAlign: TextAlign.center,
-                            AppLocalizations.of(context)!.modifyPassword,
-                            style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color))),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(20, 0, 5, 10),
-                        child: const Icon(
-                          Icons.lock,
-                          color: darkOrange,
-                          size: 22,
-                        ),
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: mobilesWidth/3 > 125 ? mobilesWidth/6 : mobilesWidth/9 ,horizontal: mobilesHeight/30),
+                child: Column(
+                  children: [
+                    Center(
+                      child: Text(
+                          textAlign: TextAlign.center,
+                          AppLocalizations.of(context)!.modifyPassword,
+                          style: TextStyle(
+                              fontSize: mobilesWidth/3 > 125 ? 40 : 25,
+                              fontWeight: FontWeight.bold,
+                              )
                       ),
-                      Expanded(
-                        child: Padding(
-                            padding: const EdgeInsets.fromLTRB(5, 0, 20, 10),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 30, top: mobilesWidth/3 > 125 ? mobilesWidth/6 : mobilesWidth/9),
+                      child: Row(
+                        children: [
+                          Expanded(
                             child: TextFormField(
-                                controller: _controllerOldPass,
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.color,
-                                    fontSize: 15),
-                                obscureText: isPasswordOldVisible ? false : true,
-                                decoration: InputDecoration(
-                                  suffixIconConstraints: const BoxConstraints(
-                                      minWidth: 45, maxWidth: 46),
-                                  suffixIcon: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        isPasswordOldVisible = !isPasswordOldVisible;
-                                      });
-                                    },
-                                    child: Icon(
-                                      isPasswordOldVisible
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.color,
-                                      size: 22,
-                                    ),
+                              controller: _controllerOldPass,
+                              obscureText: isPasswordOldVisible ? false : true,
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(Icons.lock),
+                                suffixIcon: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      isPasswordOldVisible = !isPasswordOldVisible;
+                                    });
+                                  },
+                                  child: Icon(
+                                    isPasswordOldVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off
                                   ),
-                                  labelText: AppLocalizations.of(context)!.oldPassword,),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return AppLocalizations.of(context)!
-                                        .mandatoryField;
-                                  } else if (!UserUtils.validatePass(value)) {
-                                    return AppLocalizations.of(context)!
-                                        .formatPass;
-                                  } else {
-                                    return null;
-                                  }
-                                })),
+                                ),
+                                labelText: AppLocalizations.of(context)!.oldPassword,),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppLocalizations.of(context)!
+                                      .mandatoryField;
+                                } else if (!UserUtils.validatePass(value)) {
+                                  return AppLocalizations.of(context)!
+                                      .formatPass;
+                                } else {
+                                  return null;
+                                }
+                              }
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(20, 0, 5, 10),
-                        child: const Icon(
-                          Icons.lock,
-                          color: darkOrange,
-                          size: 22,
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                            padding: const EdgeInsets.fromLTRB(5, 0, 20, 10),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 30),
+                      child: Row(
+                        children: [
+                          Expanded(
                             child: TextFormField(
-                                controller: _controllerNewPass,
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.color,
-                                    fontSize: 15),
-                                obscureText: isPasswordNewVisible ? false : true,
-                                decoration: InputDecoration(
-                                  suffixIconConstraints: const BoxConstraints(
-                                      minWidth: 45, maxWidth: 46),
-                                  suffixIcon: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        isPasswordNewVisible = !isPasswordNewVisible;
-                                      });
-                                    },
-                                    child: Icon(
-                                      isPasswordNewVisible
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.color,
-                                      size: 22,
-                                    ),
+                              controller: _controllerNewPass,
+                              obscureText: isPasswordNewVisible ? false : true,
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(Icons.lock),
+                                suffixIcon: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      isPasswordNewVisible = !isPasswordNewVisible;
+                                    });
+                                  },
+                                  child: Icon(
+                                    isPasswordNewVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                   ),
-                                  labelText: AppLocalizations.of(context)!.newPassword,),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return AppLocalizations.of(context)!
-                                        .mandatoryField;
-                                  } else if (!UserUtils.validatePass(value)) {
-                                    return AppLocalizations.of(context)!
-                                        .formatPass;
-                                  } else if (_controllerOldPass.text == value) {
-                                    return AppLocalizations.of(context)!
-                                        .changePasswordVerification;
-                                  } else {
-                                    return null;
-                                  }
-                                })),
+                                ),
+                                labelText: AppLocalizations.of(context)!.newPassword,),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppLocalizations.of(context)!
+                                      .mandatoryField;
+                                } else if (!UserUtils.validatePass(value)) {
+                                  return AppLocalizations.of(context)!
+                                      .formatPass;
+                                } else if (_controllerOldPass.text == value) {
+                                  return AppLocalizations.of(context)!
+                                      .changePasswordVerification;
+                                } else {
+                                  return null;
+                                }
+                              }
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(20, 0, 5, 10),
-                        child: const Icon(
-                          Icons.lock,
-                          color: darkOrange,
-                          size: 22,
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 20, 10),
-                          child: TextFormField(
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 30),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
                               controller: _controllerPassVal,
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
-                                      ?.color,
-                                  fontSize: 15),
                               obscureText:
                               isConfirmPasswordVisible ? false : true,
                               decoration: InputDecoration(
-                                suffixIconConstraints: const BoxConstraints(
-                                    minWidth: 45, maxWidth: 46),
+                                prefixIcon: const Icon(Icons.lock),
                                 suffixIcon: GestureDetector(
                                   onTap: () {
                                     setState(() {
@@ -230,11 +163,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     isConfirmPasswordVisible
                                         ? Icons.visibility
                                         : Icons.visibility_off,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.color,
-                                    size: 22,
                                   ),
                                 ),
                                 labelText: AppLocalizations.of(context)!.passConf,),
@@ -254,85 +182,72 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   });
                                 }
                                 return null;
-                              }),
-                        ),
+                              }
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-          GestureDetector(
-            onTap: () async {
-              if (_formKey.currentState!.validate()) {
-                try {
-                  String? email = await UserUtils.readEmail();
-                  String? token = await UserUtils.readToken();
-                  bool changedPassword = await changePassword(email!, _controllerOldPass.text, _controllerNewPass.text, token!);
-                  if (!changedPassword) {
-                    setState(() {
-                      _snackBarMessage = AppLocalizations.of(context)!.changedPasswordFailed;
-                      _colorSnackbar = Theme.of(context).colorScheme.error;
-                    });
-                  } else {
-                    setState(() {
-                      _snackBarMessage = AppLocalizations.of(context)!.changedPasswordSucc;
-                      _colorSnackbar = Theme.of(context).colorScheme.secondary;
-                    });
-                    if (!mounted) return;
-                    Navigator.pop(context);
-                  }
-                  showSnackBar();
-                } on ConnectionErrorException catch(e) {
-                  debugPrint(e.cause);
-                  setState(() {
-                    _showConnectionError = true;
-                  });
-                }
-              }
-            },
-            child: Container(
-              height: 50,
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(
-                  vertical: 10, horizontal: 20),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                        blurRadius: 4,
-                        color: Colors.black12.withOpacity(.2),
-                        offset: const Offset(2, 2))
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        if (_formKey.currentState!.validate()) {
+                          try {
+                            String? email = await UserUtils.readEmail();
+                            String? token = await UserUtils.readToken();
+                            bool changedPassword = await changePassword(email!, _controllerOldPass.text, _controllerNewPass.text, token!);
+                            if (!changedPassword) {
+                              setState(() {
+                                _snackBarMessage = AppLocalizations.of(context)!.changedPasswordFailed;
+                                _colorSnackbar = Theme.of(context).colorScheme.error;
+                              });
+                            } else {
+                              setState(() {
+                                _snackBarMessage = AppLocalizations.of(context)!.changedPasswordSucc;
+                                _colorSnackbar = Theme.of(context).colorScheme.secondary;
+                              });
+                              if (!mounted) return;
+                              Navigator.pop(context);
+                            }
+                            if (!mounted) return;
+                            showSnackBar(context, _colorSnackbar, _snackBarMessage);
+                          } on ConnectionErrorException catch(e) {
+                            debugPrint(e.cause);
+                            setState(() {
+                              _colorSnackbar = Theme.of(context).colorScheme.error;
+                            });
+                            showSnackBar(context, _colorSnackbar, AppLocalizations.of(context)!.connectionError);
+                          }
+                        }
+                      },
+                      child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(top: 20),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  blurRadius: 4,
+                                  color: Colors.black12.withOpacity(.2),
+                                  offset: const Offset(2, 2))
+                            ],
+                            borderRadius: BorderRadius.circular(100),
+                            gradient: const LinearGradient(
+                                colors: [lightOrange, darkOrange])),
+                        child: Text(AppLocalizations.of(context)!.modifyPassword,
+                            style: TextStyle(
+                                color: Colors.white.withOpacity(.8),
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    ),
                   ],
-                  borderRadius: BorderRadius.circular(100),
-                  gradient: const LinearGradient(
-                      colors: [lightOrange, darkOrange])),
-              child: Text(AppLocalizations.of(context)!.modifyPassword,
-                  style: TextStyle(
-                      color: Colors.white.withOpacity(.8),
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold)),
-            ),
-          ),
-                  setChangedPasswordOutput(_showConnectionError),
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
     );
-  }
-
-  Widget setChangedPasswordOutput(bool showConnectionError) {
-    if (showConnectionError ) {
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.all(10),
-        color: Theme.of(context).colorScheme.error,
-        child: Text(AppLocalizations.of(context)!.connectionError,
-            textAlign: TextAlign.center, style: const TextStyle(fontSize: 20)),
-      );
-    } else {
-      return Container();
-    }
   }
 }
