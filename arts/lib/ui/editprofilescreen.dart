@@ -31,7 +31,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             backgroundColor: _colorSnackbar,
             content: Text(_snackBarMessage),
             action: SnackBarAction(
-              label: 'X',
+              label: AppLocalizations.of(context)!.close.toUpperCase(),
               onPressed: () {
                 // Click to close
               },
@@ -48,8 +48,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.profile),
-          actions: <Widget>[
+          actions: [
             IconButton(
                 onPressed: () {
                   Navigator.of(context).popUntil((route) => route.isFirst);
@@ -74,7 +73,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context)
                                     .textTheme
-                                    .bodyText1
+                                    .bodyLarge
                                     ?.color))),
                   ),
                   Row(
@@ -95,7 +94,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 style: TextStyle(
                                     color: Theme.of(context)
                                         .textTheme
-                                        .headline1
+                                        .bodyLarge
                                         ?.color,
                                     fontSize: 15),
                                 obscureText: isPasswordOldVisible ? false : true,
@@ -114,12 +113,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           : Icons.visibility_off,
                                       color: Theme.of(context)
                                           .textTheme
-                                          .bodyText1
+                                          .bodyLarge
                                           ?.color,
                                       size: 22,
                                     ),
                                   ),
-                                  border: const OutlineInputBorder(),
                                   labelText: AppLocalizations.of(context)!.oldPassword,),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -153,7 +151,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 style: TextStyle(
                                     color: Theme.of(context)
                                         .textTheme
-                                        .headline1
+                                        .bodyLarge
                                         ?.color,
                                     fontSize: 15),
                                 obscureText: isPasswordNewVisible ? false : true,
@@ -172,12 +170,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           : Icons.visibility_off,
                                       color: Theme.of(context)
                                           .textTheme
-                                          .bodyText1
+                                          .bodyLarge
                                           ?.color,
                                       size: 22,
                                     ),
                                   ),
-                                  border: const OutlineInputBorder(),
                                   labelText: AppLocalizations.of(context)!.newPassword,),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -214,7 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               style: TextStyle(
                                   color: Theme.of(context)
                                       .textTheme
-                                      .headline1
+                                      .bodyLarge
                                       ?.color,
                                   fontSize: 15),
                               obscureText:
@@ -235,12 +232,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                         : Icons.visibility_off,
                                     color: Theme.of(context)
                                         .textTheme
-                                        .bodyText1
+                                        .bodyLarge
                                         ?.color,
                                     size: 22,
                                   ),
                                 ),
-                                border: const OutlineInputBorder(),
                                 labelText: AppLocalizations.of(context)!.passConf,),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -273,7 +269,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   if (!changedPassword) {
                     setState(() {
                       _snackBarMessage = AppLocalizations.of(context)!.changedPasswordFailed;
-                      _colorSnackbar = Theme.of(context).errorColor;
+                      _colorSnackbar = Theme.of(context).colorScheme.error;
                     });
                   } else {
                     setState(() {
@@ -331,7 +327,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(10),
         margin: const EdgeInsets.all(10),
-        color: Theme.of(context).errorColor,
+        color: Theme.of(context).colorScheme.error,
         child: Text(AppLocalizations.of(context)!.connectionError,
             textAlign: TextAlign.center, style: const TextStyle(fontSize: 20)),
       );
