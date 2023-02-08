@@ -8,16 +8,20 @@ import 'package:arts/utils/user_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../main.dart';
 import '../utils/widget_utils.dart';
 import 'editprofilescreen.dart';
+import 'package:palette_generator/palette_generator.dart';
 
 class ProfilePartner extends StatelessWidget {
   const ProfilePartner({Key? key}) : super(key: key);
+  static const Map<String, String> imagesByCategory = {
+    bakery:"", iceCreamShop:"", restaurant:"", pizzeria:"",
+    museum:"", theater:"", sandwich:"", bar:""
+  };
 
   static Route<void> _fullscreenDialogRoute(BuildContext context) {
     return MaterialPageRoute<void>(
@@ -26,151 +30,250 @@ class ProfilePartner extends StatelessWidget {
     );
   }
 
+  // Calculate dominant color from ImageProvider
+  Future<Color> getImagePalette (ImageProvider imageProvider) async {
+    final PaletteGenerator paletteGenerator = await PaletteGenerator
+        .fromImageProvider(imageProvider);
+    Color? color = paletteGenerator.dominantColor?.color;
+    color ??= Colors.white;
+    return color;
+  }
+
+  String getImageByCategory (String category) {
+    String pathImage= "defaultImage";
+    //imagesByCategory.entries.firstWhere((element) => element.key == category, orElse: "defaultImage");
+    return pathImage;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.profilePartner),
-          actions: <Widget>[
-            IconButton(
-                onPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                icon: const Icon(Icons.home_rounded))
-          ],
-        ),
-        body: SafeArea(
-          child: Consumer<UserProvider>(
-            builder: (context, userProvider, child) {
-              return Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.all(20),
-                    alignment: Alignment.center,
-                    child: Text(userProvider.name, style: const TextStyle(fontSize: 20)),
+    double mobilesWidth = MediaQuery.of(context).size.width;
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        return FutureBuilder(
+          future: getImagePalette(const AssetImage("assets/partner_images/ice_cream_shop.png")),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                        center: Alignment.center,
+                        focalRadius: 10,
+                        radius: 10,
+                        colors: [snapshot.data!, Colors.black87]),
                   ),
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Tooltip(
-                            message: AppLocalizations.of(context)!.modifyPassword,
-                            child: IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const EditProfileScreen()),
-                                  );
-                                },
-                                icon: const Icon(size: 30, Icons.edit)),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Tooltip(
-                            message: AppLocalizations.of(context)!.settings,
-                            child: IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const SettingsScreen()),
-                                  );
-                                },
-                                icon: const Icon(size: 30, Icons.settings)),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(20),
-                    alignment: Alignment.center,
-                    child: Text("Complimenti hai aggiunto ${userProvider.rewardsAdded} ricompense!", style: const TextStyle(fontSize: 20)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      InkWell(
-                        onTap: userProvider.ongoingRewards <= 3 ? () {
-                          Navigator.push(context, _fullscreenDialogRoute(context));
-                          }
-                          : () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text(AppLocalizations.of(context)!.rewardsLimitReached),
-                                  content: Expanded(child: Text(AppLocalizations.of(context)!.rewardsLimitReachedText)),
-                                  actions: [
-                                    TextButton(
-                                      child: const Text("OK"),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      }
-                                    )
+                  child: Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: SafeArea(
+                        child: Column(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.symmetric(vertical: mobilesWidth/3 > 125 ? 20 : 10),
+                                alignment: Alignment.center,
+                                child: Text(userProvider.name,
+                                    style: TextStyle(fontSize: mobilesWidth/3 > 125 ? 30 : 20, color: Colors.white)),
+                              ),
+                              Stack(
+                                alignment: Alignment.topCenter,
+                                children: [
+                                  SizedBox(
+                                    width: mobilesWidth,
+                                    height: 300,
+                                  ),
+                                  SizedBox(
+                                      width: mobilesWidth,
+                                      height: 300,
+                                      child: Image.asset("assets/partner_images/ice_cream_shop.png",
+                                        fit: BoxFit.fitHeight,
+                                      ),
+                                  ),
+                                  Positioned(
+                                    top: 70,
+                                    right: 5,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          decoration: const BoxDecoration(
+                                            boxShadow: [BoxShadow(
+                                              offset: Offset(0, 0.75),
+                                              spreadRadius: 0,
+                                              blurRadius: 2,
+                                            )],
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Tooltip(
+                                            message: AppLocalizations.of(context)!
+                                                .modifyPassword,
+                                            child: IconButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                        const EditProfileScreen()),
+                                                  );
+                                                },
+                                                icon:
+                                                const Icon(size: 30, Icons.edit)),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 30,
+                                        ),
+                                        Container(
+                                          decoration: const BoxDecoration(
+                                            boxShadow: [BoxShadow(
+                                              offset: Offset(0, 0.75),
+                                              spreadRadius: 0,
+                                              blurRadius: 2,
+                                            )],
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Tooltip(
+                                            message: AppLocalizations.of(context)!
+                                                .settings,
+                                            child: IconButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                        const SettingsScreen()),
+                                                  );
+                                                },
+                                                icon: const Icon(
+                                                    size: 30, Icons.settings)),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              userProvider.rewardsAdded > 0 ? Container(
+                                margin: const EdgeInsets.symmetric(vertical: 20),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        child: Text(
+                                          "${AppLocalizations.of(context)!.congratsPartner} ${userProvider.rewardsAdded} ${userProvider.rewardsAdded == 1 ? AppLocalizations.of(context)!.reward : AppLocalizations.of(context)!.rewards.toLowerCase()}",
+                                          style: TextStyle(fontSize: mobilesWidth/3 > 125 ? 25 : 15, color: Colors.white), textAlign: TextAlign.center,)),
                                   ],
-                                );
-                              },
-                            );
-                          },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                    blurRadius: 4,
-                                    color: Colors.black12.withOpacity(.2),
-                                    offset: const Offset(2, 2))
-                              ],
-                              borderRadius: BorderRadius.circular(100),
-                              gradient: const LinearGradient(
-                                  colors: [lightOrange, darkOrange])
-                          ),
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          child: const Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Icon(FontAwesomeIcons.fileCirclePlus, size: 55, color: Colors.white,),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                          builder: (context) => const CameraQRScreen()),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                    blurRadius: 4,
-                                    color: Colors.black12.withOpacity(.2),
-                                    offset: const Offset(2, 2))
-                              ],
-                              borderRadius: BorderRadius.circular(100),
-                              gradient: const LinearGradient(
-                                  colors: [lightOrange, darkOrange])
-                          ),
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          child: const Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Icon(Icons.qr_code_2_outlined, size: 60, color: Colors.white, ),
-                          ),
-                        ),
-                      )
-                    ],
+                                ),
+                              ) : Container(),
+
+                              SizedBox(height: mobilesWidth/3 > 125 ? 20 : 10,),
+
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(60),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 4,
+                                          color: Colors.black12.withOpacity(.2),
+                                          offset: const Offset(2, 2))
+                                    ],
+                                    gradient: const LinearGradient(
+                                        colors: [lightOrange, darkOrange])
+                                ),
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      disabledForegroundColor: Colors.transparent.withOpacity(0.38), disabledBackgroundColor: Colors.transparent.withOpacity(0.12),
+                                      shadowColor: Colors.transparent,
+                                      textStyle: const TextStyle(fontSize: 25, color: Colors.white, fontFamily: "JosefinSans"),
+                                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                                      minimumSize: const Size(310, 50)
+                                  ),
+                                  onPressed: userProvider.ongoingRewards <= 3 ? () {
+                                    Navigator.push(
+                                        context, _fullscreenDialogRoute(context));
+                                  }: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text(
+                                              AppLocalizations.of(context)!
+                                                  .rewardsLimitReached),
+                                          content: Expanded(
+                                              child: Text(
+                                                  AppLocalizations.of(context)!
+                                                      .rewardsLimitReachedText)),
+                                          actions: [
+                                            TextButton(
+                                                child: const Text("OK"),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                })
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.note_add,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                  label: Text(AppLocalizations.of(context)!.addReward),
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(60),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 4,
+                                          color: Colors.black12.withOpacity(.2),
+                                          offset: const Offset(2, 2))
+                                    ],
+                                    gradient: const LinearGradient(
+                                        colors: [lightOrange, darkOrange])
+                                ),
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      disabledForegroundColor: Colors.transparent.withOpacity(0.38), disabledBackgroundColor: Colors.transparent.withOpacity(0.12),
+                                      shadowColor: Colors.transparent,
+                                      textStyle: const TextStyle(fontSize: 25, color: Colors.white, fontFamily: "JosefinSans"),
+                                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                                      minimumSize: const Size(310, 50)
+                                  ),
+                                  onPressed:  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const CameraQRScreen()),
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.qr_code_2_outlined,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                  label: Text(AppLocalizations.of(context)!.scanQR),
+                                ),
+                              ),
+                            ]
+                        )
+
+                    ),
                   )
-                ],
               );
-            },
-          ),
-        ));
+            }
+            return Container();
+          },
+        );
+      },
+
+    );
   }
 }
 
@@ -210,7 +313,6 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
     } else if (foodCategories.contains(category)) {
       _controllerType.text = coupon;
     }
-    debugPrint(category);
     return _controllerType;
   }
 

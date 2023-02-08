@@ -147,8 +147,10 @@ class _SingleTourScreenState extends State<SingleTourScreen> with SingleTickerPr
                 if (!_currentItineraryPath.contains(places[i])) {
                   backgroundColor = Colors.green;
                 }
-                else {
+                else if (i == 0) {
                   backgroundColor = lightOrange;
+                } else {
+                  backgroundColor = Colors.grey;
                 }
                 return SimpleDialog(
                   backgroundColor: backgroundColor,

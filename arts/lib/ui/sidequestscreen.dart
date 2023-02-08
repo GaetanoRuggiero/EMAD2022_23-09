@@ -50,17 +50,6 @@ class _SidequestScreenState extends State<SidequestScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          actions: [
-            IconButton(
-                icon: const Icon(Icons.home_rounded),
-                onPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }),
-          ],
-          title: Text(AppLocalizations.of(context)!.mission),
-        ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
@@ -80,7 +69,7 @@ class _SidequestScreenState extends State<SidequestScreen> {
                     color: Theme.of(context).canvasColor,
                   ),
                 ),
-                label: AppLocalizations.of(context)!.events
+                label: AppLocalizations.of(context)!.mission
             ),
             BottomNavigationBarItem(
                 icon: const Icon(Icons.check_outlined),
@@ -871,12 +860,15 @@ class _SideQuestCardState extends State<SideQuestCard> with SingleTickerProvider
 
     return SizedBox(
       height: 180,
-      child: Card(
-        borderOnForeground: true,
+      child: Container(
         margin: const EdgeInsets.only(right: 15, left: 15, top: 10, bottom: 10),
         clipBehavior: Clip.antiAlias,
-        elevation: 30,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(offset: Offset(0, 4), blurRadius: 3, spreadRadius: 1, color: Colors.black45)
+          ]
+        ),
 
         child: Stack(
           children: [

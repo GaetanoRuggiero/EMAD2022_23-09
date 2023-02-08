@@ -200,7 +200,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                     },
                   ),
                 ),
-                Positioned(
+                /*Positioned(
                   bottom: 45.0,
                   left: MediaQuery.of(context).size.width / 2 + 60.0,
                   child: ElevatedButton(
@@ -220,7 +220,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                       const Icon(Icons.flash_off_outlined)
                       : const Icon(Icons.flash_on_outlined)
                   ),
-                )
+                )*/
               ],
             );
           } else {
@@ -242,7 +242,7 @@ class ImageRecognitionScreen extends StatelessWidget {
   const ImageRecognitionScreen(
     {super.key, required this.imagePath, required this.orientation, required this.latitude, required this.longitude});
 
-  Future<Map<POI, double>> recognizePOI(String imagePath) async {
+  Future<Map<POI, double>> recognizePOI(String imagePath, bool developerMode) async {
     final img.Image? capturedImage = img.decodeImage(await XFile(imagePath).readAsBytes());
     final img.Image rotatedImage;
 
@@ -265,14 +265,16 @@ class ImageRecognitionScreen extends StatelessWidget {
     double acceptableScore = 0.4;
     /* Storing the device location into image's EXIF metadata to improve
     probability of success of the recognition step. */
-    Exif? exif = await Exif.fromPath(imagePath);
-    await exif.writeAttributes({
-      'GPSLatitude': latitude.toString(),
-      'GPSLatitudeRef': 'N',
-      'GPSLongitude': longitude.toString(),
-      'GPSLongitudeRef': 'E',
-    });
-    await exif.close();
+    if (!developerMode) {
+      Exif? exif = await Exif.fromPath(imagePath);
+      await exif.writeAttributes({
+        'GPSLatitude': latitude.toString(),
+        'GPSLatitudeRef': 'N',
+        'GPSLongitude': longitude.toString(),
+        'GPSLongitudeRef': 'E',
+      });
+      await exif.close();
+    }
 
     final String imageBase64 = base64Encode(await XFile(imagePath).readAsBytes());
     try {
@@ -353,7 +355,7 @@ class ImageRecognitionScreen extends StatelessWidget {
       body: Consumer<UserProvider>(
         builder: (context, userProvider, child) {
           return FutureBuilder(
-            future: recognizePOI(imagePath),
+            future: recognizePOI(imagePath, userProvider.isDeveloperModeOn),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -467,22 +469,37 @@ class TooDistantDialog extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: [
-          Text(AppLocalizations.of(context)!.tooDistantWarning, textAlign: TextAlign.center),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(AppLocalizations.of(context)!.tooDistantWarning, textAlign: TextAlign.center),
+          ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(300, 40),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30)
+              )
+            ),
             child: Text(AppLocalizations.of(context)!.backToHomepage),
             onPressed: () {
               Navigator.of(context).popUntil((route) => route.isFirst);
             }),
           ElevatedButton(
-              child: Text(AppLocalizations.of(context)!.continueAnyway),
-              onPressed: () {
-                Future.microtask(() {
-                  Navigator.pop(context);
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi, sidequest: null)));
-                });
-              }),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(300, 40),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30)
+              )
+            ),
+            child: Text(AppLocalizations.of(context)!.continueAnyway),
+            onPressed: () {
+              Future.microtask(() {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => SinglePOIView(poi: poi, sidequest: null)));
+              });
+            }),
         ],
       ),
     );
