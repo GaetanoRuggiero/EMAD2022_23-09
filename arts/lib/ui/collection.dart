@@ -179,7 +179,7 @@ class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAlive
               if (snapshot.data != null) {
                 _visitedPOIMap = snapshot.data;
                 // If the user has collected a new POI we update the provider's value
-                if (_visitedPOIMap.length > userProvider.visited.length) {
+                if (_visitedPOIMap.length != userProvider.visited.length && _visitedPOIMap.isNotEmpty) {
                   userProvider.visited = _visitedPOIMap;
                 }
                 if (userProvider.visited.isNotEmpty) {
