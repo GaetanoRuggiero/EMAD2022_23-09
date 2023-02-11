@@ -545,6 +545,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         onTap: () async {
                                           if (_formKey.currentState!.validate()) {
                                             String newToken = generateToken();
+                                            String email = _controllerEmail.text.toLowerCase();
                                             _controllerCategory ??= "";
                                             if (_controllerAddress.text.isNotEmpty) {
                                               List<Location> locations =
@@ -557,7 +558,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                               bool? reg = await signUpUser(
                                                   _controllerName.text,
                                                   _controllerSurname.text,
-                                                  _controllerEmail.text,
+                                                  email,
                                                   _controllerPass.text,
                                                   newToken,
                                                   _isPartner,
@@ -566,7 +567,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                                   longitude
                                               );
                                               if (reg) {
-                                                UserUtils.writeEmail(_controllerEmail.text);
+                                                UserUtils.writeEmail(email);
                                                 UserUtils.writeToken(newToken);
                                                 userProvider.isLogged = true;
                                                 userProvider.name = _controllerName.text;

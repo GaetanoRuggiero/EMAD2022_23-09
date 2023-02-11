@@ -619,6 +619,8 @@ class _FullScreenDialogCoupon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = Localizations.localeOf(context).languageCode == "en" ? DateFormat('yyyy-MM-dd').format(DateTime.parse(reward.expiryDate!)).toString()
+        : DateFormat('dd-MM-yyyy').format(DateTime.parse(reward.expiryDate!)).toString();
     return Scaffold(
       appBar: AppBar(
         title: Text(reward.type![0].toUpperCase() + reward.type!.substring(1).toLowerCase()),
@@ -639,7 +641,7 @@ class _FullScreenDialogCoupon extends StatelessWidget {
                       style: const TextStyle(fontSize: 22),
                       text: "${AppLocalizations.of(context)!.goTo} ${reward.placeEvent} ${AppLocalizations.of(context)!.redeem} ",
                       children: <TextSpan>[
-                        TextSpan(text: "\n${AppLocalizations.of(context)!.remember} ${reward.expiryDate}", style: const TextStyle(fontWeight: FontWeight.bold))
+                        TextSpan(text: "\n${AppLocalizations.of(context)!.remember} $formattedDate", style: const TextStyle(fontWeight: FontWeight.bold))
                       ]
                   )
               )
