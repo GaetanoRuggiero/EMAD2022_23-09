@@ -31,4 +31,11 @@ public class Instantiate : MonoBehaviour, IEventSystemHandler
             UnityMessageManager.Instance.SendMessageToFlutter("Instantiated the model: " + modelName);
         }
     }
+
+    public void DestroyModel() {
+        if (myModel != null) {
+            Destroy(myModel);
+            UnityMessageManager.Instance.SendMessageToFlutter("Destroyed the model: " + myModel.name);
+        }
+    }
 }

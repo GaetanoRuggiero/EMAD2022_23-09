@@ -29,40 +29,49 @@ class _UnitySceneScreenState extends State<UnitySceneScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          UnityWidget(
-            onUnityCreated: _onUnityCreated,
-            onUnityMessage: onUnityMessage,
-            fullscreen: true
-          ),
-          PointerInterceptor(
-            child: GestureDetector(
-              onHorizontalDragUpdate: (details) {
-                double velocity = details.delta.dx * 13;
-                double sensitivity = 20;
-                double threshold = 500;
-                if (velocity > threshold) {
-                  // Maximum Right Swipe
-                  velocity = threshold;
-                }
-                else if (velocity < -threshold) {
-                  velocity = -threshold;
-                }
-                else if (velocity > sensitivity ||  velocity < -sensitivity) {
-                  setRotationSpeed(velocity.toString());
-                }
-                else {
-                  velocity = 0; // User is swiping very slowly
-                  setRotationSpeed(velocity.toString());
-                }
+    return WillPopScope(
+      onWillPop: () {
+        destroyModel();
+        return Future.value(true);
+      },
+      child: InteractiveViewer(
+        maxScale: 2,
+        child: Scaffold(
+          body: Stack(
+            alignment: Alignment.center,
+            children: [
+              UnityWidget(
+                onUnityCreated: _onUnityCreated,
+                onUnityMessage: onUnityMessage,
+                fullscreen: false
+              ),
+              PointerInterceptor(
+                child: GestureDetector(
+                  onHorizontalDragUpdate: (details) {
+                    double velocity = details.delta.dx * 12;
+                    double sensitivity = 15;
+                    double threshold = 100;
+                    if (velocity > threshold) {
+                      // Maximum Right Swipe
+                      velocity = threshold;
+                    }
+                    else if (velocity < -threshold) {
+                      velocity = -threshold;
+                    }
 
-              },
-            )
+                    if (velocity > sensitivity ||  velocity < -sensitivity) {
+                      setRotationSpeed(velocity.toString());
+                    }
+                    else {
+                      velocity = 0; // User is swiping very slowly
+                      setRotationSpeed(velocity.toString());
+                    }
+                  },
+                )
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -72,6 +81,15 @@ class _UnitySceneScreenState extends State<UnitySceneScreen> {
       widget.modelName,
       'SetRotationSpeed',
       speed,
+    );
+  }
+
+  void destroyModel() {
+    debugPrint("Destroying model");
+    _unityWidgetController.postMessage(
+      'POI',
+      'DestroyModel',
+      widget.modelName
     );
   }
 
