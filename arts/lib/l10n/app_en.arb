@@ -168,6 +168,8 @@
   "recommendedItinerary": "Recommended itinerary",
   "thematicItineraries": "Thematic itineraries",
   "createCustomItinerary": "Create your own itinerary",
+  "viewAllSteps": "View all steps",
+  "checkoutThematicItineraries": "Check out predefined itineraries below",
   "selectRange": "Select the range in km that you want to cover",
   "startSearch": "Start searching",
   "startItinerary": "Start itinerary",
