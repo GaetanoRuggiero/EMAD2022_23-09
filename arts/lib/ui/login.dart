@@ -314,6 +314,7 @@ class _LoginFormState extends State<LoginForm> {
                             userProvider.isLogged = true;
                             userProvider.isPartner = user.partner!;
                             userProvider.name = user.name!;
+                            userProvider.registrationDate = user.registrationDate!;
                             if (!userProvider.isPartner) {
                               Map<POI, String> visited = await getVisitedPOI(
                                   email, newToken);

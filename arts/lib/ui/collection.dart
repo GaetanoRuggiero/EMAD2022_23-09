@@ -17,17 +17,6 @@ enum SearchFilter { city, name }
 
 const thumbnailName = "thumbnail.jpg";
 
-String getCountryEmoji(String country) {
-  String emoji = '❔';
-  switch (country) {
-    case 'Italia' : return '🇮🇹';
-    case 'Francia' : return '🇫🇷';
-    case 'Germania': return '🇩🇪';
-    case 'Regno Unito' : return '🇬🇧';
-    default: return emoji;
-  }
-}
-
 class CollectionScreen extends StatefulWidget {
   const CollectionScreen({Key? key}) : super(key: key);
 

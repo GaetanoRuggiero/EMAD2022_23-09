@@ -1,3 +1,4 @@
+import 'package:arts/main.dart';
 import 'package:arts/ui/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -65,7 +66,7 @@ void showSnackBar(BuildContext context, Color backgroundColor, String message) {
       SnackBar(
         duration: const Duration(seconds: 10),
         backgroundColor: backgroundColor,
-        content: Text(message),
+        content: Text(message, style: const TextStyle(color: Colors.white),),
         action: SnackBarAction(
           label: close,
           textColor: Colors.white,
@@ -75,4 +76,41 @@ void showSnackBar(BuildContext context, Color backgroundColor, String message) {
         )
       )
   );
+}
+
+class NoGlow extends ScrollBehavior {
+  @override
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
+  }
+}
+
+String getCountryEmoji(String country) {
+  String emoji = '❔';
+  switch (country.toLowerCase()) {
+    case italia : return '🇮🇹';
+    case francia : return '🇫🇷';
+    case germania: return '🇩🇪';
+    case regnoUnito : return '🇬🇧';
+    case spagna : return '🇪🇸';
+    default: return emoji;
+  }
+}
+
+String getLanguage(String country) {
+  String language = '';
+  switch (country.toLowerCase()) {
+    case italia : return 'Italiano';
+    case francia : return 'Français';
+    case germania: return 'Deutsch';
+    case regnoUnito : return 'English';
+    case spagna : return 'Español';
+    default: return language;
+  }
+}
+
+String getNationByLanguage(Locale language) {
+  String nation = localeToNation.entries.firstWhere((element) => element.key == language).value;
+  return nation;
 }

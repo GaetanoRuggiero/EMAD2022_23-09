@@ -6,6 +6,7 @@ import 'package:arts/ui/login.dart';
 import 'package:arts/ui/profile_partner.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/utils/user_provider.dart';
+import 'package:arts/utils/widget_utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -39,7 +40,6 @@ class _RegisterPageState extends State<RegisterPage> {
       _controllerAddress = TextEditingController();
   String errorPassword = "";
   String? _controllerCategory;
-  bool? _showRegError = false;
   late List<DropdownMenuItem<String>> _dropdownItemsCategory;
   late final FlutterGooglePlacesSdk _places;
   List<AutocompletePrediction> _predictions = [];
@@ -142,23 +142,23 @@ class _RegisterPageState extends State<RegisterPage> {
       onTap: () {
         FocusScope.of(context).unfocus();
       },
-      child: SafeArea(
-        child: Container(
-          height: mobileMeasures.height,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage(imageNumber),
-                fit: BoxFit.cover
-            ),
+      child: Container(
+        height: mobileMeasures.height,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage(imageNumber),
+              fit: BoxFit.cover
           ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(
-                sigmaX: 4,
-                sigmaY: 4
-            ),
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Stack(
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+              sigmaX: 4,
+              sigmaY: 4
+          ),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              child: Stack(
                 children: [
                   Opacity(
                     opacity: 0.4,
@@ -572,6 +572,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                                 userProvider.isLogged = true;
                                                 userProvider.name = _controllerName.text;
                                                 userProvider.isPartner = _isPartner;
+                                                userProvider.registrationDate = DateTime.now().toIso8601String();
                                                 if (userProvider.isPartner) {
                                                   userProvider.category = _controllerCategory!;
                                                   if (!mounted) return;
@@ -584,15 +585,13 @@ class _RegisterPageState extends State<RegisterPage> {
                                                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
                                                     builder: (context) => const HomePage()), (Route route) => false);
                                               } else {
-                                                setState(() {
-                                                  _showRegError = true;
-                                                });
+                                                if (!mounted) return;
+                                                showSnackBar(context, Theme.of(context).colorScheme.error, AppLocalizations.of(context)!.regFailed4Email);
                                               }
                                             } on ConnectionErrorException catch(e) {
                                               debugPrint(e.cause);
-                                              setState(() {
-                                                _showRegError = null;
-                                              });
+                                              if (!mounted) return;
+                                              showSnackBar(context, Theme.of(context).colorScheme.error, AppLocalizations.of(context)!.connectionError);
                                             }
                                           }
                                         },
@@ -620,7 +619,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                     );
                                   },
                                 ),
-                                setRegistrationOutput(_showRegError),
                                 Container(
                                   margin: const EdgeInsets.only(top: 30),
                                   child: RichText(
@@ -659,26 +657,5 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
-  }
-
-  Widget setRegistrationOutput(bool? showRegError) {
-    if (showRegError == null || showRegError == true) {
-      String text;
-      if (showRegError == null) {
-        text = AppLocalizations.of(context)!.connectionError;
-      } else {
-        text = AppLocalizations.of(context)!.regFailed4Email;
-      }
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.all(10),
-        color: Colors.red,
-        child: Text(text,
-            textAlign: TextAlign.center, style: const TextStyle(fontSize: 20)),
-      );
-    } else {
-      return Container();
-    }
   }
 }

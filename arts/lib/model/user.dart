@@ -8,11 +8,12 @@ class User {
   String? category;
   double? latitude;
   double? longitude;
+  String? registrationDate;
   List<Visited>? visited;
   List<Coupon>? couponList;
 
   User({this.name, this.surname, this.email, this.password, this.partner,
-    this.rewardsAdded, this.category,  this.latitude, this.longitude,
+    this.rewardsAdded, this.category,  this.latitude, this.longitude, this.registrationDate,
     this.visited, this.couponList
   });
 
@@ -26,6 +27,7 @@ class User {
     category = json['category'];
     latitude = json['latitude'];
     longitude = json['longitude'];
+    registrationDate = json['registration_date'];
     if (json['visited'] != null) {
       visited = <Visited>[];
       json['visited'].forEach((v) {
@@ -51,6 +53,7 @@ class User {
     data['category'] = category;
     data['latitude'] = latitude;
     data['longitude'] = longitude;
+    data['registration_date'] = registrationDate;
     if (visited != null) {
       data['visited'] = visited!.map((v) => v.toJson()).toList();
     }

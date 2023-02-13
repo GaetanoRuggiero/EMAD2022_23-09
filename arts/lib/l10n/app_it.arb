@@ -140,6 +140,7 @@
   "rewardsLimitReachedText": "Hai già raggiunto il numero massimo di missioni che puoi creare. Aspetta che una scada per crearne una nuova.",
   "congratsPartner": "Hai aggiunto",
   "reward": "ricompensa",
+  "registrationDate": "Data di inizio",
 
   "cameraPermissionsError": "Impossibile accedere alla camera. Assicurati di aver concesso i permessi nelle impostazioni dell'app.",
   "cameraPermissionDialogTitle": "Permessi fotocamera non concessi",
@@ -210,7 +211,7 @@
   "noCouponExpired": "Non sono presenti coupon scaduti.",
 
   "goTo": "Recati presso",
-  "redeem": "con questo qr per riscoutere la tua ricompensa",
+  "redeem": "con questo QR per riscoutere la tua ricompensa",
   "remember": "Ricordati di utilizzarlo prima del",
 
   "disconnected": "Sei stato disconnesso",

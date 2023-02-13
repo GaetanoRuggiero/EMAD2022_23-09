@@ -295,50 +295,45 @@ class _AvailableCouponState extends State<AvailableCoupon> with AutomaticKeepAli
                       : AppLocalizations.of(context)!.coupon;
                   String formattedDate = Localizations.localeOf(context).languageCode == "en" ? DateFormat('yyyy-MM-dd').format(DateTime.parse(reward.expiryDate!)).toString()
                   : DateFormat('dd-MM-yyyy').format(DateTime.parse(reward.expiryDate!)).toString();
-                  return Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: darkBlue,
-                          borderRadius: BorderRadius.circular(18),
+                  return Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: darkBlue,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: reward.type == "ticket" ? const Icon(Icons.local_activity_outlined,)
+                              : const Icon(Icons.sell,),
                         ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              child: reward.type == "ticket" ? const Icon(Icons.local_activity_outlined,)
-                                  : const Icon(Icons.sell,),
-                            ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      _fullscreenDialogRoute(context, reward, _couponMap.values.elementAt(index).qrUrl!)
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: RichText(
-                                    text: TextSpan(
-                                      style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white, fontFamily: "JosefinSans"),
-                                      children: <TextSpan> [
-                                        TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
-                                        TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
-                                        TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
-                                        TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
-                                      ],
-                                    ),
-                                  ),
-                                )
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  _fullscreenDialogRoute(context, reward, _couponMap.values.elementAt(index).qrUrl!)
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: RichText(
+                                text: TextSpan(
+                                  style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white, fontFamily: "JosefinSans"),
+                                  children: <TextSpan> [
+                                    TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
+                                    TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                                    TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
+                                    TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ]
+                            )
+                          ),
                         ),
-                      ),
-                      const Divider()
-                    ],
+                      ]
+                    ),
                   );
                 }),
           )
@@ -427,42 +422,37 @@ class _ExpiredCouponState extends State<ExpiredCoupon> with AutomaticKeepAliveCl
                       : AppLocalizations.of(context)!.coupon;
                   String formattedDate = Localizations.localeOf(context).languageCode == "en" ? DateFormat('yyyy-MM-dd').format(DateTime.parse(reward.expiryDate!)).toString()
                       : DateFormat('dd-MM-yyyy').format(DateTime.parse(reward.expiryDate!)).toString();
-                  return Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: darkBlue,
-                          borderRadius: BorderRadius.circular(18),
+                  return Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: darkBlue,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: reward.type == "ticket" ? const Icon(Icons.local_activity_outlined)
+                              : const Icon(Icons.sell),
                         ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              child: reward.type == "ticket" ? const Icon(Icons.local_activity_outlined)
-                                  : const Icon(Icons.sell),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: RichText(
-                                  text: TextSpan(
-                                    style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white, fontFamily: "JosefinSans"),
-                                    children: <TextSpan> [
-                                      TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
-                                      TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
-                                      TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
-                                      TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
-                                    ],
-                                  ),
-                                ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: RichText(
+                              text: TextSpan(
+                                style: const TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Colors.white, fontFamily: "JosefinSans"),
+                                children: <TextSpan> [
+                                  TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
+                                  TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                                  TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
+                                  TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
+                                ],
                               ),
                             ),
-                          ]
+                          ),
                         ),
-                      ),
-                      const Divider()
-                    ],
+                      ]
+                    ),
                   );
                 }),
           )
@@ -549,56 +539,51 @@ class _AllCouponState extends State<AllCoupon> with AutomaticKeepAliveClientMixi
                       : AppLocalizations.of(context)!.coupon;
                   String formattedDate = Localizations.localeOf(context).languageCode == "en" ? DateFormat('yyyy-MM-dd').format(DateTime.parse(reward.expiryDate!)).toString()
                       : DateFormat('dd-MM-yyyy').format(DateTime.parse(reward.expiryDate!)).toString();
-                  return Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            color: _couponMap.values.elementAt(index).used ? Colors.grey
-                                : DateTime.now().isAfter(expiredDate) ? Colors.red
-                                : darkBlue,
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
-                                child: reward.type == "ticket" ? const Icon(Icons.local_activity_outlined)
-                                    : const Icon(Icons.sell),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: (!_couponMap.values.elementAt(index).used) && DateTime.now().isBefore(expiredDate) ? () {
-                                    Navigator.push(context, _fullscreenDialogRoute(
-                                        context,
-                                        reward,
-                                        _couponMap.values.elementAt(index).qrUrl!));
-                                  } : null,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: RichText(
-                                      text: TextSpan(
-                                        style: const TextStyle(
-                                          wordSpacing: 3.0,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white,
-                                          fontFamily: "JosefinSans"
-                                        ),
-                                        children: <TextSpan> [
-                                          TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
-                                          TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
-                                          TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
-                                          TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                ),
-                              ),
-                            ]),
+                  return Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        color: _couponMap.values.elementAt(index).used ? Colors.grey
+                            : DateTime.now().isAfter(expiredDate) ? Colors.red
+                            : darkBlue,
+                        borderRadius: BorderRadius.circular(18),
                       ),
-                      const Divider()
-                    ],
+                    child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: reward.type == "ticket" ? const Icon(Icons.local_activity_outlined)
+                                : const Icon(Icons.sell),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: (!_couponMap.values.elementAt(index).used) && DateTime.now().isBefore(expiredDate) ? () {
+                                Navigator.push(context, _fullscreenDialogRoute(
+                                    context,
+                                    reward,
+                                    _couponMap.values.elementAt(index).qrUrl!));
+                              } : null,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      wordSpacing: 3.0,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontFamily: "JosefinSans"
+                                    ),
+                                    children: <TextSpan> [
+                                      TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
+                                      TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                                      TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
+                                      TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ),
+                          ),
+                        ]),
                   );
                 }),
           )
@@ -639,9 +624,11 @@ class _FullScreenDialogCoupon extends StatelessWidget {
               child: Text.rich(
                   TextSpan(
                       style: const TextStyle(fontSize: 22),
-                      text: "${AppLocalizations.of(context)!.goTo} ${reward.placeEvent} ${AppLocalizations.of(context)!.redeem} ",
+                      text: "${AppLocalizations.of(context)!.goTo} ",
                       children: <TextSpan>[
-                        TextSpan(text: "\n${AppLocalizations.of(context)!.remember} $formattedDate", style: const TextStyle(fontWeight: FontWeight.bold))
+                        TextSpan(text: "${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                        TextSpan(text: " ${AppLocalizations.of(context)!.redeem}."),
+                        TextSpan(text: "\n${AppLocalizations.of(context)!.remember} $formattedDate!", style: const TextStyle(fontWeight: FontWeight.bold))
                       ]
                   )
               )
@@ -649,7 +636,7 @@ class _FullScreenDialogCoupon extends StatelessWidget {
           Stack(
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 100),
+                margin: const EdgeInsets.fromLTRB(30, 60, 30, 0),
                 alignment: Alignment.center,
                 padding: const EdgeInsets.all(15.0),
                 decoration: BoxDecoration(
@@ -658,7 +645,7 @@ class _FullScreenDialogCoupon extends StatelessWidget {
                 ),
                 child: PrettyQr(
                   image: const AssetImage('assets/icon/icon_big.png'),
-                  size: MediaQuery.of(context).size.width - 100,
+                  size: MediaQuery.of(context).size.width - 90,
                   data: qrUrl,
                   errorCorrectLevel: QrErrorCorrectLevel.M,
                   roundEdges: true,

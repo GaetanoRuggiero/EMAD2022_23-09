@@ -141,6 +141,7 @@
   "rewardsLimitReachedText": "You have already reached the maximum number of missions you can create. Wait until one expires to create a new one.",
   "congratsPartner": "You have added",
   "reward": "ricompensa",
+  "registrationDate": "Start Date",
 
   "cameraPermissionsError": "Could't access to camera. Check if you have granted permissions in the application's settings.",
   "cameraPermissionDialogTitle": "Camera permission denied",
@@ -211,7 +212,7 @@
   "noCouponExpired": "Non sono presenti coupon scaduti.",
 
   "goTo": "Go to",
-  "redeem": "with this qr to redeem your reward",
+  "redeem": "with this QR to redeem your reward",
   "remember": "Remember to use it before the",
 
   "disconnected": "You got disconnected",
