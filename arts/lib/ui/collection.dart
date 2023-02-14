@@ -186,11 +186,11 @@ class _VisitedTabViewState extends State<VisitedTabView> with AutomaticKeepAlive
                           child: ListView.builder(
                             itemBuilder: (context, index) {
                               POI poi = userProvider.visited.keys.elementAt(index);
-                              String name = poi.name!;
+                              String name = poi.nameEn!;
                               String thumbnailURL = poi.imageURL!
                                   .replaceRange(poi.imageURL!.lastIndexOf('_') + 1, null, thumbnailName);
-                              if (Localizations.localeOf(context).languageCode == "en") {
-                                name = poi.nameEn!;
+                              if (Localizations.localeOf(context).languageCode == "it") {
+                                name = poi.name!;
                               }
                               return ListTile(
                                 onTap: () {
@@ -315,11 +315,11 @@ class _SearchTabViewState extends State<SearchTabView> with AutomaticKeepAliveCl
         return ListView.builder(
           itemBuilder: (context, index) {
             POI poi = _filteredList[index];
-            String name = poi.name!;
+            String name = poi.nameEn!;
             String thumbnailURL = poi.imageURL!
                 .replaceRange(poi.imageURL!.lastIndexOf('_') + 1, null, thumbnailName);
-            if (Localizations.localeOf(context).languageCode == "en") {
-              name = poi.nameEn!;
+            if (Localizations.localeOf(context).languageCode == "it") {
+              name = poi.name!;
             }
             return ListTile(
               onTap: () {

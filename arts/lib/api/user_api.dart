@@ -392,7 +392,7 @@ Future<String> getIdUser(String email) async{
   }
 }
 
-Future<bool> scanQr(String qrUrl, String email, String token) async{
+Future<Reward?> scanQr(String qrUrl, String email, String token) async{
   Uri uri = Uri.parse(qrUrl);
 
   if (uri.host == "localhost") {
@@ -422,20 +422,20 @@ Future<bool> scanQr(String qrUrl, String email, String token) async{
   });
 
   if (response.statusCode == 200) {
-    bool scanned = jsonDecode(response.body);
-    if (scanned) {
+    if (response.body.isNotEmpty) {
+      Reward? scannedReward = Reward.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
       debugPrint("QR scanned successfully ");
-      return true;
+      return scannedReward;
     }
   }
   else if (response.statusCode == 500) {
     throw ConnectionErrorException("Server did not respond at: $uri\nError: HTTP ${response.statusCode}: ${response.body}");
   }
   else {
-    throw Exception('Failed to load POI');
+    throw Exception('Failed to scan');
   }
   debugPrint("Wrong QR");
-  return false;
+  return null;
 }
 
 Future<Coupon?> giveSidequestCoupon(String email, String token, String rewardId) async  {

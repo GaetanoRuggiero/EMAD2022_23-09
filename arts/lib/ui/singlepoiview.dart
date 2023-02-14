@@ -281,11 +281,11 @@ class DetailedPOIScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String history = poi.history!;
-    String trivia = poi.trivia!;
-    if (Localizations.localeOf(context).languageCode == "en") {
-      history = poi.historyEn!;
-      trivia = poi.triviaEn!;
+    String history = poi.historyEn!;
+    String trivia = poi.triviaEn!;
+    if (Localizations.localeOf(context).languageCode == "it") {
+      history = poi.history!;
+      trivia = poi.trivia!;
     }
     return ClipRRect(
       child: BackdropFilter(

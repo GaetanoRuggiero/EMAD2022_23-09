@@ -60,14 +60,12 @@
   "yes": "Yes",
   "no": "No",
 
-
   "welcomeReg": "Sign in to unlock all functionalities",
   "name": "Name",
   "partnerName": "Commercial business",
   "hintName": "Enter your name",
   "mandatoryField": "Mandatory field",
   "invalidEmail": "Invalid Email Address",
-  "hintPass": "Enter strong password",
   "formatPass": "Password Must be have:\n• Min. length: 8 characters;\n• At least one uppercase character;\n• At least one special character;\n• At least one numeric character.",
   "mexPassConf": "Make sure that the two password are equals",
   "hintMail": "Enter your personal email",
@@ -219,10 +217,12 @@
   "mustLoginAgain": "You have to log in again",
 
   "scanQR": "Scan the QR",
-  "frameQR": "Frame the QR.",
-  "qrPositiveMessage": "QR valid",
-  "qrNegativeMessage": "QR not valid",
-  "invalidQR": "QR has not been genereted by artS application",
+  "frameQR": "Frame the QR",
+  "qrPositive": "QR valid",
+  "qrPositiveMessage": "The QR was scanned correctly.",
+  "qrNegative": "QR not valid",
+  "qrNegativeMessage": "The QR was not scanned by the same partner who emitted it.",
+  "invalidQRMessage": "QR has not been genereted by artS application.",
   "retry": "Retry",
   "all": "All",
 
@@ -245,5 +245,4 @@
   "thanksToAccenture": "for the support given to us during the development of the application",
 
   "goBack": "Go back"
-
 }

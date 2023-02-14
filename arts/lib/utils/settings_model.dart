@@ -10,6 +10,7 @@ class SettingsModel extends ChangeNotifier {
 
   static const Locale italian = Locale("it", "IT");
   static const Locale english = Locale("en", "US");
+  static const Locale espanol = Locale("es", "ES");
 
   late ThemeMode _themeMode;
   late Locale _languageMode;
