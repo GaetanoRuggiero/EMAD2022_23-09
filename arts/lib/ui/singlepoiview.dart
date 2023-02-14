@@ -178,6 +178,7 @@ class _SinglePOIViewState extends State<SinglePOIView> with TickerProviderStateM
                                           padding: const EdgeInsets.all(10.0),
                                           child: RichText(
                                               text: TextSpan(
+                                                  style: const TextStyle(fontFamily: 'JosefinSans'),
                                                   children: <TextSpan>[
                                                     TextSpan(
                                                         text: "${AppLocalizations.of(context)!.lastVisited}\n",
