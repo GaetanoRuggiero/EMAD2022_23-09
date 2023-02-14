@@ -144,7 +144,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 context: context,
                 builder: (_) {
                   return SimpleDialog(
-                    backgroundColor: Colors.black12,
+                    backgroundColor: Colors.grey,
                     clipBehavior: Clip.antiAlias,
                     alignment: Alignment.topCenter,
                     shape: RoundedRectangleBorder(

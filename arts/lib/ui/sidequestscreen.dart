@@ -351,6 +351,11 @@ class _AvailableSidequestState extends State<AvailableSidequest> with AutomaticK
                               ),
                               actions: [
                                 TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(AppLocalizations.of(context)!.goBack)),
+                                TextButton(
                                     child: Text(AppLocalizations.of(context)!.startItinerary),
                                     onPressed: () {
                                       Navigator.pop(context);
@@ -360,11 +365,6 @@ class _AvailableSidequestState extends State<AvailableSidequest> with AutomaticK
                                               builder: (context) => SingleTourScreen(itinerary: [_sidequestList![index].poi!])));
                                     }
                                 ),
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text(AppLocalizations.of(context)!.goBack))
                               ],
                             ),
                           );

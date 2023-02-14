@@ -7,6 +7,7 @@ import 'package:arts/model/google_routes_response.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/ui/takepicture.dart';
 import 'package:arts/utils/settings_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -37,9 +38,7 @@ class _SingleTourScreenState extends State<SingleTourScreen> with SingleTickerPr
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
-  final LocationSettings locationSettings = const LocationSettings(
-    distanceFilter: 5,
-  );
+  late LocationSettings locationSettings;
   Position? _currentPosition;
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
@@ -407,6 +406,20 @@ class _SingleTourScreenState extends State<SingleTourScreen> with SingleTickerPr
   void initState() {
     super.initState();
     _loadMapStyles();
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      locationSettings = AndroidSettings(
+        intervalDuration: const Duration(seconds: 2),
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) {
+      locationSettings = AppleSettings(
+        activityType: ActivityType.fitness,
+        pauseLocationUpdatesAutomatically: true,
+      );
+    } else {
+      locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.high,
+      );
+    }
 
     Future.delayed(Duration.zero, () async {
       Position? position = await _getCurrentPosition();
