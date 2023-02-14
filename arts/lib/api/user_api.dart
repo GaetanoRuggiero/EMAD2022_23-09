@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:arts/api/poi_api.dart';
 import 'package:arts/api/rewards_api.dart';
 import 'package:arts/model/reward.dart';
+import 'package:arts/model/scan_qr.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -392,7 +393,7 @@ Future<String> getIdUser(String email) async{
   }
 }
 
-Future<Reward?> scanQr(String qrUrl, String email, String token) async{
+Future<ScanQR?> scanQr(String qrUrl, String email, String token) async{
   Uri uri = Uri.parse(qrUrl);
 
   if (uri.host == "localhost") {
@@ -423,9 +424,9 @@ Future<Reward?> scanQr(String qrUrl, String email, String token) async{
 
   if (response.statusCode == 200) {
     if (response.body.isNotEmpty) {
-      Reward? scannedReward = Reward.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
+      ScanQR? scannedQR = ScanQR.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
       debugPrint("QR scanned successfully ");
-      return scannedReward;
+      return scannedQR;
     }
   }
   else if (response.statusCode == 500) {
@@ -434,7 +435,6 @@ Future<Reward?> scanQr(String qrUrl, String email, String token) async{
   else {
     throw Exception('Failed to scan');
   }
-  debugPrint("Wrong QR");
   return null;
 }
 

@@ -628,7 +628,8 @@ class _FullScreenDialogCoupon extends StatelessWidget {
                       children: <TextSpan>[
                         TextSpan(text: "${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
                         TextSpan(text: " ${AppLocalizations.of(context)!.redeem}."),
-                        TextSpan(text: "\n${AppLocalizations.of(context)!.remember} $formattedDate!", style: const TextStyle(fontWeight: FontWeight.bold))
+                        TextSpan(text: "\n${AppLocalizations.of(context)!.remember} ", style: const TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: "$formattedDate!", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).iconTheme.color))
                       ]
                   )
               )
