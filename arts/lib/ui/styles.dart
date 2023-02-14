@@ -59,7 +59,8 @@ final ThemeData lightTheme = ThemeData(
     primary: darkOrange,
     secondary: darkOrange,
     tertiary: darkBlue,
-    error: Colors.red
+    error: Colors.red,
+    onTertiary: Colors.white
   ),
   textTheme: const TextTheme().copyWith(
     bodyLarge: const TextStyle(color: darkBlue),
@@ -109,9 +110,9 @@ final ThemeData darkTheme = ThemeData(
   ).copyWith(
       primary: darkOrange,
       secondary: darkOrange,
-      tertiary: darkBlue,
+      tertiary: lightOrange,
       error: Colors.red,
-
+      onTertiary: Colors.grey.shade800
   ),
   textTheme: const TextTheme().copyWith(
     bodyLarge: const TextStyle(color: Colors.white),

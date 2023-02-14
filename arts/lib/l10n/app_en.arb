@@ -141,6 +141,7 @@
   "rewardsLimitReachedText": "You have already reached the maximum number of missions you can create. Wait until one expires to create a new one.",
   "congratsPartner": "You have added",
   "reward": "ricompensa",
+  "registrationDate": "Start Date",
 
   "cameraPermissionsError": "Could't access to camera. Check if you have granted permissions in the application's settings.",
   "cameraPermissionDialogTitle": "Camera permission denied",
@@ -168,6 +169,8 @@
   "recommendedItinerary": "Recommended itinerary",
   "thematicItineraries": "Thematic itineraries",
   "createCustomItinerary": "Create your own itinerary",
+  "viewAllSteps": "View all steps",
+  "checkoutThematicItineraries": "Check out predefined itineraries below",
   "selectRange": "Select the range in km that you want to cover",
   "startSearch": "Start searching",
   "startItinerary": "Start itinerary",
@@ -209,7 +212,7 @@
   "noCouponExpired": "Non sono presenti coupon scaduti.",
 
   "goTo": "Go to",
-  "redeem": "with this qr to redeem your reward",
+  "redeem": "with this QR to redeem your reward",
   "remember": "Remember to use it before the",
 
   "disconnected": "You got disconnected",
@@ -238,6 +241,8 @@
   "johnsonMartin": "Johnson Martin",
   "thanksToJohnson": "for providing us with a 3D© model of the Eiffel Tower available on the Sketchfab.com platform at the following",
   "link": "link",
+  "accenture": "Accenture",
+  "thanksToAccenture": "for the support given to us during the development of the application",
 
   "goBack": "Go back"
 

@@ -1,7 +1,7 @@
+import 'package:arts/utils/widget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-
 import '../main.dart';
 import '../utils/settings_model.dart';
 
@@ -35,34 +35,22 @@ class _LanguageScreenState extends State<LanguageScreen> {
             padding: const EdgeInsets.only(top: 10, left: 10),
             child: StatefulBuilder(
               builder: (context, setState) {
+                List<Widget> radioTiles = localeToNation.entries.map((element) {
+                  return RadioListTile(
+                    title: Text(getLanguage(element.value)),
+                    value: element.key,
+                    groupValue: _languageMode,
+                    onChanged: (Locale? value) {
+                      settingsNotifier.languageMode = element.key;
+                      _languageMode = value!;
+                    },
+                    secondary: Text(getCountryEmoji(getNationByLanguage(element.key))),
+                  );
+                }).toList();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      title: const Text("Italiano"),
-                      leading: Radio<Locale>(
-                        value: SettingsModel.italian,
-                        groupValue: _languageMode,
-                        onChanged: (Locale? value) {
-                          settingsNotifier.languageMode = SettingsModel.italian;
-                          _languageMode = value!;
-                        }
-                      )
-                    ),
-                    const SizedBox(height: 10),
-                    ListTile(
-                      title: const Text("English"),
-                      leading: Radio<Locale>(
-                        value: SettingsModel.english,
-                        groupValue: _languageMode,
-                        onChanged: (Locale? value) {
-                          settingsNotifier.languageMode = SettingsModel.english;
-                          _languageMode = value!;
-                        }
-                      )
-                    )
-                  ]
+                  children: radioTiles
                 );
               }
             )

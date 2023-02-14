@@ -12,8 +12,15 @@ import './utils/settings_model.dart';
 
 late final CameraDescription camera;
 late SettingsModel settingsModel;
-const String bakery = "bakery", iceCreamShop = "ice cream shop", restaurant = "restaurant", pizzeria = "pizzeria",
-    museum = "museum", theater = "theater", sandwich = "sandwich shop", bar = "bar";
+const String bakery = "bakery", iceCreamShop = "ice cream shop", restaurant = "restaurant",
+    pizzeria = "pizzeria", museum = "museum", theater = "theater",
+    sandwich = "sandwich shop", bar = "bar", italia = "italia", francia = "francia",
+    germania = "germania", regnoUnito = "regno unito", spagna = "spagna";
+
+final Map<Locale,String> localeToNation = {
+  SettingsModel.italian:italia,
+  SettingsModel.english:regnoUnito,
+};
 
 
 Future<void> main() async {

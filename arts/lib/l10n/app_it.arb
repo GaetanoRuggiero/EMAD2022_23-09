@@ -140,6 +140,7 @@
   "rewardsLimitReachedText": "Hai già raggiunto il numero massimo di missioni che puoi creare. Aspetta che una scada per crearne una nuova.",
   "congratsPartner": "Hai aggiunto",
   "reward": "ricompensa",
+  "registrationDate": "Data di inizio",
 
   "cameraPermissionsError": "Impossibile accedere alla camera. Assicurati di aver concesso i permessi nelle impostazioni dell'app.",
   "cameraPermissionDialogTitle": "Permessi fotocamera non concessi",
@@ -167,11 +168,13 @@
   "recommendedItinerary": "Itinerario consigliato",
   "thematicItineraries": "Itinerari tematici",
   "createCustomItinerary": "Crea il tuo itinerario",
+  "viewAllSteps": "Visualizza tutte le tappe",
+  "checkoutThematicItineraries": "Dai uno sguardo ai seguenti itinerari predefiniti",
   "selectRange": "Seleziona l'area in km che vuoi ricoprire",
   "startSearch": "Avvia ricerca",
   "startItinerary": "Avvia itinerario",
   "customItineraryResults": "Ecco i punti di interesse vicini alla tua posizione nel raggio di",
-  "customItineraryBlank": "Qui verranno mostrati i risultati in base al range da te selezionato",
+  "customItineraryBlank": "Qui verranno mostrati i risultati in base al raggio da te selezionato",
   "itineraryStart": "Punto di inizio:",
   "itinerarySidequestQuestion": "Stai per avviare un itinerario presso",
   "itineraryEnd": "Punto di fine:",
@@ -208,7 +211,7 @@
   "noCouponExpired": "Non sono presenti coupon scaduti.",
 
   "goTo": "Recati presso",
-  "redeem": "con questo qr per riscoutere la tua ricompensa",
+  "redeem": "con questo QR per riscoutere la tua ricompensa",
   "remember": "Ricordati di utilizzarlo prima del",
 
   "disconnected": "Sei stato disconnesso",
@@ -237,6 +240,8 @@
   "johnsonMartin": "Johnson Martin",
   "thanksToJohnson": "per averci fornito di un modello 3D© della Torre Eiffel disponibile sulla piattaforma Sketchfab.com al seguente",
   "link": "link",
+  "accenture": "Accenture",
+  "thanksToAccenture": "per il supporto datoci durante lo sviluppo dell'applicazione",
 
   "goBack": "Torna indietro"
 }

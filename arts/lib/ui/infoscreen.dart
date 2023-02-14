@@ -53,74 +53,77 @@ class _InfoScreenState extends State<InfoScreen> with SingleTickerProviderStateM
           ]
       ),
       body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Container(
-              alignment: Alignment.center,
-              width: double.infinity,
-              height: double.infinity,
-              child: AnimatedOpacity(opacity: _opacityImage,
-                  duration: const Duration(seconds: 1),
-                  child: Image.asset("assets/icon/icon_big.png")),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Container(
+                alignment: Alignment.center,
+                width: double.infinity,
+                height: double.infinity,
+                child: AnimatedOpacity(opacity: _opacityImage,
+                    duration: const Duration(seconds: 1),
+                    child: Image.asset("assets/icon/icon_big.png")),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Container(
-              decoration: const BoxDecoration(
-                  image: DecorationImage(opacity: 0.2, image: AssetImage("assets/icon/icon_big.png"))),
-              alignment: Alignment.center,
-              width: double.infinity,
-              height: double.infinity,
-              child: AnimatedOpacity(
-                opacity: _opacityText,
-                duration: const Duration(seconds: 1),
-                child: Container(
-                  padding: const  EdgeInsets.all(10),
-                  margin: const EdgeInsets.all(10),
-                  width: 600,
-                  child: RichText(text: TextSpan(
-                      style: TextStyle(fontSize: 17, fontFamily: "JosefinSans", color: textColor()),
-                      children: [
-                        TextSpan(text: AppLocalizations.of(context)!.appNameLowerCase,
-                            style: TextStyle(fontSize: 25, fontFamily: "DaVinci", color: Theme.of(context).iconTheme.color)),
-                        TextSpan(text: " ${AppLocalizations.of(context)!.bornAsAProject}"),
-                        TextSpan(text:" ${AppLocalizations.of(context)!.emad} ",
-                            style: const TextStyle(shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(0.3, 0.3),
-                                blurRadius: 5.0,
-                                color: Color.fromARGB(255, 255, 255, 255),
-                              ),
-                            ],)),
-                        TextSpan(text:"${AppLocalizations.of(context)!.unisa}.\n\n"),
-                        TextSpan(text: "${AppLocalizations.of(context)!.developedBy}: \n"
-                            " • ${AppLocalizations.of(context)!.aA}\n"
-                            " • ${AppLocalizations.of(context)!.gR}\n"
-                            " • ${AppLocalizations.of(context)!.mS}\n"),
-                        TextSpan(text: "\n ${AppLocalizations.of(context)!.weThank}:\n"),
-                        TextSpan(text: "- ${AppLocalizations.of(context)!.wikipedia}", style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
-                        TextSpan(text: ": ${AppLocalizations.of(context)!.thanksToWikipedia};\n"),
-                        TextSpan(text: "- ${AppLocalizations.of(context)!.unsplash}", style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
-                        TextSpan(text: ": ${AppLocalizations.of(context)!.thanksToUnsplash};\n"),
-                        TextSpan(text: "- ${AppLocalizations.of(context)!.johnsonMartin}", style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
-                        TextSpan(text: ": ${AppLocalizations.of(context)!.thanksToJohnson}"),
-                        TextSpan(text: " ${AppLocalizations.of(context)!.link}", style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.blue,),
-                            recognizer: TapGestureRecognizer()..onTap = () {
-                              Uri url = Uri.parse("https://skfb.ly/AIU9");
-                              launchUrl(url);
-                            }
-                        ),
-                        const TextSpan(text: "."),
-                      ]
-                  )),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Container(
+                decoration: const BoxDecoration(
+                    image: DecorationImage(opacity: 0.2, image: AssetImage("assets/icon/icon_big.png"))),
+                alignment: Alignment.center,
+                width: double.infinity,
+                height: double.infinity,
+                child: AnimatedOpacity(
+                  opacity: _opacityText,
+                  duration: const Duration(seconds: 1),
+                  child: Container(
+                    padding: const  EdgeInsets.all(10),
+                    margin: const EdgeInsets.all(10),
+                    width: 600,
+                    child: RichText(text: TextSpan(
+                        style: TextStyle(fontSize: 17, fontFamily: "JosefinSans", color: textColor()),
+                        children: [
+
+                          TextSpan(text: AppLocalizations.of(context)!.appNameLowerCase,
+                              style: TextStyle(fontSize: 25, fontFamily: "DaVinci", color: Theme.of(context).iconTheme.color)),
+                          TextSpan(text: " ${AppLocalizations.of(context)!.bornAsAProject}"),
+                          TextSpan(text:" ${AppLocalizations.of(context)!.emad} ",
+                              style: const TextStyle(shadows: <Shadow>[
+                                Shadow(
+                                  offset: Offset(0.3, 0.3),
+                                  blurRadius: 5.0,
+                                  color: Color.fromARGB(255, 255, 255, 255),
+                                ),
+                              ],)),
+                          TextSpan(text:"${AppLocalizations.of(context)!.unisa}.\n\n"),
+                          TextSpan(text: "${AppLocalizations.of(context)!.developedBy}: \n"
+                              " • ${AppLocalizations.of(context)!.aA}\n"
+                              " • ${AppLocalizations.of(context)!.gR}\n"
+                              " • ${AppLocalizations.of(context)!.mS}\n"),
+                          TextSpan(text: "\n ${AppLocalizations.of(context)!.weThank}:\n"),
+                          TextSpan(text: "- ${AppLocalizations.of(context)!.accenture}", style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
+                          TextSpan(text: ": ${AppLocalizations.of(context)!.thanksToAccenture};\n"),
+                          TextSpan(text: "- ${AppLocalizations.of(context)!.johnsonMartin}", style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
+                          TextSpan(text: ": ${AppLocalizations.of(context)!.thanksToJohnson}"),
+                          TextSpan(text: " ${AppLocalizations.of(context)!.link}", style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.blue,),
+                              recognizer: TapGestureRecognizer()..onTap = () {
+                                Uri url = Uri.parse("https://skfb.ly/AIU9");
+                                launchUrl(url);
+                              }
+                          ),
+                          const TextSpan(text: ";\n"),
+                          TextSpan(text: "- ${AppLocalizations.of(context)!.unsplash}", style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
+                          TextSpan(text: ": ${AppLocalizations.of(context)!.thanksToUnsplash};\n"),
+                          TextSpan(text: "- ${AppLocalizations.of(context)!.wikipedia}", style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16)),
+                          TextSpan(text: ": ${AppLocalizations.of(context)!.thanksToWikipedia}.\n"),
+                        ]
+                    )),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
   }
 }

@@ -102,6 +102,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     userProvider.isLogged = true;
                     userProvider.isPartner = user.partner!;
                     userProvider.name = user.name!;
+                    userProvider.registrationDate = user.registrationDate!;
                     if (!userProvider.isPartner) {
                       userProvider.surname = user.surname!;
                       userProvider.visited = _visitedPOI;

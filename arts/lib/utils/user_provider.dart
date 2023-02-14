@@ -11,6 +11,7 @@ class UserProvider extends ChangeNotifier {
   late int rewardsAdded;
   late String category;
   late int ongoingRewards;
+  late String registrationDate;
 
   UserProvider() {
     isLogged = false;
@@ -22,6 +23,7 @@ class UserProvider extends ChangeNotifier {
     rewardsAdded = 0;
     category = "";
     ongoingRewards = 0;
+    registrationDate = "";
   }
 
   void logout() {
@@ -34,6 +36,7 @@ class UserProvider extends ChangeNotifier {
     rewardsAdded = 0;
     category = "";
     ongoingRewards = 0;
+    registrationDate = "";
   }
 
   void incrementRewardCount() {

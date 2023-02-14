@@ -9,7 +9,6 @@ import 'package:arts/utils/widget_utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:loading_animations/loading_animations.dart';
 import 'package:provider/provider.dart';
 import '../api/user_api.dart';
@@ -129,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                       style: const TextStyle(color: Colors.lightBlueAccent),
                                                       recognizer: TapGestureRecognizer()
                                                         ..onTap = () {
-                                                          Navigator.push(
+                                                          Navigator.pushReplacement(
                                                               context,
                                                               MaterialPageRoute(
                                                                   builder: (context) => const RegisterPage()));
@@ -292,10 +291,10 @@ class _LoginFormState extends State<LoginForm> {
                           _loadingOrText = LoadingJumpingLine.circle(size: 40, backgroundColor: Colors.white);
                         });
                         String newToken = generateToken();
-                        const storage = FlutterSecureStorage();
+                        String email = _controllerEmail.text.toLowerCase();
                         try {
                           User? user = await loginUser(
-                              _controllerEmail.text, _controllerPass.text,
+                              email, _controllerPass.text,
                               newToken);
                           if (user == null) {
                             //in this case user entered wrong credentials
@@ -310,17 +309,15 @@ class _LoginFormState extends State<LoginForm> {
                             if (!mounted) return;
                             showSnackBar(context, Colors.red, AppLocalizations.of(context)!.loginFailed);
                           } else {
-                            await storage.write(
-                                key: UserUtils.tokenKey, value: newToken);
-                            await storage.write(
-                                key: UserUtils.emailKey,
-                                value: _controllerEmail.text);
+                            UserUtils.writeEmail(email);
+                            UserUtils.writeToken(newToken);
                             userProvider.isLogged = true;
                             userProvider.isPartner = user.partner!;
                             userProvider.name = user.name!;
+                            userProvider.registrationDate = user.registrationDate!;
                             if (!userProvider.isPartner) {
                               Map<POI, String> visited = await getVisitedPOI(
-                                  _controllerEmail.text, newToken);
+                                  email, newToken);
                               userProvider.surname = user.surname!;
                               userProvider.visited = visited;
                               if (!mounted) return;
@@ -329,7 +326,7 @@ class _LoginFormState extends State<LoginForm> {
                                   MaterialPageRoute(
                                       builder: (context) => const HomePage()));
                             } else {
-                              userProvider.ongoingRewards = await countReward(_controllerEmail.text);
+                              userProvider.ongoingRewards = await countReward(email);
                               userProvider.rewardsAdded = user.rewardsAdded!;
                               userProvider.category = user.category!;
                               if (!mounted) return;
