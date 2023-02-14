@@ -218,9 +218,9 @@ class _PathCardState extends State<PathCard> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: widget.itinerary.path!.map((poi) {
                               Locale currentLocale = Localizations.localeOf(context);
-                              String name = poi.name!;
-                              if (currentLocale.languageCode == "en") {
-                                name = poi.nameEn!;
+                              String name = poi.nameEn!;
+                              if (currentLocale.languageCode == "it") {
+                                name = poi.name!;
                               }
                               Color markerColor = Colors.orange;
                               if (userProvider.visited.containsKey(poi)) {

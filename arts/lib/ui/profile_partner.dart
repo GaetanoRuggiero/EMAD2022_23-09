@@ -89,7 +89,7 @@ class ProfilePartner extends StatelessWidget {
                                   ),
                                   Positioned(
                                     top: 70,
-                                    right: 5,
+                                    right: 8,
                                     child: Column(
                                       children: [
                                         Container(
@@ -97,7 +97,7 @@ class ProfilePartner extends StatelessWidget {
                                             boxShadow: [BoxShadow(
                                               offset: Offset(0, 0.75),
                                               spreadRadius: 0,
-                                              blurRadius: 2,
+                                              blurRadius: 1,
                                             )],
                                             color: Colors.white,
                                             shape: BoxShape.circle,
@@ -126,7 +126,7 @@ class ProfilePartner extends StatelessWidget {
                                             boxShadow: [BoxShadow(
                                               offset: Offset(0, 0.75),
                                               spreadRadius: 0,
-                                              blurRadius: 2,
+                                              blurRadius: 1,
                                             )],
                                             color: Colors.white,
                                             shape: BoxShape.circle,
@@ -135,16 +135,17 @@ class ProfilePartner extends StatelessWidget {
                                             message: AppLocalizations.of(context)!
                                                 .settings,
                                             child: IconButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                        const SettingsScreen()),
-                                                  );
-                                                },
-                                                icon: const Icon(
-                                                    size: 30, Icons.settings)),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                      const SettingsScreen()),
+                                                );
+                                              },
+                                              icon: const Icon(
+                                                  size: 30, Icons.settings)
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -219,7 +220,7 @@ class ProfilePartner extends StatelessWidget {
                                     size: 40,
                                     color: Colors.white,
                                   ),
-                                  label: Text(AppLocalizations.of(context)!.addReward),
+                                  label: Text(AppLocalizations.of(context)!.addReward, style: const TextStyle(color: Colors.white),),
                                 ),
                               ),
 
@@ -258,7 +259,7 @@ class ProfilePartner extends StatelessWidget {
                                     size: 40,
                                     color: Colors.white,
                                   ),
-                                  label: Text(AppLocalizations.of(context)!.scanQR),
+                                  label: Text(AppLocalizations.of(context)!.scanQR, style: const TextStyle(color: Colors.white)),
                                 ),
                               ),
                             ]
@@ -365,7 +366,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
                   children: [
                     Container(
                       margin: EdgeInsets.symmetric(vertical: mobilesWidth/3 > 125 ? mobilesWidth/6 : mobilesWidth/9),
-                      child: Text(AppLocalizations.of(context)!.addReward, style: TextStyle(fontSize: mobilesWidth/3 > 125 ? 35 : 25, fontWeight: FontWeight.bold),),
+                      child: Text(AppLocalizations.of(context)!.addReward, style: TextStyle(fontSize: mobilesWidth/3 > 135 ? 35 : mobilesWidth/3 > 95 ? 30 : 25, fontWeight: FontWeight.bold),),
                     ),
                     Form(
                       key: _formKey,
@@ -648,7 +649,8 @@ class _CameraQRScreenState extends State<CameraQRScreen> {
             } else {
               final String code = barcode.rawValue!;
               debugPrint('Barcode found! $code');
-              bool? scanned;
+              bool valid = true;
+              Reward? scannedReward;
               String? email = await UserUtils.readEmail();
               String? token = await UserUtils.readToken();
               if (email == null && token == null){
@@ -657,10 +659,10 @@ class _CameraQRScreenState extends State<CameraQRScreen> {
                 });
               } else {
                   try {
-                    scanned = await scanQr(code, email!, token!);
+                    scannedReward = await scanQr(code, email!, token!);
                   } on QrException catch (e) {
                     debugPrint(e.cause);
-                    scanned = null;
+                    valid = false;
                   }
                 }
                 if (!mounted) return;
@@ -668,7 +670,7 @@ class _CameraQRScreenState extends State<CameraQRScreen> {
                   barrierDismissible: false,
                   context: context,
                   builder: (context) {
-                    return QrDialog(valid: scanned);
+                    return QrDialog(scannedReward: scannedReward, isValid: valid,);
                   },
                 );
 
@@ -680,31 +682,65 @@ class _CameraQRScreenState extends State<CameraQRScreen> {
 }
 
 class QrDialog extends StatelessWidget {
-  const QrDialog({Key? key, required this.valid}) : super(key: key);
-  final bool? valid;
+  const QrDialog({Key? key, required this.scannedReward, required this.isValid}) : super(key: key);
+  final Reward? scannedReward;
+  final bool isValid;
 
   @override
   Widget build(BuildContext context) {
-    String message;
-    if (valid != null) {
-      if (valid!) {
-        message = AppLocalizations.of(context)!.qrPositiveMessage;
+    String title;
+    Widget message;
+    Icon icon;
+    if (isValid) {
+      if (scannedReward != null) {
+        icon = const Icon(Icons.check_circle, size: 65, color: Colors.green);
+        title = AppLocalizations.of(context)!.qrPositive;
+        String at = AppLocalizations.of(context)!.at[0].toUpperCase() + AppLocalizations.of(context)!.at.substring(1).toLowerCase();
+        message = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(AppLocalizations.of(context)!.qrPositiveMessage,textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Theme.of(context).textTheme.titleLarge!.color, fontFamily: "JosefinSans", fontSize: 18),
+                  children: <TextSpan> [
+                    TextSpan(text: ("\n$at: ")),
+                    TextSpan(text: "${scannedReward!.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                    TextSpan(text: "\n${AppLocalizations.of(context)!.discountAmount}: "),
+                    TextSpan(text: "${scannedReward!.discountAmount}%", style: TextStyle(color: Theme.of(context).iconTheme.color)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
       } else {
-        message = AppLocalizations.of(context)!.qrNegativeMessage;
+        title = AppLocalizations.of(context)!.qrNegative;
+        icon = const Icon(Icons.error, size: 65, color: Colors.red);
+        message = Text(AppLocalizations.of(context)!.qrNegativeMessage, style: const TextStyle(fontSize: 18),textAlign: TextAlign.center,);
       }
     } else {
-      message = AppLocalizations.of(context)!.invalidQR;
+      icon = const Icon(Icons.help, size: 65, color: Colors.red);
+      title = AppLocalizations.of(context)!.qrNegative;
+      message = Text(AppLocalizations.of(context)!.invalidQRMessage, style: const TextStyle(fontSize: 18),textAlign: TextAlign.center,);
     }
-    return AlertDialog(
-      title: Text(message),
+    return TopIconDialog(
+      title: Center(child: Text(title,style: const TextStyle(fontSize: 20),)),
+      content: Padding(
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 5),
+        child: message,
+      ),
+      icon: icon,
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-          child: Text(AppLocalizations.of(context)!.backToHomepage)
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            child: Text(AppLocalizations.of(context)!.backToHomepage, style: const TextStyle(fontSize: 15),)
         )
-      ],
+      ]
     );
   }
 }

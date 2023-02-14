@@ -20,6 +20,7 @@ const String bakery = "bakery", iceCreamShop = "ice cream shop", restaurant = "r
 final Map<Locale,String> localeToNation = {
   SettingsModel.italian:italia,
   SettingsModel.english:regnoUnito,
+  SettingsModel.espanol:spagna,
 };
 
 
@@ -72,7 +73,8 @@ class MyApp extends StatelessWidget {
             ],
             supportedLocales: const [
               Locale('it', 'IT'),
-              Locale('en', 'US')
+              Locale('en', 'US'),
+              Locale('es', 'ES'),
             ],
             locale: settingsNotifier.languageMode,
             theme: lightTheme,
