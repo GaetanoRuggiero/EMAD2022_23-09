@@ -206,9 +206,9 @@
   "ticketDiscount": "Discounted ticket of",
   "at": "at",
   "availableUpTo": "available up to",
-  "noCouponObtained": "Siamo spiacenti, non hai ancora ottenuto nessun Coupon. Completa una missione per ottenerne uno.",
-  "noCouponAvaible": "Siamo spiacenti, non hai Coupon disponibili. Completa una missione per ottenerne uno.",
-  "noCouponExpired": "Non sono presenti coupon scaduti.",
+  "noCouponObtained": "We are sorry, you have no coupon. Complete a mission to obtain one.",
+  "noCouponAvaible": "We are sorry. You have no available coupons. Complete a mission to obtain one.",
+  "noCouponExpired": "There are no expired coupons.",
 
   "goTo": "Go to",
   "redeem": "with this QR to redeem your reward",
