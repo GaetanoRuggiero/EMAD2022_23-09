@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -41,6 +42,8 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   late Future<void> _initializeControllerFuture;
   bool _cameraPermissionGranted = true;
   FlashMode flashMode = FlashMode.off;
+  StreamSubscription<NativeDeviceOrientation>? _stream;
+  NativeDeviceOrientation? _currentDeviceOrientation = NativeDeviceOrientation.portraitUp;
 
   void initializeCamera() async {
     _controller = CameraController(
@@ -77,6 +80,12 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   @override
   void initState() {
     super.initState();
+      _stream = NativeDeviceOrientationCommunicator()
+          .onOrientationChanged(useSensor: true)
+          .asBroadcastStream()
+          .listen((event) {
+        _currentDeviceOrientation = event;
+      });
     initializeCamera();
   }
 
@@ -84,6 +93,9 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
   void dispose() {
     // Dispose of the camera controller when the widget is disposed.
     _controller.dispose();
+    if (_stream != null) {
+      _stream?.cancel();
+    }
     super.dispose();
   }
 
@@ -167,38 +179,33 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                 ),
                 Positioned(
                   bottom: 40,
-                  child: NativeDeviceOrientationReader(
-                    builder: (BuildContext context) {
-                      return ElevatedButton(
-                        style: largeButtonStyle,
-                        child: const Icon(Icons.camera),
-                        onPressed: () async {
-                          final orientation = await NativeDeviceOrientationCommunicator().orientation(useSensor: true);
-                          try {
-                            // Ensure camera is initialized
-                            await _initializeControllerFuture;
+                  child: ElevatedButton(
+                      style: largeButtonStyle,
+                      child: const Icon(Icons.camera),
+                      onPressed: () async {
+                        try {
+                          // Ensure camera is initialized
+                          await _initializeControllerFuture;
 
-                            final image = await _controller.takePicture();
+                          final image = await _controller.takePicture();
 
-                            /* When we're done taking the picture, we let the ImageRecogntionScreen
+                          /* When we're done taking the picture, we let the ImageRecogntionScreen
                             widget do the rest of the work (calling Google Vision API). */
-                            if (!mounted) return;
-                            await Navigator.of(context).push(
+                          if (!mounted) return;
+                          await Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => ImageRecognitionScreen(
                                 imagePath: image.path,
-                                orientation: orientation,
+                                orientation: _currentDeviceOrientation!,
                                 latitude: widget.latitude,
                                 longitude: widget.longitude,
                               ),
                             ),
-                            );
-                          } catch (e) {
-                            debugPrint("Could not take the picture! Exception message:\n ${e.toString()}");
-                          }
-                        });
-                    },
-                  ),
+                          );
+                        } catch (e) {
+                          debugPrint("Could not take the picture! Exception message:\n ${e.toString()}");
+                        }
+                      })
                 ),
                 /*Positioned(
                   bottom: 45.0,

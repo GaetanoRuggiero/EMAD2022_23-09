@@ -99,6 +99,7 @@
   "regFailed4Email": "Registration failed, email already taken.",
   "loggedSuccessfully": "Signed in successfully",
   "errorGeneric": "Error",
+  "errorGenericContent": "An unexpected error occurred.",
   "loading": "Loading...",
 
   "profile": "Profile",
@@ -223,6 +224,7 @@
   "qrNegative": "QR not valid",
   "qrNegativeMessage": "The QR was not scanned by the same partner who emitted it.",
   "invalidQRMessage": "QR has not been genereted by artS application.",
+  "usedQRMessage": "The QR has already been redeemed.",
   "retry": "Retry",
   "all": "All",
 

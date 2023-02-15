@@ -1,6 +1,7 @@
 import 'package:arts/api/user_api.dart';
 import 'package:arts/exception/exceptions.dart';
 import 'package:arts/model/reward.dart';
+import 'package:arts/model/scan_qr.dart';
 import 'package:arts/ui/settings.dart';
 import 'package:arts/ui/styles.dart';
 import 'package:arts/utils/user_provider.dart';
@@ -19,8 +20,11 @@ import 'package:palette_generator/palette_generator.dart';
 class ProfilePartner extends StatelessWidget {
   const ProfilePartner({Key? key}) : super(key: key);
   static const Map<String, String> imagesByCategory = {
-    bakery:"", iceCreamShop:"", restaurant:"", pizzeria:"",
-    museum:"", theater:"", sandwich:"", bar:""
+    bakery : "assets/partner_images/bakery.png", iceCreamShop : "assets/partner_images/ice_cream_shop.png",
+    restaurant : "assets/partner_images/restaurant.png", pizzeria : "assets/partner_images/pizzeria.png",
+    museum : "assets/partner_images/museum.png", theater : "assets/partner_images/theatre.png",
+    sandwich : "assets/partner_images/sandwich_bar.png", bar : "assets/partner_images/bar.png",
+    "default" : "assets/partner_images/default.png"
   };
 
   static Route<void> _fullscreenDialogRoute(BuildContext context) {
@@ -40,8 +44,10 @@ class ProfilePartner extends StatelessWidget {
   }
 
   String getImageByCategory (String category) {
-    String pathImage= "defaultImage";
-    //imagesByCategory.entries.firstWhere((element) => element.key == category, orElse: "defaultImage");
+    category = category.toLowerCase();
+    String pathImage = imagesByCategory.entries.firstWhere(
+            (element) => element.key == category, orElse: () => imagesByCategory.entries.last
+    ).value;
     return pathImage;
   }
 
@@ -50,17 +56,18 @@ class ProfilePartner extends StatelessWidget {
     double mobilesWidth = MediaQuery.of(context).size.width;
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
+        String pathImage = getImageByCategory(userProvider.category);
         return FutureBuilder(
-          future: getImagePalette(const AssetImage("assets/partner_images/ice_cream_shop.png")),
+          future: getImagePalette(AssetImage(pathImage)),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return Container(
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
                         center: Alignment.center,
-                        focalRadius: 10,
-                        radius: 10,
-                        colors: [snapshot.data!, Colors.black87]),
+                        focalRadius: 8,
+                        radius: 6,
+                        colors: [snapshot.data!, Colors.black]),
                   ),
                   child: Scaffold(
                     backgroundColor: Colors.transparent,
@@ -69,9 +76,8 @@ class ProfilePartner extends StatelessWidget {
                             children: [
                               Container(
                                 margin: EdgeInsets.symmetric(vertical: mobilesWidth/3 > 125 ? 20 : 10),
-                                alignment: Alignment.center,
                                 child: Text(userProvider.name,
-                                    style: TextStyle(fontSize: mobilesWidth/3 > 125 ? 30 : 20, color: Colors.white)),
+                                    style: TextStyle(fontSize: mobilesWidth/3 > 125 ? 30 : 20, color: Colors.white), textAlign: TextAlign.center),
                               ),
                               Stack(
                                 alignment: Alignment.topCenter,
@@ -82,8 +88,8 @@ class ProfilePartner extends StatelessWidget {
                                   ),
                                   SizedBox(
                                       width: mobilesWidth,
-                                      height: 300,
-                                      child: Image.asset("assets/partner_images/ice_cream_shop.png",
+                                      height: 320,
+                                      child: Image.asset(pathImage,
                                         fit: BoxFit.fitHeight,
                                       ),
                                   ),
@@ -187,7 +193,7 @@ class ProfilePartner extends StatelessWidget {
                                       shadowColor: Colors.transparent,
                                       textStyle: const TextStyle(fontSize: 25, color: Colors.white, fontFamily: "JosefinSans"),
                                       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                                      minimumSize: const Size(310, 50)
+                                      minimumSize: const Size(330, 50),
                                   ),
                                   onPressed: userProvider.ongoingRewards <= 3 ? () {
                                     Navigator.push(
@@ -240,12 +246,12 @@ class ProfilePartner extends StatelessWidget {
                                 ),
                                 child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      disabledForegroundColor: Colors.transparent.withOpacity(0.38), disabledBackgroundColor: Colors.transparent.withOpacity(0.12),
-                                      shadowColor: Colors.transparent,
-                                      textStyle: const TextStyle(fontSize: 25, color: Colors.white, fontFamily: "JosefinSans"),
-                                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                                      minimumSize: const Size(310, 50)
+                                    backgroundColor: Colors.transparent,
+                                    disabledForegroundColor: Colors.transparent.withOpacity(0.38), disabledBackgroundColor: Colors.transparent.withOpacity(0.12),
+                                    shadowColor: Colors.transparent,
+                                    textStyle: const TextStyle(fontSize: 25, color: Colors.white, fontFamily: "JosefinSans"),
+                                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                                    minimumSize: const Size(330, 50),
                                   ),
                                   onPressed:  () {
                                     Navigator.push(
@@ -296,19 +302,12 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
   late Color _colorSnackbar;
   bool _showConnectionError = false;
 
+  List<String> foodCategories = [ bakery, iceCreamShop, restaurant, pizzeria, sandwich, bar];
+
+  List<String> artsCategories = [ museum, theater];
+
   TextEditingController getControllerType(String category) {
-    List<String> foodCategories = [
-      bakery,
-      iceCreamShop,
-      restaurant,
-      pizzeria,
-      sandwich,
-      bar
-    ];
-    List<String> artsCategories = [
-      museum,
-      theater
-    ];
+    category = category.toLowerCase();
     if (artsCategories.contains(category)) {
       _controllerType.text = ticket;
     } else if (foodCategories.contains(category)) {
@@ -318,6 +317,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
   }
 
   String getControllerCategory(BuildContext context, String category) {
+    category = category.toLowerCase();
     return category == bakery ? AppLocalizations.of(context)!.bakery
         : category == iceCreamShop ? AppLocalizations.of(context)!.iceCreamShop
         : category == restaurant ? AppLocalizations.of(context)!.restourant
@@ -329,6 +329,7 @@ class _FullScreenDialogAddRewardState extends State<_FullScreenDialogAddReward> 
   }
 
   Icon getIcon(String category) {
+    category = category.toLowerCase();
     return  category == bakery ? const Icon(Icons.bakery_dining, color: darkOrange, size: 22)
         : category == iceCreamShop ? const Icon(Icons.icecream, color: darkOrange, size: 22)
         : category == restaurant ? const Icon(Icons.restaurant, color: darkOrange, size: 22)
@@ -650,7 +651,7 @@ class _CameraQRScreenState extends State<CameraQRScreen> {
               final String code = barcode.rawValue!;
               debugPrint('Barcode found! $code');
               bool valid = true;
-              Reward? scannedReward;
+              ScanQR? scanQR;
               String? email = await UserUtils.readEmail();
               String? token = await UserUtils.readToken();
               if (email == null && token == null){
@@ -659,7 +660,7 @@ class _CameraQRScreenState extends State<CameraQRScreen> {
                 });
               } else {
                   try {
-                    scannedReward = await scanQr(code, email!, token!);
+                    scanQR = await scanQr(code, email!, token!);
                   } on QrException catch (e) {
                     debugPrint(e.cause);
                     valid = false;
@@ -670,7 +671,7 @@ class _CameraQRScreenState extends State<CameraQRScreen> {
                   barrierDismissible: false,
                   context: context,
                   builder: (context) {
-                    return QrDialog(scannedReward: scannedReward, isValid: valid,);
+                    return QrDialog(scannedQR: scanQR, isValid: valid,);
                   },
                 );
 
@@ -682,47 +683,96 @@ class _CameraQRScreenState extends State<CameraQRScreen> {
 }
 
 class QrDialog extends StatelessWidget {
-  const QrDialog({Key? key, required this.scannedReward, required this.isValid}) : super(key: key);
-  final Reward? scannedReward;
+  const QrDialog({Key? key, required this.scannedQR, required this.isValid}) : super(key: key);
+  final ScanQR? scannedQR;
   final bool isValid;
 
   @override
   Widget build(BuildContext context) {
+    Reward scannedReward;
     String title;
     Widget message;
     Icon icon;
     if (isValid) {
-      if (scannedReward != null) {
-        icon = const Icon(Icons.check_circle, size: 65, color: Colors.green);
-        title = AppLocalizations.of(context)!.qrPositive;
-        String at = AppLocalizations.of(context)!.at[0].toUpperCase() + AppLocalizations.of(context)!.at.substring(1).toLowerCase();
-        message = Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(AppLocalizations.of(context)!.qrPositiveMessage,textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: RichText(
-                text: TextSpan(
-                  style: TextStyle(wordSpacing: 3.0,fontWeight: FontWeight.w500, color: Theme.of(context).textTheme.titleLarge!.color, fontFamily: "JosefinSans", fontSize: 18),
-                  children: <TextSpan> [
-                    TextSpan(text: ("\n$at: ")),
-                    TextSpan(text: "${scannedReward!.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
-                    TextSpan(text: "\n${AppLocalizations.of(context)!.discountAmount}: "),
-                    TextSpan(text: "${scannedReward!.discountAmount}%", style: TextStyle(color: Theme.of(context).iconTheme.color)),
-                  ],
+      scannedReward = scannedQR!.reward!;
+      switch (scannedQR!.message) {
+        case "EMAIL_NOT_MATCHING" :
+          {
+            title = AppLocalizations.of(context)!.qrNegative;
+            icon = const Icon(Icons.error, size: 65, color: Colors.red);
+            message = Text(AppLocalizations.of(context)!.qrNegativeMessage,
+              style: const TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,);
+          }
+          break;
+        case "COUPON_VALID" :
+          {
+            icon = const Icon(Icons.check_circle, size: 65, color: Colors.green);
+            title = AppLocalizations.of(context)!.qrPositive;
+            String at = AppLocalizations.of(context)!.at[0].toUpperCase() +
+                AppLocalizations.of(context)!.at.substring(1).toLowerCase();
+            message = Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(AppLocalizations.of(context)!.qrPositiveMessage,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 18)),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(wordSpacing: 3.0,
+                          fontWeight: FontWeight.w500,
+                          color: Theme
+                              .of(context)
+                              .textTheme
+                              .titleLarge!
+                              .color,
+                          fontFamily: "JosefinSans",
+                          fontSize: 18),
+                      children: <TextSpan>[
+                        TextSpan(text: ("\n$at: ")),
+                        TextSpan(text: "${scannedReward.placeEvent}",
+                            style: TextStyle(color: Theme
+                                .of(context)
+                                .iconTheme
+                                .color)),
+                        TextSpan(text: "\n${AppLocalizations.of(context)!
+                            .discountAmount}: "),
+                        TextSpan(text: "${scannedReward.discountAmount}%",
+                            style: TextStyle(color: Theme
+                                .of(context)
+                                .iconTheme
+                                .color)),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
-        );
-      } else {
-        title = AppLocalizations.of(context)!.qrNegative;
-        icon = const Icon(Icons.error, size: 65, color: Colors.red);
-        message = Text(AppLocalizations.of(context)!.qrNegativeMessage, style: const TextStyle(fontSize: 18),textAlign: TextAlign.center,);
+              ],
+            );
+          }
+          break;
+        case "COUPON_USED" :
+          {
+            title = AppLocalizations.of(context)!.qrNegative;
+            icon = const Icon(Icons.error, size: 65, color: Colors.red);
+            message = Text(AppLocalizations.of(context)!.usedQRMessage,
+              style: const TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,);
+          }
+          break;
+        default :
+          {
+            title = AppLocalizations.of(context)!.qrNegative;
+            icon = const Icon(Icons.error, size: 65, color: Colors.red);
+            message = Text(AppLocalizations.of(context)!.errorGenericContent,
+              style: const TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,);
+            }
+          break;
       }
     } else {
-      icon = const Icon(Icons.help, size: 65, color: Colors.red);
+      icon = const Icon(Icons.help, size: 65, color: Colors.orange);
       title = AppLocalizations.of(context)!.qrNegative;
       message = Text(AppLocalizations.of(context)!.invalidQRMessage, style: const TextStyle(fontSize: 18),textAlign: TextAlign.center,);
     }
