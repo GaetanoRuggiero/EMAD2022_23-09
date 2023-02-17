@@ -68,8 +68,6 @@ class _RewardsPageState extends State<RewardsPage> {
 
   @override
   Widget build(BuildContext context) {
-    String expired = AppLocalizations.of(context)!.expired;
-    expired = "${expired.substring(0,expired.length -1)}i";
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -125,7 +123,7 @@ class _RewardsPageState extends State<RewardsPage> {
                       color: Theme.of(context).canvasColor,
                     ),
                   ),
-                  label: expired
+                  label: AppLocalizations.of(context)!.expired
               ),
               BottomNavigationBarItem(
                   icon: const Icon(Icons.receipt_long),
@@ -324,8 +322,8 @@ class _AvailableCouponState extends State<AvailableCoupon> with AutomaticKeepAli
                                   children: <TextSpan> [
                                     TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
                                     TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
-                                    TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
-                                    TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
+                                    TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo}")),
+                                    TextSpan(text: " $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
                                   ],
                                 ),
                               ),
@@ -425,7 +423,7 @@ class _ExpiredCouponState extends State<ExpiredCoupon> with AutomaticKeepAliveCl
                   return Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: darkBlue,
+                      color: Colors.red.shade900,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Row(
@@ -444,8 +442,8 @@ class _ExpiredCouponState extends State<ExpiredCoupon> with AutomaticKeepAliveCl
                                 children: <TextSpan> [
                                   TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
                                   TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
-                                  TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
-                                  TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
+                                  TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo}")),
+                                  TextSpan(text: " $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
                                 ],
                               ),
                             ),
@@ -542,8 +540,8 @@ class _AllCouponState extends State<AllCoupon> with AutomaticKeepAliveClientMixi
                   return Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                        color: _couponMap.values.elementAt(index).used ? Colors.grey
-                            : DateTime.now().isAfter(expiredDate) ? Colors.red
+                        color: _couponMap.values.elementAt(index).used ? Colors.grey.shade800
+                            : DateTime.now().isAfter(expiredDate) ? Colors.red.shade900
                             : darkBlue,
                         borderRadius: BorderRadius.circular(18),
                       ),
@@ -575,8 +573,8 @@ class _AllCouponState extends State<AllCoupon> with AutomaticKeepAliveClientMixi
                                     children: <TextSpan> [
                                       TextSpan(text: ("$rewardType ${reward.discountAmount}% ${AppLocalizations.of(context)!.at}")),
                                       TextSpan(text: " ${reward.placeEvent}", style: TextStyle(color: Theme.of(context).iconTheme.color)),
-                                      TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo} ")),
-                                      TextSpan(text: "  $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
+                                      TextSpan(text: (" ${AppLocalizations.of(context)!.availableUpTo}")),
+                                      TextSpan(text: " $formattedDate.", style: TextStyle(color: Theme.of(context).iconTheme.color,)),
                                     ],
                                   ),
                                 ),
@@ -604,8 +602,8 @@ class _FullScreenDialogCoupon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = Localizations.localeOf(context).languageCode == "en" ? DateFormat('yyyy-MM-dd').format(DateTime.parse(reward.expiryDate!)).toString()
-        : DateFormat('dd-MM-yyyy').format(DateTime.parse(reward.expiryDate!)).toString();
+    String formattedDate = Localizations.localeOf(context).languageCode == "en" ? DateFormat('yyyy/MM/dd').format(DateTime.parse(reward.expiryDate!)).toString()
+        : DateFormat('dd/MM/yyyy').format(DateTime.parse(reward.expiryDate!)).toString();
     return Scaffold(
       appBar: AppBar(
         title: Text(reward.type![0].toUpperCase() + reward.type!.substring(1).toLowerCase()),
