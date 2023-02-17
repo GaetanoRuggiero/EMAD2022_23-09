@@ -38,17 +38,17 @@ From partners perspective:
 
 ## Some screenshots of the app
 
-| Name | Screenshot |
-| ------ | ------ |
-| Sidequests | <img src="images/sidequest.png" width="25%" height="25%" /> |
-| Itinerary | <img src="images/single_itinerary.png" width="25%" height="25%" /> |
-| Partner (Profile) | <img src="images/partner.png" width="25%" height="25%" /> |
-| 3D model | <img src="images/eiffel3D.png" width="25%" height="25%" /> |
-| Point of interest | <img src="images/eiffel.png" width="25%" height="25%" /> |
-| Custom itinerary | <img src="images/custom_itinerary.png" width="25%" height="25%" /> |
-| Collection | <img src="images/collection.png" width="25%" height="25%" /> |
-| Registration | <img src="images/registration.png" width="25%" height="25%" /> |
-| Login | <img src="images/login.png" width="25%" height="25%" /> |
-| Add reward | <img src="images/add_reward.png" width="25%" height="25%" /> |
-| Homepage | <img src="images/homepage.png" width="25%" height="25%" /> |
+| Name | Screenshot                                                          |
+| ------ |---------------------------------------------------------------------|
+| Sidequests | <img src="images/sidequest.png" width="25%" height="25%" />         |
+| Itinerary | <img src="images/single_itinerary.png" width="25%" height="25%" />  |
+| Partner (Profile) | <img src="images/partner.png" width="25%" height="25%" />           |
+| 3D model | <img src="images/eiffel3d.png" width="25%" height="25%" />          |
+| Point of interest | <img src="images/eiffel.png" width="25%" height="25%" />            |
+| Custom itinerary | <img src="images/custom_itinerary.png" width="25%" height="25%" />  |
+| Collection | <img src="images/collection.png" width="25%" height="25%" />        |
+| Registration | <img src="images/registration.png" width="25%" height="25%" />      |
+| Login | <img src="images/login.png" width="25%" height="25%" />             |
+| Add reward | <img src="images/add_reward.png" width="25%" height="25%" />        |
+| Homepage | <img src="images/homepage.png" width="25%" height="25%" />          |
 | Mission completed | <img src="images/mission_completed.png" width="25%" height="25%" /> |
